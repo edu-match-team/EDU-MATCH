@@ -2,10 +2,1551 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EDU-MATCH</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EDU MATCH | Connect. Build. Grow.</title>
+
+    <meta name="description"
+          content="EDU MATCH connects students with project providers, project ideas, and learning opportunities.">
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #f7f9fc;
+            color: #172033;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+        }
+        header {
+            background: white;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            min-height: 76px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: 800;
+            color: #5145e5;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: #172033;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #5145e5;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 11px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #5145e5;
+            color: #5145e5;
+        }
+
+        .btn-primary {
+            background: #5145e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4035c8;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline:hover {
+            background: #f0efff;
+        }
+
+        .hero {
+            padding: 90px 0 80px;
+            background:
+                radial-gradient(circle at 90% 10%, #e6e4ff 0, transparent 30%),
+                linear-gradient(135deg, #ffffff, #f4f5ff);
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 55px;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #eeecff;
+            color: #5145e5;
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            font-size: clamp(38px, 5vw, 62px);
+            line-height: 1.12;
+            letter-spacing: -2px;
+            margin-bottom: 22px;
+        }
+
+        .hero h1 span {
+            color: #5145e5;
+        }
+
+        .hero p {
+            color: #64748b;
+            font-size: 17px;
+            max-width: 570px;
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-visual {
+            background: white;
+            padding: 28px;
+            border-radius: 22px;
+            box-shadow: 0 20px 60px rgba(60, 50, 160, 0.12);
+            border: 1px solid #ecebff;
+        }
+
+        .visual-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .visual-heading h3 {
+            font-size: 19px;
+        }
+
+        .live-label {
+            background: #dcfce7;
+            color: #15803d;
+            padding: 5px 10px;
+            font-size: 11px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .match-card {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 17px;
+            margin-bottom: 14px;
+            background: #f8f9ff;
+            border: 1px solid #eceeff;
+            border-radius: 13px;
+        }
+
+        .match-icon {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e8e7ff;
+            border-radius: 12px;
+            font-size: 25px;
+            flex-shrink: 0;
+        }
+
+        .match-card h4 {
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .match-card p {
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .match-tag {
+            margin-left: auto;
+            color: #5145e5;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        /* =========================
+           4. STATISTICS
+        ========================== */
+
+        .stats {
+            background: white;
+            padding: 35px 0;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            text-align: center;
+        }
+
+        .stat h2 {
+            color: #5145e5;
+            font-size: 32px;
+        }
+
+        .stat p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* =========================
+           5. SECTION COMMON STYLES
+        ========================== */
+
+        section {
+            scroll-margin-top: 90px;
+        }
+
+        .section {
+            padding: 85px 0;
+        }
+
+        .section-heading {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 45px;
+        }
+
+        .section-heading .small-title {
+            color: #5145e5;
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+
+        .section-heading h2 {
+            font-size: 36px;
+            margin: 12px 0;
+            letter-spacing: -1px;
+        }
+
+        .section-heading p {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        /* =========================
+           6. HOW IT WORKS
+        ========================== */
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .step-card {
+            background: white;
+            border: 1px solid #e9edf5;
+            padding: 30px;
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+        }
+
+        .step-number {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #eeecff;
+            color: #5145e5;
+            font-size: 22px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .step-card h3 {
+            margin-bottom: 10px;
+            font-size: 19px;
+        }
+
+        .step-card p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* =========================
+           7. PROJECT CATEGORIES
+        ========================== */
+
+        .categories {
+            background: white;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .category-card {
+            padding: 28px 20px;
+            text-align: center;
+            border: 1px solid #e9edf5;
+            border-radius: 16px;
+            transition: 0.3s;
+            background: #fff;
+        }
+
+        .category-card:hover {
+            border-color: #bcb7ff;
+            background: #faf9ff;
+            transform: translateY(-4px);
+        }
+
+        .category-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+
+        .category-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .category-card p {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        /* =========================
+           8. FEATURED PROJECTS
+        ========================== */
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .project-card {
+            background: white;
+            border: 1px solid #e7ebf3;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.07);
+        }
+
+        .project-banner {
+            height: 145px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 55px;
+            background: linear-gradient(135deg, #e8e7ff, #f3efff);
+        }
+
+        .project-card:nth-child(2) .project-banner {
+            background: linear-gradient(135deg, #dff7ef, #eafcf5);
+        }
+
+        .project-card:nth-child(3) .project-banner {
+            background: linear-gradient(135deg, #ffefd9, #fff7e9);
+        }
+
+        .project-info {
+            padding: 23px;
+        }
+
+        .project-type {
+            display: inline-block;
+            background: #f0efff;
+            color: #5145e5;
+            padding: 5px 9px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .project-info h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .project-info p {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 17px;
+        }
+
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #edf0f5;
+            padding-top: 15px;
+        }
+
+        .project-footer span {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .text-link {
+            color: #5145e5;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* =========================
+           9. FEATURED SHORTS
+        ========================== */
+
+        .shorts-section {
+            background: white;
+        }
+
+        .shorts-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .short-card {
+            padding: 18px;
+            border: 1px solid #e7ebf3;
+            border-radius: 16px;
+            background: #fff;
+        }
+
+        .short-card h3 {
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .short-card iframe {
+            width: 100%;
+            aspect-ratio: 9 / 16;
+            border: none;
+            border-radius: 10px;
+            background: #f1f5f9;
+        }
+
+        .short-card p {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        /* =========================
+           10. CALL TO ACTION
+        ========================== */
+
+        .cta {
+            padding: 75px 0;
+            background: linear-gradient(135deg, #5145e5, #7768ff);
+            color: white;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        .cta p {
+            color: #eeecff;
+            max-width: 620px;
+            margin: 0 auto 27px;
+        }
+
+        .cta .btn {
+            background: white;
+            color: #5145e5;
+        }
+
+        /* =========================
+           11. FOOTER
+        ========================== */
+
+        footer {
+            background: #111827;
+            color: white;
+            padding: 55px 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand p {
+            color: #aab4c5;
+            font-size: 13px;
+            max-width: 350px;
+            margin-top: 15px;
+        }
+
+        .footer-links h3 {
+            font-size: 15px;
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            display: block;
+            color: #aab4c5;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #30394a;
+            padding-top: 20px;
+            text-align: center;
+            color: #aab4c5;
+            font-size: 12px;
+        }
+
+        /* =========================
+           12. LOGIN / SIGNUP MODAL
+        ========================== */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(15, 23, 42, 0.65);
+            padding: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            border-radius: 18px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            background: none;
+            font-size: 25px;
+            color: #64748b;
+        }
+
+        .modal-box h2 {
+            margin-bottom: 8px;
+        }
+
+        .modal-box > p {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dce2ec;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #5145e5;
+        }
+
+        .form-submit {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .form-message {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #15803d;
+            overflow-wrap: anywhere;
+        }
+
+        /* =========================
+           13. RESPONSIVE DESIGN
+        ========================== */
+
+        @media (max-width: 900px) {
+            .nav-links {
+                gap: 14px;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-visual {
+                max-width: 600px;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .project-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .shorts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 650px) {
+            nav {
+                padding: 15px 0;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                font-size: 23px;
+            }
+
+            .nav-links {
+                order: 3;
+                width: 100%;
+                overflow-x: auto;
+                padding: 10px 0 3px;
+            }
+
+            .nav-links a {
+                white-space: nowrap;
+            }
+
+            .nav-buttons .btn {
+                padding: 9px 12px;
+                font-size: 12px;
+            }
+
+            .hero {
+                padding: 55px 0;
+            }
+
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            .hero p {
+                font-size: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                row-gap: 25px;
+            }
+
+            .section {
+                padding: 60px 0;
+            }
+
+            .section-heading h2,
+            .cta h2 {
+                font-size: 29px;
+            }
+
+            .steps-grid,
+            .project-grid,
+            .shorts-grid,
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .category-card {
+                padding: 22px 10px;
+            }
+
+            .hero-visual {
+                padding: 18px;
+            }
+
+            .match-card {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .match-tag {
+                font-size: 10px;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <h1>Welcome to EDU-MATCH</h1>
-    <p>Find the right project for your skills.</p>
+
+    <!-- NAVIGATION BAR -->
+
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#home" class="logo">EDU <span>MATCH.</span></a>
+
+                <div class="nav-links">
+                    <a href="#home">Home</a>
+                    <a href="#how-it-works">How It Works</a>
+                    <a href="#categories">Categories</a>
+                    <a href="#projects">Projects</a>
+                    <a href="#shorts">Learning Shorts</a>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" onclick="openModal('login')">
+                        Login
+                    </button>
+
+                    <button class="btn btn-primary" onclick="openModal('signup')">
+                        Get Started
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+
+    <!-- HERO SECTION -->
+
+    <main>
+        <section class="hero" id="home">
+            <div class="container hero-content">
+
+                <div>
+                    <div class="badge">
+                        YOUR PROJECT JOURNEY STARTS HERE
+                    </div>
+
+                    <h1>
+                        Find Your Match.<br>
+                        <span>Build Your Future.</span>
+                    </h1>
+
+                    <p>
+                        Have a project idea but don't know where to start?
+                        EDU MATCH connects students with project providers,
+                        practical learning opportunities, and ideas that
+                        turn knowledge into real-world experience.
+                    </p>
+
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary"
+                                onclick="openModal('signup')">
+                            Find a Project &rarr;
+                        </button>
+
+                        <a href="#how-it-works" class="btn btn-outline">
+                            Explore How It Works
+                        </a>
+                    </div>
+                </div>
+
+                <div class="hero-visual">
+
+                    <div class="visual-heading">
+                        <h3>Explore Opportunities</h3>
+                        <span class="live-label">PROJECT HUB</span>
+                    </div>
+
+                    <div class="match-card">
+                        <div class="match-icon">💻</div>
+                        <div>
+                            <h4>Web Development</h4>
+                            <p>Build real-world websites</p>
+                        </div>
+                        <span class="match-tag">WEB</span>
+                    </div>
+
+                    <div class="match-card">
+                        <div class="match-icon">🤖</div>
+                        <div>
+                            <h4>AI & Machine Learning</h4>
+                            <p>Explore intelligent solutions</p>
+                        </div>
+                        <span class="match-tag">AI/ML</span>
+                    </div>
+
+                    <div class="match-card">
+                        <div class="match-icon">📊</div>
+                        <div>
+                            <h4>Data Science</h4>
+                            <p>Discover insights from data</p>
+                        </div>
+                        <span class="match-tag">DATA</span>
+                    </div>
+
+                    <div class="match-card">
+                        <div class="match-icon">📱</div>
+                        <div>
+                            <h4>App Development</h4>
+                            <p>Create useful applications</p>
+                        </div>
+                        <span class="match-tag">APP</span>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- STATISTICS -->
+
+        <section class="stats">
+            <div class="container stats-grid">
+
+                <div class="stat">
+                    <h2>01</h2>
+                    <p>One Platform</p>
+                </div>
+
+                <div class="stat">
+                    <h2>02</h2>
+                    <p>Student & Provider Roles</p>
+                </div>
+
+                <div class="stat">
+                    <h2>03</h2>
+                    <p>Simple Steps to Connect</p>
+                </div>
+
+                <div class="stat">
+                    <h2>∞</h2>
+                    <p>Learning Possibilities</p>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- HOW IT WORKS -->
+
+        <section class="section" id="how-it-works">
+            <div class="container">
+
+                <div class="section-heading">
+                    <span class="small-title">Simple Process</span>
+
+                    <h2>How EDU MATCH Works</h2>
+
+                    <p>
+                        From discovering opportunities to connecting
+                        with the right people, start your project journey
+                        in three simple steps.
+                    </p>
+                </div>
+
+                <div class="steps-grid">
+
+                    <div class="step-card">
+                        <div class="step-number">01</div>
+
+                        <h3>Create Your Profile</h3>
+
+                        <p>
+                            Sign up as a student looking for projects
+                            or as a provider who wants to share
+                            project opportunities.
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">02</div>
+
+                        <h3>Discover Projects</h3>
+
+                        <p>
+                            Explore project categories, find suitable
+                            opportunities, and discover projects that
+                            match your skills and interests.
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">03</div>
+
+                        <h3>Connect & Build</h3>
+
+                        <p>
+                            Express your interest in a project,
+                            connect with its provider, and work
+                            towards building something meaningful.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- CATEGORIES -->
+
+        <section class="section categories" id="categories">
+            <div class="container">
+
+                <div class="section-heading">
+                    <span class="small-title">Explore Your Interests</span>
+
+                    <h2>Discover Project Categories</h2>
+
+                    <p>
+                        Explore different technology fields and
+                        find the type of project you want to work on.
+                    </p>
+                </div>
+
+                <div class="category-grid">
+
+                    <div class="category-card">
+                        <div class="category-icon">💻</div>
+                        <h3>Web Development</h3>
+                        <p>Frontend, backend and full stack</p>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-icon">🤖</div>
+                        <h3>Artificial Intelligence</h3>
+                        <p>AI, ML and intelligent systems</p>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-icon">📈</div>
+                        <h3>Data Science</h3>
+                        <p>Analytics, visualization and data</p>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-icon">📱</div>
+                        <h3>App Development</h3>
+                        <p>Mobile apps and useful tools</p>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-icon">🔐</div>
+                        <h3>Cybersecurity</h3>
+                        <p>Security and privacy projects</p>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-icon">☁️</div>
+                        <h3>Cloud Computing</h3>
+                        <p>Cloud services and deployment</p>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-icon">🗄️</div>
+                        <h3>Database Systems</h3>
+                        <p>SQL, database and management</p>
+                    </div>
+
+                    <div class="category-card">
+                        <div class="category-icon">⚙️</div>
+                        <h3>Other Projects</h3>
+                        <p>Explore more technical domains</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- FEATURED PROJECTS -->
+
+        <section class="section" id="projects">
+            <div class="container">
+
+                <div class="section-heading">
+                    <span class="small-title">Explore Opportunities</span>
+
+                    <h2>Featured Project Ideas</h2>
+
+                    <p>
+                        Explore sample projects that can inspire your
+                        next college assignment, portfolio, or learning journey.
+                    </p>
+                </div>
+
+                <div class="project-grid">
+
+                    <article class="project-card">
+
+                        <div class="project-banner">🌐</div>
+
+                        <div class="project-info">
+
+                            <span class="project-type">
+                                WEB DEVELOPMENT
+                            </span>
+
+                            <h3>Student Project Portal</h3>
+
+                            <p>
+                                Create a platform where students can
+                                discover projects and connect with providers.
+                            </p>
+
+                            <div class="project-footer">
+                                <span>HTML, CSS, JavaScript</span>
+
+                                <a href="#signup"
+                                   class="text-link"
+                                   onclick="openModal('signup'); return false;">
+                                    Explore &rarr;
+                                </a>
+                            </div>
+
+                        </div>
+                    </article>
+
+
+                    <article class="project-card">
+
+                        <div class="project-banner">🤖</div>
+
+                        <div class="project-info">
+
+                            <span class="project-type">
+                                MACHINE LEARNING
+                            </span>
+
+                            <h3>Student Performance Predictor</h3>
+
+                            <p>
+                                Build a machine learning model that
+                                estimates student performance using
+                                study habits and attendance.
+                            </p>
+
+                            <div class="project-footer">
+                                <span>Python, Pandas, ML</span>
+
+                                <a href="#signup"
+                                   class="text-link"
+                                   onclick="openModal('signup'); return false;">
+                                    Explore &rarr;
+                                </a>
+                            </div>
+
+                        </div>
+                    </article>
+
+
+                    <article class="project-card">
+
+                        <div class="project-banner">📊</div>
+
+                        <div class="project-info">
+
+                            <span class="project-type">
+                                DATA SCIENCE
+                            </span>
+
+                            <h3>College Data Dashboard</h3>
+
+                            <p>
+                                Analyze sample college data and present
+                                useful information through interactive
+                                charts and visualizations.
+                            </p>
+
+                            <div class="project-footer">
+                                <span>Python, SQL, Charts</span>
+
+                                <a href="#signup"
+                                   class="text-link"
+                                   onclick="openModal('signup'); return false;">
+                                    Explore &rarr;
+                                </a>
+                            </div>
+
+                        </div>
+                    </article>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- FEATURED LEARNING SHORTS -->
+
+        <section class="section shorts-section" id="shorts">
+            <div class="container">
+
+                <div class="section-heading">
+                    <span class="small-title">Learn Something New</span>
+
+                    <h2>Featured Shorts</h2>
+
+                    <p>
+                        Discover short-form learning content and
+                        explore technology concepts while browsing
+                        EDU MATCH.
+                    </p>
+                </div>
+
+                <div class="shorts-grid">
+
+                    <div class="short-card">
+                        <h3>Featured Learning Short</h3>
+
+                        <iframe
+                            src="https://www.youtube.com/embed/R4g-VgSppOw"
+                            title="Featured YouTube Short"
+                            loading="lazy"
+                            allowfullscreen>
+                        </iframe>
+
+                        <p>
+                            Watch this featured short and discover
+                            something new.
+                        </p>
+                    </div>
+
+                    <div class="short-card">
+                        <h3>Web Development</h3>
+
+                        <iframe
+                            src="https://www.youtube.com/embed/UB1O30fR-EE"
+                            title="Web Development Learning Video"
+                            loading="lazy"
+                            allowfullscreen>
+                        </iframe>
+
+                        <p>
+                            Explore web development concepts and
+                            learn about building websites.
+                        </p>
+                    </div>
+
+                    <div class="short-card">
+                        <h3>Python Programming</h3>
+
+                        <iframe
+                            src="https://www.youtube.com/embed/rfscVS0vtbw"
+                            title="Python Programming Learning Video"
+                            loading="lazy"
+                            allowfullscreen>
+                        </iframe>
+
+                        <p>
+                            Discover Python programming and
+                            strengthen your coding fundamentals.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- CALL TO ACTION -->
+
+        <section class="cta">
+            <div class="container">
+
+                <h2>Your Next Project Starts Here.</h2>
+
+                <p>
+                    Whether you are a student searching for the right
+                    opportunity or a provider sharing project ideas,
+                    EDU MATCH brings both sides together.
+                </p>
+
+                <button class="btn" onclick="openModal('signup')">
+                    Join EDU MATCH &rarr;
+                </button>
+
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+        <div class="container">
+
+            <div class="footer-grid">
+
+                <div class="footer-brand">
+                    <a href="#home" class="logo">
+                        EDU <span style="color:white">MATCH.</span>
+                    </a>
+
+                    <p>
+                        Connecting students and project providers
+                        to make project discovery, learning, and
+                        collaboration easier.
+                    </p>
+                </div>
+
+                <div class="footer-links">
+                    <h3>Explore</h3>
+
+                    <a href="#home">Home</a>
+                    <a href="#categories">Categories</a>
+                    <a href="#projects">Projects</a>
+                    <a href="#shorts">Learning Shorts</a>
+                </div>
+
+                <div class="footer-links">
+                    <h3>Get Started</h3>
+
+                    <a href="#how-it-works">How It Works</a>
+
+                    <a href="#signup"
+                       onclick="openModal('signup'); return false;">
+                        Create Account
+                    </a>
+
+                    <a href="#login"
+                       onclick="openModal('login'); return false;">
+                        Login
+                    </a>
+                </div>
+
+            </div>
+
+            <div class="footer-bottom">
+                &copy; <span id="currentYear"></span> EDU MATCH.
+                Built to connect ideas with opportunities.
+            </div>
+
+        </div>
+    </footer>
+
+
+    <!-- LOGIN AND SIGNUP MODAL -->
+
+    <div class="modal" id="authModal" role="dialog"
+         aria-modal="true" aria-labelledby="modalTitle">
+
+        <div class="modal-box">
+
+            <button class="close-modal"
+                    onclick="closeModal()"
+                    aria-label="Close dialog">
+                &times;
+            </button>
+
+            <h2 id="modalTitle">Welcome to EDU MATCH</h2>
+
+            <p id="modalDescription">
+                Connect with the right project opportunities.
+            </p>
+
+            <form id="authForm">
+
+                <div class="form-group" id="nameGroup">
+                    <label for="fullName">Full Name</label>
+
+                    <input type="text"
+                           id="fullName"
+                           placeholder="Enter your name"
+                           autocomplete="name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input type="email"
+                           id="email"
+                           placeholder="you@example.com"
+                           autocomplete="email"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">I want to join as</label>
+
+                    <select id="role" required>
+                        <option value="student">Student</option>
+                        <option value="provider">Project Provider</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <input type="password"
+                           id="password"
+                           placeholder="Enter a password"
+                           autocomplete="current-password"
+                           required
+                           minlength="6">
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary form-submit"
+                        id="submitButton">
+                    Create Account
+                </button>
+
+                <div class="form-message"
+                     id="formMessage"
+                     role="status"
+                     aria-live="polite">
+                </div>
+
+            </form>
+
+            <p style="margin-top:20px; margin-bottom:0;">
+                <span id="switchText">Already have an account?</span>
+
+                <button type="button"
+                        class="text-link"
+                        id="switchMode"
+                        onclick="switchAuthMode()">
+                    Login
+                </button>
+            </p>
+
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT -->
+
+    <script>
+        // Set the current year in the footer.
+        document.getElementById("currentYear").textContent =
+            new Date().getFullYear();
+
+
+        // Login and signup modal.
+        const modal = document.getElementById("authModal");
+
+        const modalTitle = document.getElementById("modalTitle");
+
+        const modalDescription =
+            document.getElementById("modalDescription");
+
+        const nameGroup = document.getElementById("nameGroup");
+
+        const fullName = document.getElementById("fullName");
+
+        const password = document.getElementById("password");
+
+        const submitButton = document.getElementById("submitButton");
+
+        const switchText = document.getElementById("switchText");
+
+        const switchModeButton =
+            document.getElementById("switchMode");
+
+        const formMessage = document.getElementById("formMessage");
+
+        let authMode = "signup";
+
+
+        function openModal(mode) {
+            authMode = mode;
+
+            updateAuthForm();
+
+            modal.classList.add("active");
+
+            formMessage.textContent = "";
+        }
+
+
+        function closeModal() {
+            modal.classList.remove("active");
+        }
+
+
+        function switchAuthMode() {
+            authMode = authMode === "signup" ? "login" : "signup";
+
+            updateAuthForm();
+
+            formMessage.textContent = "";
+        }
+
+
+        function updateAuthForm() {
+            const isSignup = authMode === "signup";
+
+            modalTitle.textContent = isSignup
+                ? "Create Your Account"
+                : "Welcome Back";
+
+            modalDescription.textContent = isSignup
+                ? "Join EDU MATCH and explore project opportunities."
+                : "Enter your details to access your account.";
+
+            nameGroup.style.display = isSignup ? "block" : "none";
+
+            fullName.required = isSignup;
+
+            password.autocomplete = isSignup
+                ? "new-password"
+                : "current-password";
+
+            submitButton.textContent = isSignup
+                ? "Create Account"
+                : "Login";
+
+            switchText.textContent = isSignup
+                ? "Already have an account?"
+                : "Don't have an account?";
+
+            switchModeButton.textContent = isSignup
+                ? "Login"
+                : "Sign Up";
+        }
+
+
+        // Close the modal when the user clicks outside the box.
+        modal.addEventListener("click", function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
+
+
+        // Close the modal using the Escape key.
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape") {
+                closeModal();
+            }
+        });
+        document.getElementById("authForm").addEventListener(
+            "submit",
+            function(event) {
+                event.preventDefault();
+
+                if (!this.reportValidity()) {
+                    return;
+                }
+
+                formMessage.style.color = "#b45309";
+
+                formMessage.textContent = authMode === "signup"
+                    ? "Demo only: connect this form to your backend to create an account."
+                    : "Demo only: connect this form to your backend to log in.";
+            }
+        );
+    </script>
+
 </body>
 </html>
