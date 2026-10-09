@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EDU MATCH | Student Chat</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f6fc;
+            color: #1e293b;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            padding: 25px 20px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #5145e5;
+            border-bottom: 1px solid #eee;
+        }
+
+        .brand span {
+            color: #1e293b;
+        }
+
+        .back-link {
+            display: block;
+            padding: 18px 20px;
+            text-decoration: none;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            color: #5145e5;
+        }
+
+        .sidebar h3 {
+            padding: 10px 20px;
+            font-size: 13px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contact-list {
+            overflow-y: auto;
+        }
+
+        .contact {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .contact:hover {
+            background: #f8f7ff;
+        }
+
+        .contact.active {
+            background: #efedff;
+            border-left-color: #5145e5;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            background: #e8e7ff;
+            color: #5145e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .contact-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .contact-info h4 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .contact-info p {
+            font-size: 12px;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .status {
+            width: 9px;
+            height: 9px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+
+        /* CHAT AREA */
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .chat-header {
+            background: white;
+            padding: 18px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .chat-header h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .chat-header p {
+            color: #22a06b;
+            font-size: 12px;
+        }
+
+        .project-label {
+            margin-left: auto;
+            background: #efedff;
+            color: #5145e5;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* MESSAGES */
+
+        .messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .date-label {
+            text-align: center;
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            gap: 5px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+        }
+
+        .message.sent {
+            align-self: flex-end;
+        }
+
+        .sender {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .bubble {
+            padding: 13px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .received .bubble {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-top-left-radius: 3px;
+        }
+
+        .sent .bubble {
+            background: #5145e5;
+            color: white;
+            border-top-right-radius: 3px;
+        }
+
+        .time {
+            font-size: 10px;
+            color: #94a3b8;
+        }
+
+        .sent .time {
+            text-align: right;
+        }
+
+        .empty-chat {
+            margin: auto;
+            text-align: center;
+            color: #64748b;
+            padding: 30px;
+        }
+
+        .empty-chat h3 {
+            color: #334155;
+            margin-bottom: 8px;
+        }
+
+        /* MESSAGE INPUT */
+
+        .chat-input-area {
+            padding: 18px 25px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .input-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-row input {
+            flex: 1;
+            min-width: 0;
+            padding: 14px 16px;
+            border: 1px solid #dce2ec;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .input-row input:focus {
+            border-color: #5145e5;
+        }
+
+        .send-btn {
+            padding: 14px 22px;
+            background: #5145e5;
+            color: white;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        .send-btn:hover {
+            background: #4035c8;
+        }
+
+        .input-note {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 700px) {
+            .sidebar {
+                width: 75px;
+                flex-shrink: 0;
+            }
+
+            .brand {
+                font-size: 15px;
+                padding: 22px 5px;
+                text-align: center;
+            }
+
+            .brand span {
+                display: none;
+            }
+
+            .back-link {
+                padding: 15px 5px;
+                text-align: center;
+                font-size: 11px;
+            }
+
+            .sidebar h3 {
+                display: none;
+            }
+
+            .contact {
+                justify-content: center;
+                padding: 15px 5px;
+            }
+
+            .contact-info,
+            .contact .status {
+                display: none;
+            }
+
+            .avatar {
+                width: 42px;
+                height: 42px;
+            }
+
+            .chat-header {
+                padding: 15px 12px;
+            }
+
+            .project-label {
+                display: none;
+            }
+
+            .messages {
+                padding: 15px 10px;
+            }
+
+            .message {
+                max-width: 88%;
+            }
+
+            .chat-input-area {
+                padding: 12px;
+            }
+
+            .input-row {
+                gap: 7px;
+            }
+
+            .input-row input {
+                padding: 12px;
+            }
+
+            .send-btn {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+            EDU <span>MATCH.</span>
+        </div>
+
+        <a href="../../index.html" class="back-link">
+            ← Back to Home
+        </a>
+
+        <h3>Messages</h3>
+
+        <div class="contact-list" id="contactList">
+
+            <div class="contact active"
+                 data-id="1"
+                 data-name="Aarav Sharma"
+                 data-initial="AS"
+                 data-project="Web Development Project">
+
+                <div class="avatar">AS</div>
+
+                <div class="contact-info">
+                    <h4>Aarav Sharma</h4>
+                    <p>Let's discuss the project...</p>
+                </div>
+
+                <div class="status"></div>
+            </div>
+
+            <div class="contact"
+                 data-id="2"
+                 data-name="Priya Verma"
+                 data-initial="PV"
+                 data-project="Machine Learning Project">
+
+                <div class="avatar">PV</div>
+
+                <div class="contact-info">
+                    <h4>Priya Verma</h4>
+                    <p>I've shared the project details.</p>
+                </div>
+            </div>
+
+            <div class="contact"
+                 data-id="3"
+                 data-name="Rahul Singh"
+                 data-initial="RS"
+                 data-project="Data Science Project">
+
+                <div class="avatar">RS</div>
+
+                <div class="contact-info">
+                    <h4>Rahul Singh</h4>
+                    <p>Thanks for connecting!</p>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- CHAT AREA -->
+
+    <main class="chat-area">
+
+        <header class="chat-header">
+
+            <div class="avatar" id="headerAvatar">AS</div>
+
+            <div>
+                <h3 id="headerName">Aarav Sharma</h3>
+                <p>Project Provider</p>
+            </div>
+
+            <div class="project-label" id="projectLabel">
+                Web Development Project
+            </div>
+
+        </header>
+
+
+        <!-- MESSAGE DISPLAY -->
+
+        <section class="messages" id="messages">
+
+            <div class="date-label">Today</div>
+
+            <div class="message received">
+                <span class="sender">Aarav Sharma</span>
+
+                <div class="bubble">
+                    Hi! Welcome to EDU MATCH. Are you interested
+                    in working on our web development project?
+                </div>
+
+                <span class="time">10:30 AM</span>
+            </div>
+
+            <div class="message sent">
+                <span class="sender">You</span>
+
+                <div class="bubble">
+                    Hello! Yes, I am interested. Could you please
+                    share more details about the project?
+                </div>
+
+                <span class="time">10:32 AM</span>
+            </div>
+
+            <div class="message received">
+                <span class="sender">Aarav Sharma</span>
+
+                <div class="bubble">
+                    Sure! We are building a student project portal.
+                    We can discuss the requirements and technologies here.
+                </div>
+
+                <span class="time">10:34 AM</span>
+            </div>
+
+        </section>
+
+
+        <!-- MESSAGE INPUT -->
+
+        <footer class="chat-input-area">
+
+            <form id="messageForm">
+
+                <div class="input-row">
+
+                    <input
+                        type="text"
+                        id="messageInput"
+                        placeholder="Type your message..."
+                        autocomplete="off"
+                        maxlength="2000"
+                        required
+                    >
+
+                    <button type="submit" class="send-btn">
+                        Send ➤
+                    </button>
+
+                </div>
+
+            </form>
+
+            <p class="input-note">
+                EDU MATCH · Student-Provider Communication
+            </p>
+
+        </footer>
+
+    </main>
+
+</div>
+
+
+<script>
+    const messagesContainer = document.getElementById("messages");
+    const messageInput = document.getElementById("messageInput");
+    const messageForm = document.getElementById("messageForm");
+    const contacts = document.querySelectorAll(".contact");
+
+    const headerName = document.getElementById("headerName");
+    const headerAvatar = document.getElementById("headerAvatar");
+    const projectLabel = document.getElementById("projectLabel");
+
+    let currentContact = "1";
+
+    // Sample conversations for demonstration.
+    const conversations = {
+        "1": [
+            {
+                sender: "received",
+                text: "Hi! Welcome to EDU MATCH. Are you interested in working on our web development project?",
+                time: "10:30 AM"
+            },
+            {
+                sender: "sent",
+                text: "Hello! Yes, I am interested. Could you please share more details about the project?",
+                time: "10:32 AM"
+            },
+            {
+                sender: "received",
+                text: "Sure! We are building a student project portal. We can discuss the requirements and technologies here.",
+                time: "10:34 AM"
+            }
+        ],
+
+        "2": [
+            {
+                sender: "received",
+                text: "Hello! I have shared the details of our machine learning project.",
+                time: "11:00 AM"
+            }
+        ],
+
+        "3": [
+            {
+                sender: "received",
+                text: "Hi! Thanks for connecting. Let's discuss our data science project.",
+                time: "11:15 AM"
+            }
+        ]
+    };
+
+
+    // Display a conversation.
+    function renderMessages() {
+        messagesContainer.replaceChildren();
+
+        const dateLabel = document.createElement("div");
+        dateLabel.className = "date-label";
+        dateLabel.textContent = "Conversation";
+        messagesContainer.appendChild(dateLabel);
+
+        const conversation = conversations[currentContact] || [];
+
+        if (conversation.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty-chat";
+
+            const heading = document.createElement("h3");
+            heading.textContent = "Start a conversation";
+
+            const paragraph = document.createElement("p");
+            paragraph.textContent = "Send your first message below.";
+
+            empty.append(heading, paragraph);
+            messagesContainer.appendChild(empty);
+            return;
+        }
+
+        conversation.forEach(function(message) {
+            addMessageToScreen(
+                message.sender,
+                message.text,
+                message.time,
+                false
+            );
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+
+    // Safely create and display a message.
+    function addMessageToScreen(sender, text, time, scroll = true) {
+        const message = document.createElement("div");
+        message.className = "message " + sender;
+
+        const senderLabel = document.createElement("span");
+        senderLabel.className = "sender";
+        senderLabel.textContent = sender === "sent"
+            ? "You"
+            : headerName.textContent;
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = text;
+
+        const timeLabel = document.createElement("span");
+        timeLabel.className = "time";
+        timeLabel.textContent = time;
+
+        message.append(senderLabel, bubble, timeLabel);
+        messagesContainer.appendChild(message);
+
+        if (scroll) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    }
+
+
+    // Send a demo message.
+    messageForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const text = messageInput.value.trim();
+
+        if (!text) {
+            return;
+        }
+
+        if (!conversations[currentContact]) {
+            conversations[currentContact] = [];
+        }
+
+        const now = new Date();
+
+        const time = now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+
+        const message = {
+            sender: "sent",
+            text: text,
+            time: time
+        };
+
+        conversations[currentContact].push(message);
+
+        renderMessages();
+
+        // Update the contact preview.
+        const activeContact = document.querySelector(
+            '.contact[data-id="' + currentContact + '"]'
+        );
+
+        if (activeContact) {
+            activeContact.querySelector(".contact-info p").textContent =
+                text;
+        }
+
+        messageInput.value = "";
+        messageInput.focus();
+    });
+
+
+    // Switch between sample conversations.
+    contacts.forEach(function(contact) {
+        contact.addEventListener("click", function() {
+            contacts.forEach(function(item) {
+                item.classList.remove("active");
+            });
+
+            contact.classList.add("active");
+
+            currentContact = contact.dataset.id;
+
+            headerName.textContent = contact.dataset.name;
+            headerAvatar.textContent = contact.dataset.initial;
+            projectLabel.textContent = contact.dataset.project;
+
+            renderMessages();
+        });
+    });
+
+
+    // Initial conversation.
+    renderMessages();
+</script>
+
+</body>
+</html>

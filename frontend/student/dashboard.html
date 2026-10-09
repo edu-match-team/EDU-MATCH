@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Dashboard | EDU MATCH</title>
+
+    <style>
+        /* ===== GLOBAL STYLES ===== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background: #f6f7fb;
+            color: #1e293b;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+
+        .sidebar {
+            width: 250px;
+            background: #ffffff;
+            border-right: 1px solid #e8ebf2;
+            padding: 25px 16px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            color: #5145e5;
+            padding: 0 10px 35px;
+        }
+
+        .logo span {
+            color: #172033;
+        }
+
+        .menu-title {
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            padding: 10px;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 14px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #64748b;
+            transition: 0.2s;
+        }
+
+        .menu a:hover,
+        .menu a.active {
+            background: #efedff;
+            color: #5145e5;
+        }
+
+        .menu-icon {
+            font-size: 19px;
+            width: 23px;
+            text-align: center;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 25px;
+        }
+
+        .help-card {
+            background: #f5f3ff;
+            padding: 17px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .help-card h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .help-card p {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .help-card a {
+            font-size: 12px;
+            font-weight: bold;
+            color: #5145e5;
+        }
+
+        .logout {
+            display: block;
+            padding: 12px;
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: bold;
+            border-top: 1px solid #e8ebf2;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 30px;
+        }
+
+        /* ===== TOP BAR ===== */
+
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 35px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 16px;
+            width: min(400px, 100%);
+        }
+
+        .search-box input {
+            border: none;
+            outline: none;
+            width: 100%;
+            font-size: 14px;
+            background: transparent;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .notification {
+            font-size: 22px;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e7e5ff;
+            color: #5145e5;
+            font-weight: bold;
+        }
+
+        .profile-info h4 {
+            font-size: 13px;
+        }
+
+        .profile-info p {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        /* ===== WELCOME BANNER ===== */
+
+        .welcome {
+            background: linear-gradient(120deg, #5145e5, #8175ff);
+            color: white;
+            border-radius: 18px;
+            padding: 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .welcome h1 {
+            font-size: 30px;
+            margin-bottom: 12px;
+        }
+
+        .welcome p {
+            color: #eeecff;
+            font-size: 14px;
+            max-width: 500px;
+            line-height: 1.7;
+        }
+
+        .welcome-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .btn-white {
+            background: white;
+            color: #5145e5;
+        }
+
+        .btn-transparent {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .welcome-art {
+            font-size: 90px;
+            flex-shrink: 0;
+        }
+
+        /* ===== STATISTICS ===== */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 35px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 13px;
+            border: 1px solid #e9edf5;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #efedff;
+            border-radius: 10px;
+            font-size: 20px;
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            background: #dcfce7;
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            background: #ffedd5;
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            background: #dbeafe;
+        }
+
+        .stat-card h2 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        /* ===== SECTION HEADINGS ===== */
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-heading h2 {
+            font-size: 21px;
+        }
+
+        .section-heading p {
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .view-all {
+            color: #5145e5;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* ===== RECOMMENDED PROJECTS ===== */
+
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .project-card {
+            background: white;
+            border: 1px solid #e8ebf2;
+            border-radius: 14px;
+            overflow: hidden;
+            transition: 0.25s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .project-image {
+            height: 125px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            background: #eeecff;
+        }
+
+        .project-card:nth-child(2) .project-image {
+            background: #dcfce7;
+        }
+
+        .project-card:nth-child(3) .project-image {
+            background: #ffedd5;
+        }
+
+        .project-content {
+            padding: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 8px;
+            border-radius: 5px;
+            background: #efedff;
+            color: #5145e5;
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .project-content h3 {
+            font-size: 16px;
+            margin-bottom: 9px;
+        }
+
+        .project-content p {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.7;
+            min-height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .project-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 17px;
+        }
+
+        .project-btn {
+            display: block;
+            text-align: center;
+            padding: 11px;
+            background: #5145e5;
+            color: white;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .project-btn:hover {
+            background: #4035c8;
+        }
+
+        /* ===== LOWER GRID ===== */
+
+        .lower-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 22px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e8ebf2;
+            border-radius: 14px;
+            padding: 23px;
+        }
+
+        .panel h3 {
+            font-size: 17px;
+            margin-bottom: 20px;
+        }
+
+        /* RECENT ACTIVITY */
+
+        .activity {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            margin-bottom: 23px;
+        }
+
+        .activity:last-child {
+            margin-bottom: 0;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #efedff;
+        }
+
+        .activity-info h4 {
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .activity-info p {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* PROFILE COMPLETION */
+
+        .progress-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #5145e5;
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e9eaf3;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 65%;
+            background: #5145e5;
+            border-radius: 10px;
+        }
+
+        .profile-panel p {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .profile-panel a {
+            color: #5145e5;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            padding: 25px 0 5px;
+        }
+
+        /* EMPTY SEARCH MESSAGE */
+
+        .empty-message {
+            display: none;
+            grid-column: 1 / -1;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+
+        @media (max-width: 1150px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .projects {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .welcome-art {
+                font-size: 65px;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .sidebar {
+                width: 75px;
+                padding: 20px 8px;
+            }
+
+            .logo {
+                font-size: 13px;
+                text-align: center;
+                padding: 5px 0 30px;
+            }
+
+            .logo span,
+            .menu-title,
+            .menu-text,
+            .help-card,
+            .logout {
+                display: none;
+            }
+
+            .menu a {
+                justify-content: center;
+                padding: 14px 5px;
+            }
+
+            .menu-icon {
+                font-size: 21px;
+            }
+
+            .sidebar-bottom {
+                display: none;
+            }
+
+            .main {
+                padding: 20px;
+            }
+
+            .lower-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome {
+                padding: 25px;
+            }
+
+            .welcome-art {
+                display: none;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .main {
+                padding: 14px;
+            }
+
+            .topbar {
+                flex-wrap: wrap;
+                margin-bottom: 22px;
+            }
+
+            .search-box {
+                order: 2;
+                width: 100%;
+            }
+
+            .topbar-right {
+                margin-left: auto;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .welcome {
+                padding: 23px 18px;
+            }
+
+            .welcome h1 {
+                font-size: 24px;
+            }
+
+            .welcome p {
+                font-size: 12px;
+            }
+
+            .welcome-actions {
+                gap: 8px;
+            }
+
+            .btn {
+                padding: 11px;
+                font-size: 11px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-card h2 {
+                font-size: 23px;
+            }
+
+            .projects {
+                grid-template-columns: 1fr;
+            }
+
+            .section-heading h2 {
+                font-size: 18px;
+            }
+
+            .panel {
+                padding: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar">
+
+        <a href="../../index.html" class="logo">
+            EDU <span>MATCH.</span>
+        </a>
+
+        <p class="menu-title">MAIN MENU</p>
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="active">
+                <span class="menu-icon">▦</span>
+                <span class="menu-text">Dashboard</span>
+            </a>
+
+            <a href="#projects">
+                <span class="menu-icon">💼</span>
+                <span class="menu-text">Find Projects</span>
+            </a>
+
+            <a href="#activity">
+                <span class="menu-icon">📁</span>
+                <span class="menu-text">My Activity</span>
+            </a>
+
+            <a href="chat.html">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">Messages</span>
+            </a>
+
+            <a href="#profile">
+                <span class="menu-icon">👤</span>
+                <span class="menu-text">My Profile</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="help-card">
+                <h4>Need Help?</h4>
+                <p>Find your way around EDU MATCH.</p>
+                <a href="../../index.html#how-it-works">
+                    Learn More →
+                </a>
+            </div>
+
+            <a href="../../index.html" class="logout">
+                ↩ Back to Home
+            </a>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN DASHBOARD -->
+
+    <main class="main">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <label class="search-box">
+                🔍
+                <input type="search"
+                       id="projectSearch"
+                       placeholder="Search projects, skills...">
+            </label>
+
+            <div class="topbar-right">
+
+                <button class="notification"
+                        id="notificationButton"
+                        aria-label="Notifications">
+                    🔔
+                </button>
+
+                <div class="profile">
+
+                    <div class="profile-avatar" id="profileAvatar">
+                        ST
+                    </div>
+
+                    <div class="profile-info">
+                        <h4 id="profileName">Student Name</h4>
+                        <p>Student Account</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- WELCOME -->
+
+        <section class="welcome">
+
+            <div>
+
+                <h1>Welcome back, <span id="welcomeName">Student</span>! 👋</h1>
+
+                <p>
+                    Your next great project starts here.
+                    Discover opportunities, connect with project providers,
+                    and turn your ideas into real-world experience.
+                </p>
+
+                <div class="welcome-actions">
+
+                    <a href="#projects" class="btn btn-white">
+                        Explore Projects →
+                    </a>
+
+                    <a href="chat.html" class="btn btn-transparent">
+                        Open Messages
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="welcome-art">🎓</div>
+
+        </section>
+
+
+        <!-- STATISTICS -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon">🔎</div>
+                    <span class="stat-label">Opportunities</span>
+                </div>
+
+                <h2 id="availableCount">3</h2>
+                <p>Sample projects available</p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon">📌</div>
+                    <span class="stat-label">Saved</span>
+                </div>
+
+                <h2 id="savedCount">0</h2>
+                <p>Projects saved by you</p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon">📨</div>
+                    <span class="stat-label">Interest</span>
+                </div>
+
+                <h2 id="appliedCount">0</h2>
+                <p>Projects you've explored</p>
+
+            </div>
+
+            <div class="stat-card">
+
+                <div class="stat-top">
+                    <div class="stat-icon">💬</div>
+                    <span class="stat-label">Communication</span>
+                </div>
+
+                <h2>3</h2>
+                <p>Sample provider contacts</p>
+
+            </div>
+
+        </section>
+
+
+        <!-- RECOMMENDED PROJECTS -->
+
+        <section class="section" id="projects">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Recommended Projects</h2>
+                    <p>Explore sample opportunities for your next project.</p>
+                </div>
+
+                <a href="#projects" class="view-all">
+                    Explore All →
+                </a>
+
+            </div>
+
+
+            <div class="projects" id="projectList">
+
+                <!-- PROJECT 1 -->
+
+                <article class="project-card"
+                         data-search="web development student portal html css javascript frontend backend">
+
+                    <div class="project-image">🌐</div>
+
+                    <div class="project-content">
+
+                        <span class="tag">WEB DEVELOPMENT</span>
+
+                        <h3>Student Project Portal</h3>
+
+                        <p>
+                            Build a portal where students discover
+                            project opportunities and connect with providers.
+                        </p>
+
+                        <div class="project-meta">
+                            <span>💻 HTML, CSS, JS</span>
+                            <span>Beginner</span>
+                        </div>
+
+                        <button class="project-btn"
+                                onclick="exploreProject(this, 'Student Project Portal')">
+                            Explore Project
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- PROJECT 2 -->
+
+                <article class="project-card"
+                         data-search="machine learning artificial intelligence python student performance prediction">
+
+                    <div class="project-image">🤖</div>
+
+                    <div class="project-content">
+
+                        <span class="tag">ARTIFICIAL INTELLIGENCE</span>
+
+                        <h3>Student Performance Predictor</h3>
+
+                        <p>
+                            Use student study hours and attendance
+                            to build a basic machine learning prediction model.
+                        </p>
+
+                        <div class="project-meta">
+                            <span>🐍 Python, ML</span>
+                            <span>Intermediate</span>
+                        </div>
+
+                        <button class="project-btn"
+                                onclick="exploreProject(this, 'Student Performance Predictor')">
+                            Explore Project
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- PROJECT 3 -->
+
+                <article class="project-card"
+                         data-search="data science dashboard analytics python sql visualization">
+
+                    <div class="project-image">📊</div>
+
+                    <div class="project-content">
+
+                        <span class="tag">DATA SCIENCE</span>
+
+                        <h3>College Data Dashboard</h3>
+
+                        <p>
+                            Analyze sample college data and present
+                            insights through charts and visualizations.
+                        </p>
+
+                        <div class="project-meta">
+                            <span>📈 Python, SQL</span>
+                            <span>Intermediate</span>
+                        </div>
+
+                        <button class="project-btn"
+                                onclick="exploreProject(this, 'College Data Dashboard')">
+                            Explore Project
+                        </button>
+
+                    </div>
+
+                </article>
+
+                <div class="empty-message" id="emptyMessage">
+                    No matching projects found. Try another search.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ACTIVITY AND PROFILE -->
+
+        <section class="lower-grid">
+
+            <div class="panel" id="activity">
+
+                <h3>Recent Activity</h3>
+
+                <div id="activityList">
+
+                    <div class="activity">
+
+                        <div class="activity-icon">🎓</div>
+
+                        <div class="activity-info">
+                            <h4>Welcome to EDU MATCH</h4>
+                            <p>
+                                Explore projects and discover opportunities
+                                that match your interests.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <div class="activity">
+
+                        <div class="activity-icon">💬</div>
+
+                        <div class="activity-info">
+                            <h4>Connect with Providers</h4>
+                            <p>
+                                Open your messages to explore sample
+                                student-provider conversations.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="panel profile-panel" id="profile">
+
+                <h3>Profile Overview</h3>
+
+                <div class="progress-number">65%</div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+
+                <p>
+                    Complete your student profile to help project providers
+                    understand your interests, skills, and learning goals.
+                </p>
+
+                <a href="#profile" id="editProfile">
+                    Complete Profile →
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <footer class="footer">
+            © <span id="currentYear"></span> EDU MATCH.
+            Connecting students with opportunities.
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- JAVASCRIPT -->
+
+<script>
+    // Update footer year.
+    document.getElementById("currentYear").textContent =
+        new Date().getFullYear();
+
+
+    // Read a demo student name from localStorage.
+    // This is only for frontend demonstration.
+    let studentName = localStorage.getItem("eduMatchStudentName");
+
+    if (!studentName) {
+        studentName = "Student";
+    }
+
+    document.getElementById("welcomeName").textContent = studentName;
+    document.getElementById("profileName").textContent = studentName;
+
+    document.getElementById("profileAvatar").textContent =
+        studentName === "Student"
+            ? "ST"
+            : studentName.trim().split(/\s+/)
+                .slice(0, 2)
+                .map(part => part[0].toUpperCase())
+                .join("");
+
+
+    // Search projects by name, skills, or technology.
+    const searchInput = document.getElementById("projectSearch");
+
+    const projectCards = document.querySelectorAll(".project-card");
+
+    const emptyMessage = document.getElementById("emptyMessage");
+
+
+    searchInput.addEventListener("input", function() {
+        const searchTerm = this.value.toLowerCase().trim();
+
+        let visibleCount = 0;
+
+        projectCards.forEach(function(card) {
+            const searchableText =
+                card.innerText.toLowerCase() + " " +
+                card.dataset.search.toLowerCase();
+
+            const matches = searchableText.includes(searchTerm);
+
+            card.style.display = matches ? "" : "none";
+
+            if (matches) {
+                visibleCount++;
+            }
+        });
+
+        emptyMessage.style.display =
+            visibleCount === 0 ? "block" : "none";
+    });
+
+
+    // Retrieve saved project names for this browser.
+    function getSavedProjects() {
+        try {
+            return JSON.parse(
+                localStorage.getItem("eduMatchSavedProjects") || "[]"
+            );
+        } catch {
+            return [];
+        }
+    }
+
+
+    function updateSavedCount() {
+        document.getElementById("savedCount").textContent =
+            getSavedProjects().length;
+    }
+
+
+    // Save a project when a student explores it.
+    function exploreProject(button, projectName) {
+        const savedProjects = getSavedProjects();
+
+        if (!savedProjects.includes(projectName)) {
+            savedProjects.push(projectName);
+
+            localStorage.setItem(
+                "eduMatchSavedProjects",
+                JSON.stringify(savedProjects)
+            );
+
+            updateSavedCount();
+        }
+
+        const activityList = document.getElementById("activityList");
+
+        const activity = document.createElement("div");
+        activity.className = "activity";
+
+        const icon = document.createElement("div");
+        icon.className = "activity-icon";
+        icon.textContent = "📌";
+
+        const info = document.createElement("div");
+        info.className = "activity-info";
+
+        const heading = document.createElement("h4");
+        heading.textContent = "Explored " + projectName;
+
+        const paragraph = document.createElement("p");
+        paragraph.textContent =
+            "You explored this sample project. No application was sent.";
+
+        info.append(heading, paragraph);
+        activity.append(icon, info);
+
+        activityList.prepend(activity);
+
+        alert(
+            "Project: " + projectName +
+            "\n\nThis is a frontend demo. Real project details and applications " +
+            "will be available after backend integration."
+        );
+    }
+
+
+    // Display saved projects from previous visits in this browser.
+    updateSavedCount();
+
+
+    // Demo notification.
+    document.getElementById("notificationButton").addEventListener(
+        "click",
+        function() {
+            alert(
+                "You are all caught up!\n\n" +
+                "Real notifications will be available after backend integration."
+            );
+        }
+    );
+
+
+    // Demo profile link.
+    document.getElementById("editProfile").addEventListener(
+        "click",
+        function(event) {
+            event.preventDefault();
+
+            alert(
+                "The student profile editor will be added " +
+                "when the profile page is implemented."
+            );
+        }
+    );
+</script>
+
+</body>
+</html>
