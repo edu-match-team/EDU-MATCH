@@ -1,31 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>EDU MATCH | Connect. Build. Grow.</title>
+    <title>EduMatch | Project Collaboration Platform</title>
 
     <meta name="description"
-          content="EDU MATCH connects students with project providers, project ideas, and learning opportunities.">
+          content="EduMatch connects students with project providers through a dedicated project collaboration platform.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
 
     <style>
+        :root {
+            --navy: #111827;
+            --navy-light: #1C2740;
+            --purple: #7657FF;
+            --purple-light: #F0EDFF;
+            --white: #FFFFFF;
+            --background: #F7F8FC;
+            --text: #202A3C;
+            --muted: #737D90;
+            --border: #E5E8F0;
+            --green: #24845A;
+        }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
         }
 
         html {
             scroll-behavior: smooth;
+            scroll-padding-top: 90px;
         }
 
         body {
-            background: #f7f9fc;
-            color: #172033;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--background);
+            color: var(--text);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         a {
@@ -34,761 +55,727 @@
         }
 
         button {
-            cursor: pointer;
-            border: none;
+            font: inherit;
         }
 
         .container {
-            width: 90%;
-            max-width: 1200px;
+            width: min(1120px, 90%);
             margin: auto;
         }
-        header {
-            background: white;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+
+        /* =========================
+           NAVIGATION
+        ========================= */
+
+        .navbar {
+            height: 76px;
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.96);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(14px);
         }
 
-        nav {
-            min-height: 76px;
+        .nav-inner {
+            height: 100%;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 20px;
+            justify-content: space-between;
+            gap: 25px;
         }
 
-        .logo {
-            font-size: 27px;
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .brand-icon {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            background: var(--purple);
+            color: white;
+            border-radius: 10px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 22px;
             font-weight: 800;
-            color: #5145e5;
-            letter-spacing: -1px;
         }
 
-        .logo span {
-            color: #172033;
+        .brand-name {
+            font-family: 'Manrope', sans-serif;
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--navy);
+        }
+
+        .brand-name span {
+            color: var(--purple);
         }
 
         .nav-links {
             display: flex;
             align-items: center;
-            gap: 28px;
+            gap: 30px;
         }
 
         .nav-links a {
-            font-size: 14px;
+            color: #606A7D;
+            font-size: 13px;
             font-weight: 600;
-            color: #475569;
-            transition: 0.3s;
+            transition: color 0.2s;
         }
 
         .nav-links a:hover {
-            color: #5145e5;
+            color: var(--purple);
         }
 
-        .nav-buttons {
+        .nav-actions {
             display: flex;
+            align-items: center;
             gap: 10px;
         }
 
         .btn {
-            padding: 11px 20px;
+            min-height: 43px;
+            padding: 11px 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid transparent;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            display: inline-block;
-            transition: 0.3s;
-        }
-
-        .btn-outline {
-            background: white;
-            border: 1px solid #5145e5;
-            color: #5145e5;
+            cursor: pointer;
+            transition: background 0.25s,
+                        color 0.25s,
+                        border-color 0.25s,
+                        transform 0.25s;
         }
 
         .btn-primary {
-            background: #5145e5;
+            background: var(--purple);
             color: white;
         }
 
         .btn-primary:hover {
-            background: #4035c8;
+            background: #6344EB;
             transform: translateY(-2px);
         }
 
-        .btn-outline:hover {
-            background: #f0efff;
+        .btn-outline {
+            border-color: var(--border);
+            background: white;
+            color: var(--navy);
         }
 
+        .btn-outline:hover {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .menu-button {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--navy);
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
         .hero {
-            padding: 90px 0 80px;
-            background:
-                radial-gradient(circle at 90% 10%, #e6e4ff 0, transparent 30%),
-                linear-gradient(135deg, #ffffff, #f4f5ff);
+            background: var(--navy);
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border: 1px solid rgba(184, 165, 255, 0.14);
+            border-radius: 50%;
+            right: -160px;
+            top: -260px;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 350px;
+            height: 350px;
+            border: 1px solid rgba(184, 165, 255, 0.13);
+            border-radius: 50%;
+            right: -85px;
+            top: -185px;
+        }
+
+        .hero-inner {
+            min-height: 450px;
+            padding-top: 75px;
+            padding-bottom: 80px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 1;
         }
 
         .hero-content {
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 55px;
-            align-items: center;
+            max-width: 720px;
         }
 
-        .badge {
-            display: inline-block;
-            background: #eeecff;
-            color: #5145e5;
-            padding: 8px 14px;
-            border-radius: 30px;
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 23px;
+            color: #C9BDFF;
             font-size: 12px;
             font-weight: 700;
-            margin-bottom: 22px;
+            letter-spacing: 1.7px;
+            text-transform: uppercase;
+        }
+
+        .hero-label span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #A694FF;
         }
 
         .hero h1 {
-            font-size: clamp(38px, 5vw, 62px);
+            max-width: 720px;
+            font-family: 'Manrope', sans-serif;
+            font-size: clamp(43px, 6vw, 67px);
+            font-weight: 800;
             line-height: 1.12;
-            letter-spacing: -2px;
-            margin-bottom: 22px;
+            letter-spacing: -3px;
         }
 
         .hero h1 span {
-            color: #5145e5;
+            color: #B9A9FF;
         }
 
-        .hero p {
-            color: #64748b;
-            font-size: 17px;
-            max-width: 570px;
-            margin-bottom: 30px;
+        .hero-description {
+            max-width: 560px;
+            margin-top: 23px;
+            color: #B8C1D2;
+            font-size: 15px;
+            line-height: 1.9;
         }
 
-        .hero-buttons {
+        .hero-actions {
             display: flex;
-            gap: 14px;
             flex-wrap: wrap;
+            gap: 13px;
+            margin-top: 30px;
         }
 
-        .hero-visual {
+        .hero-actions .btn {
+            min-height: 47px;
+            padding: 13px 21px;
+        }
+
+        .btn-white {
             background: white;
-            padding: 28px;
-            border-radius: 22px;
-            box-shadow: 0 20px 60px rgba(60, 50, 160, 0.12);
-            border: 1px solid #ecebff;
+            color: var(--navy);
         }
 
-        .visual-heading {
+        .btn-white:hover {
+            background: #EDE8FF;
+            transform: translateY(-2px);
+        }
+
+        .btn-hero-outline {
+            border-color: #46516B;
+            color: white;
+            background: transparent;
+        }
+
+        .btn-hero-outline:hover {
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        /* =========================
+           PORTAL LOGIN SECTION
+        ========================= */
+
+        .portals-section {
+            padding: 83px 0 88px;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 660px;
+            margin: 0 auto 40px;
+        }
+
+        .section-label {
+            color: var(--purple);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-header h2 {
+            font-family: 'Manrope', sans-serif;
+            color: var(--navy);
+            font-size: clamp(29px, 4vw, 40px);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.25;
+        }
+
+        .section-header p.description {
+            margin-top: 13px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 21px;
+            align-items: stretch;
+        }
+
+        .portal-card {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            padding: 27px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            transition: transform 0.3s,
+                        border-color 0.3s,
+                        box-shadow 0.3s;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-6px);
+            border-color: #C8BCFF;
+            box-shadow: 0 16px 35px rgba(35, 27, 75, 0.07);
+        }
+
+        .portal-top {
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 24px;
         }
 
-        .visual-heading h3 {
-            font-size: 19px;
-        }
-
-        .live-label {
-            background: #dcfce7;
-            color: #15803d;
-            padding: 5px 10px;
-            font-size: 11px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
-
-        .match-card {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 17px;
-            margin-bottom: 14px;
-            background: #f8f9ff;
-            border: 1px solid #eceeff;
-            border-radius: 13px;
-        }
-
-        .match-icon {
+        .portal-icon {
             width: 52px;
             height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #e8e7ff;
+            display: grid;
+            place-items: center;
             border-radius: 12px;
-            font-size: 25px;
-            flex-shrink: 0;
-        }
-
-        .match-card h4 {
-            font-size: 14px;
-            margin-bottom: 3px;
-        }
-
-        .match-card p {
-            font-size: 12px;
-            margin: 0;
-        }
-
-        .match-tag {
-            margin-left: auto;
-            color: #5145e5;
-            font-size: 11px;
-            font-weight: bold;
-            white-space: nowrap;
-        }
-
-        /* =========================
-           4. STATISTICS
-        ========================== */
-
-        .stats {
-            background: white;
-            padding: 35px 0;
-            border-bottom: 1px solid #edf0f5;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            text-align: center;
-        }
-
-        .stat h2 {
-            color: #5145e5;
-            font-size: 32px;
-        }
-
-        .stat p {
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        /* =========================
-           5. SECTION COMMON STYLES
-        ========================== */
-
-        section {
-            scroll-margin-top: 90px;
-        }
-
-        .section {
-            padding: 85px 0;
-        }
-
-        .section-heading {
-            text-align: center;
-            max-width: 700px;
-            margin: 0 auto 45px;
-        }
-
-        .section-heading .small-title {
-            color: #5145e5;
-            text-transform: uppercase;
+            background: var(--purple-light);
+            color: var(--purple);
+            font-family: 'Manrope', sans-serif;
+            font-size: 21px;
             font-weight: 800;
+        }
+
+        .portal-icon.provider {
+            color: #277A50;
+            background: #E8F6EE;
+        }
+
+        .portal-icon.admin {
+            color: #B96B29;
+            background: #FFF1E5;
+        }
+
+        .portal-number {
             font-size: 12px;
-            letter-spacing: 2px;
+            font-weight: 700;
+            color: #A3AABA;
         }
 
-        .section-heading h2 {
-            font-size: 36px;
-            margin: 12px 0;
-            letter-spacing: -1px;
-        }
-
-        .section-heading p {
-            color: #64748b;
-            font-size: 15px;
-        }
-
-        /* =========================
-           6. HOW IT WORKS
-        ========================== */
-
-        .steps-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .step-card {
-            background: white;
-            border: 1px solid #e9edf5;
-            padding: 30px;
-            border-radius: 16px;
-            transition: 0.3s;
-        }
-
-        .step-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
-        }
-
-        .step-number {
-            width: 52px;
-            height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #eeecff;
-            color: #5145e5;
-            font-size: 22px;
-            border-radius: 14px;
-            margin-bottom: 20px;
-        }
-
-        .step-card h3 {
-            margin-bottom: 10px;
+        .portal-card h3 {
+            font-family: 'Manrope', sans-serif;
             font-size: 19px;
+            color: var(--navy);
+            margin-bottom: 9px;
         }
 
-        .step-card p {
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        /* =========================
-           7. PROJECT CATEGORIES
-        ========================== */
-
-        .categories {
-            background: white;
-        }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        .category-card {
-            padding: 28px 20px;
-            text-align: center;
-            border: 1px solid #e9edf5;
-            border-radius: 16px;
-            transition: 0.3s;
-            background: #fff;
-        }
-
-        .category-card:hover {
-            border-color: #bcb7ff;
-            background: #faf9ff;
-            transform: translateY(-4px);
-        }
-
-        .category-icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-        }
-
-        .category-card h3 {
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .category-card p {
-            color: #64748b;
-            font-size: 12px;
-        }
-
-        /* =========================
-           8. FEATURED PROJECTS
-        ========================== */
-
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .project-card {
-            background: white;
-            border: 1px solid #e7ebf3;
-            border-radius: 16px;
-            overflow: hidden;
-            transition: 0.3s;
-        }
-
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.07);
-        }
-
-        .project-banner {
-            height: 145px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 55px;
-            background: linear-gradient(135deg, #e8e7ff, #f3efff);
-        }
-
-        .project-card:nth-child(2) .project-banner {
-            background: linear-gradient(135deg, #dff7ef, #eafcf5);
-        }
-
-        .project-card:nth-child(3) .project-banner {
-            background: linear-gradient(135deg, #ffefd9, #fff7e9);
-        }
-
-        .project-info {
-            padding: 23px;
-        }
-
-        .project-type {
-            display: inline-block;
-            background: #f0efff;
-            color: #5145e5;
-            padding: 5px 9px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .project-info h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
-
-        .project-info p {
-            color: #64748b;
+        .portal-card p {
+            min-height: 66px;
+            color: var(--muted);
             font-size: 13px;
-            margin-bottom: 17px;
+            line-height: 1.8;
         }
 
-        .project-footer {
+        .portal-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 22px 0 18px;
+        }
+
+        .portal-link {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid #edf0f5;
-            padding-top: 15px;
-        }
-
-        .project-footer span {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        .text-link {
-            color: #5145e5;
-            font-weight: bold;
+            gap: 10px;
+            color: var(--purple);
             font-size: 13px;
+            font-weight: 700;
+            margin-top: auto;
+        }
+
+        .portal-link span {
+            font-size: 19px;
+            transition: transform 0.2s;
+        }
+
+        .portal-card:hover .portal-link span {
+            transform: translateX(4px);
         }
 
         /* =========================
-           9. FEATURED SHORTS
-        ========================== */
+           ABOUT / FEATURES
+        ========================= */
 
-        .shorts-section {
+        .about-section {
+            padding: 77px 0;
             background: white;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
         }
 
-        .shorts-grid {
+        .about-layout {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .short-card {
-            padding: 18px;
-            border: 1px solid #e7ebf3;
-            border-radius: 16px;
-            background: #fff;
-        }
-
-        .short-card h3 {
-            margin-bottom: 12px;
-            font-size: 16px;
-        }
-
-        .short-card iframe {
-            width: 100%;
-            aspect-ratio: 9 / 16;
-            border: none;
-            border-radius: 10px;
-            background: #f1f5f9;
-        }
-
-        .short-card p {
-            color: #64748b;
-            font-size: 13px;
-            margin-top: 10px;
-        }
-
-        /* =========================
-           10. CALL TO ACTION
-        ========================== */
-
-        .cta {
-            padding: 75px 0;
-            background: linear-gradient(135deg, #5145e5, #7768ff);
-            color: white;
-            text-align: center;
-        }
-
-        .cta h2 {
-            font-size: 36px;
-            margin-bottom: 15px;
-        }
-
-        .cta p {
-            color: #eeecff;
-            max-width: 620px;
-            margin: 0 auto 27px;
-        }
-
-        .cta .btn {
-            background: white;
-            color: #5145e5;
-        }
-
-        /* =========================
-           11. FOOTER
-        ========================== */
-
-        footer {
-            background: #111827;
-            color: white;
-            padding: 55px 0 20px;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .footer-brand p {
-            color: #aab4c5;
-            font-size: 13px;
-            max-width: 350px;
-            margin-top: 15px;
-        }
-
-        .footer-links h3 {
-            font-size: 15px;
-            margin-bottom: 15px;
-        }
-
-        .footer-links a {
-            display: block;
-            color: #aab4c5;
-            font-size: 13px;
-            margin-bottom: 10px;
-        }
-
-        .footer-links a:hover {
-            color: white;
-        }
-
-        .footer-bottom {
-            border-top: 1px solid #30394a;
-            padding-top: 20px;
-            text-align: center;
-            color: #aab4c5;
-            font-size: 12px;
-        }
-
-        /* =========================
-           12. LOGIN / SIGNUP MODAL
-        ========================== */
-
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 2000;
-            background: rgba(15, 23, 42, 0.65);
-            padding: 20px;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 70px;
             align-items: center;
-            justify-content: center;
         }
 
-        .modal.active {
+        .about-copy h2 {
+            font-family: 'Manrope', sans-serif;
+            color: var(--navy);
+            font-size: clamp(29px, 4vw, 39px);
+            line-height: 1.25;
+            letter-spacing: -1.5px;
+        }
+
+        .about-copy > p:not(.section-label) {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.9;
+            margin-top: 17px;
+        }
+
+        .about-points {
+            display: grid;
+            gap: 17px;
+        }
+
+        .about-point {
             display: flex;
+            align-items: flex-start;
+            gap: 14px;
         }
 
-        .modal-box {
-            background: white;
-            width: 100%;
-            max-width: 420px;
-            padding: 30px;
-            border-radius: 18px;
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .close-modal {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            background: none;
-            font-size: 25px;
-            color: #64748b;
-        }
-
-        .modal-box h2 {
-            margin-bottom: 8px;
-        }
-
-        .modal-box > p {
-            color: #64748b;
-            font-size: 13px;
-            margin-bottom: 22px;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #dce2ec;
+        .point-check {
+            flex-shrink: 0;
+            width: 29px;
+            height: 29px;
+            display: grid;
+            place-items: center;
+            background: var(--purple-light);
+            color: var(--purple);
             border-radius: 8px;
-            outline: none;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .about-point h3 {
+            font-family: 'Manrope', sans-serif;
+            font-size: 15px;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .about-point p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* =========================
+           FINAL CTA
+        ========================= */
+
+        .cta-section {
+            padding: 72px 0;
+        }
+
+        .cta-box {
+            padding: 43px 25px;
+            text-align: center;
+            background: var(--purple-light);
+            border: 1px solid #E1DAFF;
+            border-radius: 14px;
+        }
+
+        .cta-box h2 {
+            font-family: 'Manrope', sans-serif;
+            font-size: clamp(27px, 4vw, 36px);
+            color: var(--navy);
+            letter-spacing: -1px;
+        }
+
+        .cta-box p {
+            max-width: 490px;
+            margin: 12px auto 23px;
+            color: var(--muted);
             font-size: 14px;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #5145e5;
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            background: var(--navy);
+            color: white;
+            padding: 28px 0;
         }
 
-        .form-submit {
-            width: 100%;
-            margin-top: 5px;
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
         }
 
-        .form-message {
-            margin-top: 15px;
-            font-size: 13px;
-            color: #15803d;
-            overflow-wrap: anywhere;
+        .footer-brand {
+            font-family: 'Manrope', sans-serif;
+            font-size: 19px;
+            font-weight: 800;
+        }
+
+        .footer-brand span {
+            color: #B9A9FF;
+        }
+
+        .footer-inner p {
+            color: #AAB4C7;
+            font-size: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 19px;
+        }
+
+        .footer-links a {
+            color: #C3CBDA;
+            font-size: 12px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #C9BDFF;
         }
 
         /* =========================
-           13. RESPONSIVE DESIGN
-        ========================== */
+           SCROLL ANIMATIONS
+        ========================= */
 
-        @media (max-width: 900px) {
-            .nav-links {
-                gap: 14px;
+        .reveal {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease,
+                        transform 0.7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero .reveal {
+            animation: heroEntrance 0.8s ease both;
+        }
+
+        @keyframes heroEntrance {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
 
-            .hero-content {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-visual {
-                max-width: 600px;
-            }
-
-            .category-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .project-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .shorts-grid {
-                grid-template-columns: repeat(2, 1fr);
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        @media (max-width: 650px) {
-            nav {
-                padding: 15px 0;
+        /* =========================
+           RESPONSIVE DESIGN
+        ========================= */
+
+        @media (max-width: 850px) {
+            .nav-links {
+                gap: 17px;
+            }
+
+            .hero-inner {
+                min-height: 420px;
+            }
+
+            .portal-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .portal-card:last-child {
+                grid-column: 1 / -1;
+            }
+
+            .about-layout {
+                grid-template-columns: 1fr;
+                gap: 35px;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .navbar {
+                height: auto;
+                min-height: 70px;
+            }
+
+            .nav-inner {
+                min-height: 70px;
                 flex-wrap: wrap;
             }
 
-            .logo {
-                font-size: 23px;
+            .brand-name {
+                font-size: 21px;
+            }
+
+            .menu-button {
+                display: block;
             }
 
             .nav-links {
-                order: 3;
+                display: none;
+                order: 4;
                 width: 100%;
-                overflow-x: auto;
-                padding: 10px 0 3px;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 5px 0 19px;
+                gap: 17px;
             }
 
-            .nav-links a {
-                white-space: nowrap;
+            .nav-links.open {
+                display: flex;
             }
 
-            .nav-buttons .btn {
-                padding: 9px 12px;
-                font-size: 12px;
+            .nav-actions .btn-outline {
+                display: none;
             }
 
-            .hero {
-                padding: 55px 0;
+            .nav-actions .btn {
+                min-height: 38px;
+                padding: 9px 11px;
+                font-size: 11px;
+            }
+
+            .hero-inner {
+                min-height: auto;
+                padding-top: 66px;
+                padding-bottom: 68px;
             }
 
             .hero h1 {
-                font-size: 40px;
+                font-size: 43px;
+                letter-spacing: -2px;
             }
 
-            .hero p {
-                font-size: 15px;
+            .hero-description {
+                font-size: 14px;
             }
 
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                row-gap: 25px;
+            .hero-actions .btn {
+                padding: 12px 14px;
             }
 
-            .section {
-                padding: 60px 0;
+            .portals-section {
+                padding: 65px 0;
             }
 
-            .section-heading h2,
-            .cta h2 {
-                font-size: 29px;
+            .section-header {
+                margin-bottom: 30px;
             }
 
-            .steps-grid,
-            .project-grid,
-            .shorts-grid,
-            .footer-grid {
+            .portal-grid {
                 grid-template-columns: 1fr;
             }
 
-            .category-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12px;
+            .portal-card:last-child {
+                grid-column: auto;
             }
 
-            .category-card {
-                padding: 22px 10px;
+            .portal-card {
+                padding: 23px;
             }
 
-            .hero-visual {
-                padding: 18px;
+            .portal-card p {
+                min-height: auto;
             }
 
-            .match-card {
-                padding: 12px;
-                gap: 10px;
+            .about-section {
+                padding: 65px 0;
             }
 
-            .match-tag {
-                font-size: 10px;
+            .cta-section {
+                padding: 48px 0;
+            }
+
+            .cta-box {
+                padding: 35px 20px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .footer-links {
+                gap: 13px 18px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+
+            .reveal {
+                opacity: 1;
+                transform: none;
             }
         }
     </style>
@@ -796,485 +783,302 @@
 
 <body>
 
-    <!-- NAVIGATION BAR -->
+    <!-- NAVIGATION -->
 
-    <header>
-        <div class="container">
-            <nav>
-                <a href="#home" class="logo">EDU <span>MATCH.</span></a>
+    <header class="navbar">
+        <div class="container nav-inner">
 
-                <div class="nav-links">
-                    <a href="#home">Home</a>
-                    <a href="#how-it-works">How It Works</a>
-                    <a href="#categories">Categories</a>
-                    <a href="#projects">Projects</a>
-                    <a href="#shorts">Learning Shorts</a>
-                </div>
+            <a href="index.html" class="brand">
+                <div class="brand-icon">E</div>
+                <div class="brand-name">edu<span>match</span></div>
+            </a>
 
-                <div class="nav-buttons">
-                    <button class="btn btn-outline" onclick="openModal('login')">
-                        Login
-                    </button>
-
-                    <button class="btn btn-primary" onclick="openModal('signup')">
-                        Get Started
-                    </button>
-                </div>
+            <nav class="nav-links" id="navLinks">
+                <a href="#portals">Portals</a>
+                <a href="#about">About Us</a>
             </nav>
+
+            <div class="nav-actions">
+                <a href="student/login.html" class="btn btn-outline">
+                    Log In
+                </a>
+
+                <a href="student/register.html" class="btn btn-primary">
+                    Get Started ↗
+                </a>
+            </div>
+
+            <button class="menu-button"
+                    id="menuButton"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false">
+                ☰
+            </button>
+
         </div>
     </header>
 
 
-    <!-- HERO SECTION -->
-
     <main>
-        <section class="hero" id="home">
-            <div class="container hero-content">
 
-                <div>
-                    <div class="badge">
-                        YOUR PROJECT JOURNEY STARTS HERE
-                    </div>
+        <!-- HERO -->
+
+        <section class="hero">
+            <div class="container hero-inner">
+
+                <div class="hero-content reveal">
+
+                    <p class="hero-label">
+                        <span></span>
+                        Project collaboration platform
+                    </p>
 
                     <h1>
-                        Find Your Match.<br>
-                        <span>Build Your Future.</span>
+                        Ideas deserve the
+                        <span>right team.</span>
                     </h1>
 
-                    <p>
-                        Have a project idea but don't know where to start?
-                        EDU MATCH connects students with project providers,
-                        practical learning opportunities, and ideas that
-                        turn knowledge into real-world experience.
+                    <p class="hero-description">
+                        EduMatch connects students with project providers
+                        through one organized platform for discovering
+                        expertise, exploring opportunities, and managing projects.
                     </p>
 
-                    <div class="hero-buttons">
-                        <button class="btn btn-primary"
-                                onclick="openModal('signup')">
-                            Find a Project &rarr;
-                        </button>
+                    <div class="hero-actions">
+                        <a href="#portals" class="btn btn-white">
+                            Explore Portals ↗
+                        </a>
 
-                        <a href="#how-it-works" class="btn btn-outline">
-                            Explore How It Works
+                        <a href="student/register.html"
+                           class="btn btn-hero-outline">
+                            Create an Account
                         </a>
                     </div>
-                </div>
 
-                <div class="hero-visual">
-
-                    <div class="visual-heading">
-                        <h3>Explore Opportunities</h3>
-                        <span class="live-label">PROJECT HUB</span>
-                    </div>
-
-                    <div class="match-card">
-                        <div class="match-icon">💻</div>
-                        <div>
-                            <h4>Web Development</h4>
-                            <p>Build real-world websites</p>
-                        </div>
-                        <span class="match-tag">WEB</span>
-                    </div>
-
-                    <div class="match-card">
-                        <div class="match-icon">🤖</div>
-                        <div>
-                            <h4>AI & Machine Learning</h4>
-                            <p>Explore intelligent solutions</p>
-                        </div>
-                        <span class="match-tag">AI/ML</span>
-                    </div>
-
-                    <div class="match-card">
-                        <div class="match-icon">📊</div>
-                        <div>
-                            <h4>Data Science</h4>
-                            <p>Discover insights from data</p>
-                        </div>
-                        <span class="match-tag">DATA</span>
-                    </div>
-
-                    <div class="match-card">
-                        <div class="match-icon">📱</div>
-                        <div>
-                            <h4>App Development</h4>
-                            <p>Create useful applications</p>
-                        </div>
-                        <span class="match-tag">APP</span>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-
-        <!-- STATISTICS -->
-
-        <section class="stats">
-            <div class="container stats-grid">
-
-                <div class="stat">
-                    <h2>01</h2>
-                    <p>One Platform</p>
-                </div>
-
-                <div class="stat">
-                    <h2>02</h2>
-                    <p>Student & Provider Roles</p>
-                </div>
-
-                <div class="stat">
-                    <h2>03</h2>
-                    <p>Simple Steps to Connect</p>
-                </div>
-
-                <div class="stat">
-                    <h2>∞</h2>
-                    <p>Learning Possibilities</p>
                 </div>
 
             </div>
         </section>
 
 
-        <!-- HOW IT WORKS -->
+        <!-- THREE MAIN LOGIN PORTALS -->
 
-        <section class="section" id="how-it-works">
+        <section class="portals-section" id="portals">
+
             <div class="container">
 
-                <div class="section-heading">
-                    <span class="small-title">Simple Process</span>
+                <div class="section-header reveal">
 
-                    <h2>How EDU MATCH Works</h2>
+                    <p class="section-label">Access your workspace</p>
 
-                    <p>
-                        From discovering opportunities to connecting
-                        with the right people, start your project journey
-                        in three simple steps.
+                    <h2>Choose your portal</h2>
+
+                    <p class="description">
+                        Select your role to continue to the EduMatch platform.
                     </p>
-                </div>
-
-                <div class="steps-grid">
-
-                    <div class="step-card">
-                        <div class="step-number">01</div>
-
-                        <h3>Create Your Profile</h3>
-
-                        <p>
-                            Sign up as a student looking for projects
-                            or as a provider who wants to share
-                            project opportunities.
-                        </p>
-                    </div>
-
-                    <div class="step-card">
-                        <div class="step-number">02</div>
-
-                        <h3>Discover Projects</h3>
-
-                        <p>
-                            Explore project categories, find suitable
-                            opportunities, and discover projects that
-                            match your skills and interests.
-                        </p>
-                    </div>
-
-                    <div class="step-card">
-                        <div class="step-number">03</div>
-
-                        <h3>Connect & Build</h3>
-
-                        <p>
-                            Express your interest in a project,
-                            connect with its provider, and work
-                            towards building something meaningful.
-                        </p>
-                    </div>
 
                 </div>
-            </div>
-        </section>
 
 
-        <!-- CATEGORIES -->
+                <div class="portal-grid">
 
-        <section class="section categories" id="categories">
-            <div class="container">
+                    <!-- STUDENT -->
 
-                <div class="section-heading">
-                    <span class="small-title">Explore Your Interests</span>
+                    <article class="portal-card reveal">
 
-                    <h2>Discover Project Categories</h2>
-
-                    <p>
-                        Explore different technology fields and
-                        find the type of project you want to work on.
-                    </p>
-                </div>
-
-                <div class="category-grid">
-
-                    <div class="category-card">
-                        <div class="category-icon">💻</div>
-                        <h3>Web Development</h3>
-                        <p>Frontend, backend and full stack</p>
-                    </div>
-
-                    <div class="category-card">
-                        <div class="category-icon">🤖</div>
-                        <h3>Artificial Intelligence</h3>
-                        <p>AI, ML and intelligent systems</p>
-                    </div>
-
-                    <div class="category-card">
-                        <div class="category-icon">📈</div>
-                        <h3>Data Science</h3>
-                        <p>Analytics, visualization and data</p>
-                    </div>
-
-                    <div class="category-card">
-                        <div class="category-icon">📱</div>
-                        <h3>App Development</h3>
-                        <p>Mobile apps and useful tools</p>
-                    </div>
-
-                    <div class="category-card">
-                        <div class="category-icon">🔐</div>
-                        <h3>Cybersecurity</h3>
-                        <p>Security and privacy projects</p>
-                    </div>
-
-                    <div class="category-card">
-                        <div class="category-icon">☁️</div>
-                        <h3>Cloud Computing</h3>
-                        <p>Cloud services and deployment</p>
-                    </div>
-
-                    <div class="category-card">
-                        <div class="category-icon">🗄️</div>
-                        <h3>Database Systems</h3>
-                        <p>SQL, database and management</p>
-                    </div>
-
-                    <div class="category-card">
-                        <div class="category-icon">⚙️</div>
-                        <h3>Other Projects</h3>
-                        <p>Explore more technical domains</p>
-                    </div>
-
-                </div>
-            </div>
-        </section>
-
-
-        <!-- FEATURED PROJECTS -->
-
-        <section class="section" id="projects">
-            <div class="container">
-
-                <div class="section-heading">
-                    <span class="small-title">Explore Opportunities</span>
-
-                    <h2>Featured Project Ideas</h2>
-
-                    <p>
-                        Explore sample projects that can inspire your
-                        next college assignment, portfolio, or learning journey.
-                    </p>
-                </div>
-
-                <div class="project-grid">
-
-                    <article class="project-card">
-
-                        <div class="project-banner">🌐</div>
-
-                        <div class="project-info">
-
-                            <span class="project-type">
-                                WEB DEVELOPMENT
-                            </span>
-
-                            <h3>Student Project Portal</h3>
-
-                            <p>
-                                Create a platform where students can
-                                discover projects and connect with providers.
-                            </p>
-
-                            <div class="project-footer">
-                                <span>HTML, CSS, JavaScript</span>
-
-                                <a href="#signup"
-                                   class="text-link"
-                                   onclick="openModal('signup'); return false;">
-                                    Explore &rarr;
-                                </a>
-                            </div>
-
+                        <div class="portal-top">
+                            <div class="portal-icon">S</div>
+                            <span class="portal-number">01</span>
                         </div>
+
+                        <h3>Student</h3>
+
+                        <p>
+                            Discover project providers, submit requirements,
+                            and manage your project activities.
+                        </p>
+
+                        <div class="portal-divider"></div>
+
+                        <a href="student/login.html" class="portal-link">
+                            Student Login
+                            <span>→</span>
+                        </a>
+
+                        <a href="student/register.html"
+                           style="display:block; margin-top:14px;
+                                  color:#737D90; font-size:12px;">
+                            New student? Create an account
+                        </a>
+
                     </article>
 
 
-                    <article class="project-card">
+                    <!-- PROVIDER -->
 
-                        <div class="project-banner">🤖</div>
+                    <article class="portal-card reveal">
 
-                        <div class="project-info">
-
-                            <span class="project-type">
-                                MACHINE LEARNING
-                            </span>
-
-                            <h3>Student Performance Predictor</h3>
-
-                            <p>
-                                Build a machine learning model that
-                                estimates student performance using
-                                study habits and attendance.
-                            </p>
-
-                            <div class="project-footer">
-                                <span>Python, Pandas, ML</span>
-
-                                <a href="#signup"
-                                   class="text-link"
-                                   onclick="openModal('signup'); return false;">
-                                    Explore &rarr;
-                                </a>
-                            </div>
-
+                        <div class="portal-top">
+                            <div class="portal-icon provider">P</div>
+                            <span class="portal-number">02</span>
                         </div>
+
+                        <h3>Project Provider</h3>
+
+                        <p>
+                            Showcase your skills, manage your profile,
+                            and organize project requests.
+                        </p>
+
+                        <div class="portal-divider"></div>
+
+                        <a href="provider/login.html" class="portal-link">
+                            Provider Login
+                            <span>→</span>
+                        </a>
+
+                        <a href="provider/register.html"
+                           style="display:block; margin-top:14px;
+                                  color:#737D90; font-size:12px;">
+                            New provider? Register here
+                        </a>
+
                     </article>
 
 
-                    <article class="project-card">
+                    <!-- ADMINISTRATOR -->
 
-                        <div class="project-banner">📊</div>
+                    <article class="portal-card reveal">
 
-                        <div class="project-info">
-
-                            <span class="project-type">
-                                DATA SCIENCE
-                            </span>
-
-                            <h3>College Data Dashboard</h3>
-
-                            <p>
-                                Analyze sample college data and present
-                                useful information through interactive
-                                charts and visualizations.
-                            </p>
-
-                            <div class="project-footer">
-                                <span>Python, SQL, Charts</span>
-
-                                <a href="#signup"
-                                   class="text-link"
-                                   onclick="openModal('signup'); return false;">
-                                    Explore &rarr;
-                                </a>
-                            </div>
-
+                        <div class="portal-top">
+                            <div class="portal-icon admin">A</div>
+                            <span class="portal-number">03</span>
                         </div>
+
+                        <h3>Administrator</h3>
+
+                        <p>
+                            Manage platform users, review activity,
+                            and oversee platform operations.
+                        </p>
+
+                        <div class="portal-divider"></div>
+
+                        <a href="admin/login.html" class="portal-link">
+                            Administrator Login
+                            <span>→</span>
+                        </a>
+
+                        <p style="margin-top:14px; font-size:12px; color:#737D90;">
+                            Restricted access for authorized administrators.
+                        </p>
+
                     </article>
 
                 </div>
+
             </div>
+
         </section>
 
 
-        <!-- FEATURED LEARNING SHORTS -->
+        <!-- ABOUT EDUMATCH -->
 
-        <section class="section shorts-section" id="shorts">
-            <div class="container">
+        <section class="about-section" id="about">
 
-                <div class="section-heading">
-                    <span class="small-title">Learn Something New</span>
+            <div class="container about-layout">
 
-                    <h2>Featured Shorts</h2>
+                <div class="about-copy reveal">
+
+                    <p class="section-label">About EduMatch</p>
+
+                    <h2>A simpler way to connect ideas with expertise.</h2>
 
                     <p>
-                        Discover short-form learning content and
-                        explore technology concepts while browsing
-                        EDU MATCH.
+                        EduMatch is designed to make project discovery
+                        more organized by bringing students and project
+                        providers together in a single platform.
                     </p>
-                </div>
-
-                <div class="shorts-grid">
-
-                    <div class="short-card">
-                        <h3>Featured Learning Short</h3>
-
-                        <iframe
-                            src="https://www.youtube.com/embed/R4g-VgSppOw"
-                            title="Featured YouTube Short"
-                            loading="lazy"
-                            allowfullscreen>
-                        </iframe>
-
-                        <p>
-                            Watch this featured short and discover
-                            something new.
-                        </p>
-                    </div>
-
-                    <div class="short-card">
-                        <h3>Web Development</h3>
-
-                        <iframe
-                            src="https://www.youtube.com/embed/UB1O30fR-EE"
-                            title="Web Development Learning Video"
-                            loading="lazy"
-                            allowfullscreen>
-                        </iframe>
-
-                        <p>
-                            Explore web development concepts and
-                            learn about building websites.
-                        </p>
-                    </div>
-
-                    <div class="short-card">
-                        <h3>Python Programming</h3>
-
-                        <iframe
-                            src="https://www.youtube.com/embed/rfscVS0vtbw"
-                            title="Python Programming Learning Video"
-                            loading="lazy"
-                            allowfullscreen>
-                        </iframe>
-
-                        <p>
-                            Discover Python programming and
-                            strengthen your coding fundamentals.
-                        </p>
-                    </div>
 
                 </div>
+
+
+                <div class="about-points">
+
+                    <div class="about-point reveal">
+
+                        <div class="point-check">✓</div>
+
+                        <div>
+                            <h3>Project Discovery</h3>
+                            <p>
+                                Help students explore relevant project
+                                opportunities and providers.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="about-point reveal">
+
+                        <div class="point-check">✓</div>
+
+                        <div>
+                            <h3>Provider Profiles</h3>
+                            <p>
+                                Organize provider skills, experience,
+                                and portfolio information.
+                            </p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="about-point reveal">
+
+                        <div class="point-check">✓</div>
+
+                        <div>
+                            <h3>Centralized Management</h3>
+                            <p>
+                                Keep project requests and user activities
+                                organized through dedicated workspaces.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
+
         </section>
 
 
         <!-- CALL TO ACTION -->
 
-        <section class="cta">
+        <section class="cta-section">
+
             <div class="container">
 
-                <h2>Your Next Project Starts Here.</h2>
+                <div class="cta-box reveal">
 
-                <p>
-                    Whether you are a student searching for the right
-                    opportunity or a provider sharing project ideas,
-                    EDU MATCH brings both sides together.
-                </p>
+                    <h2>Start your next project with EduMatch.</h2>
 
-                <button class="btn" onclick="openModal('signup')">
-                    Join EDU MATCH &rarr;
-                </button>
+                    <p>
+                        Create an account to explore the platform
+                        and discover new project opportunities.
+                    </p>
+
+                    <a href="student/register.html" class="btn btn-primary">
+                        Get Started ↗
+                    </a>
+
+                </div>
 
             </div>
+
         </section>
 
     </main>
@@ -1282,270 +1086,83 @@
 
     <!-- FOOTER -->
 
-    <footer>
-        <div class="container">
+    <footer class="footer">
 
-            <div class="footer-grid">
+        <div class="container footer-inner">
 
-                <div class="footer-brand">
-                    <a href="#home" class="logo">
-                        EDU <span style="color:white">MATCH.</span>
-                    </a>
+            <a href="index.html" class="footer-brand">
+                edu<span>match</span>
+            </a>
 
-                    <p>
-                        Connecting students and project providers
-                        to make project discovery, learning, and
-                        collaboration easier.
-                    </p>
-                </div>
+            <p>
+                © <span id="currentYear"></span> EduMatch
+            </p>
 
-                <div class="footer-links">
-                    <h3>Explore</h3>
-
-                    <a href="#home">Home</a>
-                    <a href="#categories">Categories</a>
-                    <a href="#projects">Projects</a>
-                    <a href="#shorts">Learning Shorts</a>
-                </div>
-
-                <div class="footer-links">
-                    <h3>Get Started</h3>
-
-                    <a href="#how-it-works">How It Works</a>
-
-                    <a href="#signup"
-                       onclick="openModal('signup'); return false;">
-                        Create Account
-                    </a>
-
-                    <a href="#login"
-                       onclick="openModal('login'); return false;">
-                        Login
-                    </a>
-                </div>
-
-            </div>
-
-            <div class="footer-bottom">
-                &copy; <span id="currentYear"></span> EDU MATCH.
-                Built to connect ideas with opportunities.
+            <div class="footer-links">
+                <a href="student/login.html">Student</a>
+                <a href="provider/login.html">Provider</a>
+                <a href="admin/login.html">Administrator</a>
             </div>
 
         </div>
+
     </footer>
-
-
-    <!-- LOGIN AND SIGNUP MODAL -->
-
-    <div class="modal" id="authModal" role="dialog"
-         aria-modal="true" aria-labelledby="modalTitle">
-
-        <div class="modal-box">
-
-            <button class="close-modal"
-                    onclick="closeModal()"
-                    aria-label="Close dialog">
-                &times;
-            </button>
-
-            <h2 id="modalTitle">Welcome to EDU MATCH</h2>
-
-            <p id="modalDescription">
-                Connect with the right project opportunities.
-            </p>
-
-            <form id="authForm">
-
-                <div class="form-group" id="nameGroup">
-                    <label for="fullName">Full Name</label>
-
-                    <input type="text"
-                           id="fullName"
-                           placeholder="Enter your name"
-                           autocomplete="name">
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-
-                    <input type="email"
-                           id="email"
-                           placeholder="you@example.com"
-                           autocomplete="email"
-                           required>
-                </div>
-
-                <div class="form-group">
-                    <label for="role">I want to join as</label>
-
-                    <select id="role" required>
-                        <option value="student">Student</option>
-                        <option value="provider">Project Provider</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-
-                    <input type="password"
-                           id="password"
-                           placeholder="Enter a password"
-                           autocomplete="current-password"
-                           required
-                           minlength="6">
-                </div>
-
-                <button type="submit"
-                        class="btn btn-primary form-submit"
-                        id="submitButton">
-                    Create Account
-                </button>
-
-                <div class="form-message"
-                     id="formMessage"
-                     role="status"
-                     aria-live="polite">
-                </div>
-
-            </form>
-
-            <p style="margin-top:20px; margin-bottom:0;">
-                <span id="switchText">Already have an account?</span>
-
-                <button type="button"
-                        class="text-link"
-                        id="switchMode"
-                        onclick="switchAuthMode()">
-                    Login
-                </button>
-            </p>
-
-        </div>
-    </div>
 
 
     <!-- JAVASCRIPT -->
 
     <script>
-        // Set the current year in the footer.
+        // Update copyright year
         document.getElementById("currentYear").textContent =
             new Date().getFullYear();
 
 
-        // Login and signup modal.
-        const modal = document.getElementById("authModal");
+        // Mobile navigation menu
+        const menuButton = document.getElementById("menuButton");
+        const navLinks = document.getElementById("navLinks");
 
-        const modalTitle = document.getElementById("modalTitle");
+        menuButton.addEventListener("click", function () {
+            const isOpen = navLinks.classList.toggle("open");
 
-        const modalDescription =
-            document.getElementById("modalDescription");
+            menuButton.textContent = isOpen ? "✕" : "☰";
+            menuButton.setAttribute("aria-expanded", isOpen);
+        });
 
-        const nameGroup = document.getElementById("nameGroup");
-
-        const fullName = document.getElementById("fullName");
-
-        const password = document.getElementById("password");
-
-        const submitButton = document.getElementById("submitButton");
-
-        const switchText = document.getElementById("switchText");
-
-        const switchModeButton =
-            document.getElementById("switchMode");
-
-        const formMessage = document.getElementById("formMessage");
-
-        let authMode = "signup";
-
-
-        function openModal(mode) {
-            authMode = mode;
-
-            updateAuthForm();
-
-            modal.classList.add("active");
-
-            formMessage.textContent = "";
-        }
-
-
-        function closeModal() {
-            modal.classList.remove("active");
-        }
-
-
-        function switchAuthMode() {
-            authMode = authMode === "signup" ? "login" : "signup";
-
-            updateAuthForm();
-
-            formMessage.textContent = "";
-        }
-
-
-        function updateAuthForm() {
-            const isSignup = authMode === "signup";
-
-            modalTitle.textContent = isSignup
-                ? "Create Your Account"
-                : "Welcome Back";
-
-            modalDescription.textContent = isSignup
-                ? "Join EDU MATCH and explore project opportunities."
-                : "Enter your details to access your account.";
-
-            nameGroup.style.display = isSignup ? "block" : "none";
-
-            fullName.required = isSignup;
-
-            password.autocomplete = isSignup
-                ? "new-password"
-                : "current-password";
-
-            submitButton.textContent = isSignup
-                ? "Create Account"
-                : "Login";
-
-            switchText.textContent = isSignup
-                ? "Already have an account?"
-                : "Don't have an account?";
-
-            switchModeButton.textContent = isSignup
-                ? "Login"
-                : "Sign Up";
-        }
-
-
-        // Close the modal when the user clicks outside the box.
-        modal.addEventListener("click", function(event) {
-            if (event.target === modal) {
-                closeModal();
-            }
+        navLinks.querySelectorAll("a").forEach(function (link) {
+            link.addEventListener("click", function () {
+                navLinks.classList.remove("open");
+                menuButton.textContent = "☰";
+                menuButton.setAttribute("aria-expanded", "false");
+            });
         });
 
 
-        // Close the modal using the Escape key.
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "Escape") {
-                closeModal();
-            }
-        });
-        document.getElementById("authForm").addEventListener(
-            "submit",
-            function(event) {
-                event.preventDefault();
+        // Reveal sections when scrolling down
+        const revealElements = document.querySelectorAll(".reveal");
 
-                if (!this.reportValidity()) {
-                    return;
+        if ("IntersectionObserver" in window) {
+            const observer = new IntersectionObserver(
+                function (entries, observer) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add("visible");
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                },
+                {
+                    threshold: 0.12
                 }
+            );
 
-                formMessage.style.color = "#b45309";
-
-                formMessage.textContent = authMode === "signup"
-                    ? "Demo only: connect this form to your backend to create an account."
-                    : "Demo only: connect this form to your backend to log in.";
-            }
-        );
+            revealElements.forEach(function (element) {
+                observer.observe(element);
+            });
+        } else {
+            revealElements.forEach(function (element) {
+                element.classList.add("visible");
+            });
+        }
     </script>
 
 </body>
