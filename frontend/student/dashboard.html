@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard | EduMatch</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7657ff;
+            --primary-dark: #6244e8;
+            --navy: #111827;
+            --text: #252b3a;
+            --muted: #858b9c;
+            --background: #f7f8fc;
+            --white: #ffffff;
+            --border: #eceef4;
+            --green: #159b70;
+            --orange: #e99432;
+            --red: #e45b68;
+            --shadow: 0 5px 24px rgba(30, 35, 70, 0.045);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* Main Layout */
+
+        .app {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 10px;
+            margin-bottom: 42px;
+        }
+
+        .brand-icon {
+            width: 39px;
+            height: 39px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--navy);
+        }
+
+        .brand-name span {
+            color: var(--primary);
+        }
+
+        .menu-label {
+            padding: 0 12px;
+            margin-bottom: 13px;
+            color: #a0a5b3;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px 14px;
+            border-radius: 11px;
+            color: #777e91;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f5f2ff;
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            background: #f0edff;
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 21px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .nav-count {
+            margin-left: auto;
+            background: #f0edff;
+            color: var(--primary);
+            padding: 3px 7px;
+            border-radius: 7px;
+            font-size: 10px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .help-card {
+            background: linear-gradient(145deg, #f0edff, #faf9ff);
+            padding: 17px;
+            border-radius: 15px;
+            margin: 15px 0 22px;
+        }
+
+        .help-card h4 {
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .help-card p {
+            font-size: 11px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        .help-card a {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logout-link {
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        /* Main Content */
+
+        .main {
+            margin-left: 250px;
+            padding: 0 35px 40px;
+            min-width: 0;
+        }
+
+        .topbar {
+            min-height: 88px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-toggle {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: white;
+            border-radius: 10px;
+            font-size: 20px;
+        }
+
+        .page-heading h1 {
+            font-size: 22px;
+            letter-spacing: -0.7px;
+        }
+
+        .page-heading p {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 17px;
+        }
+
+        .search-box {
+            width: 220px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 11px 13px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        .search-box span {
+            color: var(--muted);
+        }
+
+        .search-box input {
+            width: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 11px;
+            color: var(--text);
+        }
+
+        .notification {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            position: relative;
+            font-size: 18px;
+        }
+
+        .notification::after {
+            content: "";
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            background: var(--red);
+            border: 2px solid white;
+            border-radius: 50%;
+            top: 7px;
+            right: 7px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 39px;
+            height: 39px;
+            border-radius: 12px;
+            background: #e7e0ff;
+            color: var(--primary);
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .profile-info strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .profile-info small {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        /* Welcome Banner */
+
+        .welcome-banner {
+            background: linear-gradient(110deg, #191f36 0%, #29234f 55%, #5540a8 100%);
+            color: white;
+            padding: 30px 32px;
+            border-radius: 19px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 25px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 28px;
+        }
+
+        .welcome-banner::after {
+            content: "";
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 50%;
+            right: 95px;
+            top: -125px;
+            box-shadow: 0 0 0 30px rgba(255,255,255,0.025),
+                        0 0 0 60px rgba(255,255,255,0.025);
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .welcome-tag {
+            display: inline-block;
+            background: rgba(255,255,255,0.12);
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 10px;
+            margin-bottom: 13px;
+            color: #ded7ff;
+        }
+
+        .welcome-banner h2 {
+            font-size: clamp(22px, 2.5vw, 29px);
+            line-height: 1.35;
+            letter-spacing: -0.8px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-banner p {
+            color: #d4d3e7;
+            font-size: 12px;
+            line-height: 1.8;
+            max-width: 470px;
+        }
+
+        .welcome-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+            min-width: 165px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            border-radius: 9px;
+            padding: 12px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .btn-light {
+            background: white;
+            color: var(--navy);
+        }
+
+        .btn-light:hover {
+            background: #f0edff;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            color: white;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Statistics */
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 16px;
+        }
+
+        .section-title h2 {
+            font-size: 16px;
+            letter-spacing: -0.3px;
+        }
+
+        .section-title p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .section-link {
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 19px;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            display: grid;
+            place-items: center;
+            font-size: 19px;
+        }
+
+        .purple-bg { background: #f0edff; }
+        .green-bg { background: #e4f8f0; }
+        .orange-bg { background: #fff1df; }
+        .blue-bg { background: #e7f2ff; }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-top: 8px;
+        }
+
+        .stat-note {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 9px;
+        }
+
+        .stat-note span {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        /* Quick Actions */
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 19px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: 0.2s;
+        }
+
+        .action-card:hover {
+            border-color: #d5ccff;
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 21px;
+        }
+
+        .action-text h3 {
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .action-text p {
+            font-size: 10px;
+            line-height: 1.6;
+            color: var(--muted);
+        }
+
+        .action-arrow {
+            margin-left: auto;
+            color: #9ba1b0;
+            font-size: 18px;
+        }
+
+        /* Content Columns */
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.55fr) minmax(270px, 1fr);
+            gap: 22px;
+            align-items: start;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .project-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 17px 0;
+            border-bottom: 1px solid #f0f1f6;
+        }
+
+        .project-item:last-child {
+            border-bottom: none;
+            padding-bottom: 2px;
+        }
+
+        .project-symbol {
+            width: 43px;
+            height: 43px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 19px;
+            flex-shrink: 0;
+        }
+
+        .project-info {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .project-info h3 {
+            font-size: 12px;
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+
+        .project-info p {
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.7;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 7px;
+            font-size: 9px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-progress {
+            background: #eaf1ff;
+            color: #4774d9;
+        }
+
+        .status-pending {
+            background: #fff2df;
+            color: #bb7a22;
+        }
+
+        .status-completed {
+            background: #e2f7ee;
+            color: #18865f;
+        }
+
+        /* Provider Cards */
+
+        .provider-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .provider-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f1f6;
+        }
+
+        .provider-item:last-child {
+            border-bottom: none;
+        }
+
+        .provider-avatar {
+            width: 43px;
+            height: 43px;
+            flex-shrink: 0;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .provider-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .provider-info h3 {
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .provider-info p {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .rating {
+            font-size: 10px;
+            color: #d89124;
+            margin-top: 5px;
+        }
+
+        .view-btn {
+            border: 1px solid #e7e2ff;
+            background: #f6f4ff;
+            color: var(--primary);
+            border-radius: 8px;
+            padding: 8px 10px;
+            font-size: 9px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .view-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Empty State / Footer */
+
+        .demo-note {
+            margin-top: 24px;
+            padding: 12px 15px;
+            background: #f0edff;
+            border: 1px solid #e7e1ff;
+            color: #6653b4;
+            border-radius: 10px;
+            font-size: 10px;
+            line-height: 1.8;
+        }
+
+        .footer {
+            padding-top: 28px;
+            text-align: center;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .footer strong {
+            color: var(--primary);
+        }
+
+        .overlay {
+            display: none;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 1200px) {
+            .main {
+                padding-left: 25px;
+                padding-right: 25px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .search-box {
+                width: 180px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 850px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .overlay.show {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(17, 24, 39, 0.35);
+                z-index: 90;
+            }
+
+            .main {
+                margin-left: 0;
+                padding: 0 20px 30px;
+            }
+
+            .menu-toggle {
+                display: grid;
+                place-items: center;
+            }
+
+            .topbar {
+                min-height: 78px;
+            }
+
+            .welcome-banner {
+                align-items: flex-start;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .action-card {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .main {
+                padding: 0 13px 25px;
+            }
+
+            .topbar {
+                gap: 8px;
+                margin-bottom: 20px;
+            }
+
+            .page-heading h1 {
+                font-size: 17px;
+            }
+
+            .page-heading p {
+                font-size: 10px;
+            }
+
+            .topbar-right {
+                gap: 8px;
+            }
+
+            .search-box {
+                display: none;
+            }
+
+            .profile-info {
+                display: none;
+            }
+
+            .welcome-banner {
+                flex-direction: column;
+                padding: 23px;
+            }
+
+            .welcome-banner h2 {
+                font-size: 23px;
+            }
+
+            .welcome-actions {
+                width: 100%;
+                flex-direction: row;
+            }
+
+            .welcome-actions .btn {
+                flex: 1;
+                padding: 12px 8px;
+                font-size: 10px;
+            }
+
+            .stats-grid {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 14px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+
+            .stat-icon {
+                width: 35px;
+                height: 35px;
+            }
+
+            .panel {
+                padding: 15px;
+            }
+
+            .project-item {
+                flex-wrap: wrap;
+            }
+
+            .project-item .status {
+                margin-left: 55px;
+            }
+
+            .section-title h2 {
+                font-size: 14px;
+            }
+
+            .provider-item {
+                flex-wrap: wrap;
+            }
+
+            .view-btn {
+                margin-left: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+
+        <a href="../index.html" class="brand">
+            <div class="brand-icon">E</div>
+            <div class="brand-name">Edu<span>Match</span></div>
+        </a>
+
+        <div class="menu-label">WORKSPACE</div>
+
+        <nav class="nav-menu">
+            <a href="dashboard.html" class="nav-link active">
+                <span class="nav-icon">▦</span>
+                Dashboard
+            </a>
+
+            <a href="search.html" class="nav-link">
+                <span class="nav-icon">⌕</span>
+                Find Providers
+            </a>
+
+            <a href="requirement.html" class="nav-link">
+                <span class="nav-icon">＋</span>
+                Post a Requirement
+            </a>
+
+            <a href="orders.html" class="nav-link">
+                <span class="nav-icon">▤</span>
+                My Projects
+                <span class="nav-count">3</span>
+            </a>
+
+            <a href="chat.html" class="nav-link">
+                <span class="nav-icon">▱</span>
+                Messages
+                <span class="nav-count">2</span>
+            </a>
+        </nav>
+
+        <div class="menu-label" style="margin-top: 35px;">ACCOUNT</div>
+
+        <nav class="nav-menu">
+            <a href="settings.html" class="nav-link">
+                <span class="nav-icon">⚙</span>
+                Settings
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <div class="help-card">
+                <h4>Need some help?</h4>
+                <p>Find the right support for your next project.</p>
+                <a href="search.html">Explore providers →</a>
+            </div>
+
+            <a href="login.html" class="nav-link logout-link">
+                <span class="nav-icon">↪</span>
+                Logout
+            </a>
+
+        </div>
+
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle" aria-label="Open navigation">
+                    ☰
+                </button>
+
+                <div class="page-heading">
+                    <h1>Student Dashboard</h1>
+                    <p>Manage your projects and find the right people.</p>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+
+                <label class="search-box">
+                    <span>⌕</span>
+                    <input
+                        type="search"
+                        id="globalSearch"
+                        placeholder="Search projects..."
+                        aria-label="Search projects"
+                    >
+                </label>
+
+                <button class="notification" id="notificationBtn" aria-label="Notifications">
+                    ♧
+                </button>
+
+                <div class="profile">
+                    <div class="avatar" id="profileAvatar">ST</div>
+
+                    <div class="profile-info">
+                        <strong id="profileName">Student</strong>
+                        <small>Student Account</small>
+                    </div>
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- WELCOME BANNER -->
+        <section class="welcome-banner">
+
+            <div class="welcome-content">
+                <span class="welcome-tag">YOUR PROJECT JOURNEY STARTS HERE</span>
+
+                <h2>Welcome back, <span id="welcomeName">Student</span>! 👋</h2>
+
+                <p>
+                    Have an idea in mind? Find experienced project providers,
+                    share your requirements, and turn your ideas into reality.
+                </p>
+            </div>
+
+            <div class="welcome-actions">
+                <a href="search.html" class="btn btn-light">
+                    Find a Provider ↗
+                </a>
+
+                <a href="requirement.html" class="btn btn-outline">
+                    + New Requirement
+                </a>
+            </div>
+
+        </section>
+
+        <!-- STATISTICS -->
+        <section>
+            <div class="section-title">
+                <div>
+                    <h2>Project Overview</h2>
+                    <p>A quick look at your project activity.</p>
+                </div>
+
+                <a href="orders.html" class="section-link">View all projects →</a>
+            </div>
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Total Projects</span>
+                        <div class="stat-icon purple-bg">▤</div>
+                    </div>
+
+                    <div class="stat-number">08</div>
+                    <div class="stat-note">Projects you have created</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Active Projects</span>
+                        <div class="stat-icon green-bg">↗</div>
+                    </div>
+
+                    <div class="stat-number">03</div>
+                    <div class="stat-note">Currently in progress</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Pending Requests</span>
+                        <div class="stat-icon orange-bg">◷</div>
+                    </div>
+
+                    <div class="stat-number">02</div>
+                    <div class="stat-note">Waiting for a response</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Completed</span>
+                        <div class="stat-icon blue-bg">✓</div>
+                    </div>
+
+                    <div class="stat-number">03</div>
+                    <div class="stat-note">Successfully completed</div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- QUICK ACTIONS -->
+        <section>
+            <div class="section-title">
+                <div>
+                    <h2>Quick Actions</h2>
+                    <p>What would you like to do today?</p>
+                </div>
+            </div>
+
+            <div class="quick-actions">
+
+                <a href="search.html" class="action-card">
+                    <div class="action-icon purple-bg">⌕</div>
+
+                    <div class="action-text">
+                        <h3>Find a Provider</h3>
+                        <p>Explore people who can help with your project.</p>
+                    </div>
+
+                    <span class="action-arrow">›</span>
+                </a>
+
+                <a href="requirement.html" class="action-card">
+                    <div class="action-icon green-bg">＋</div>
+
+                    <div class="action-text">
+                        <h3>Post a Requirement</h3>
+                        <p>Tell providers what you need to build.</p>
+                    </div>
+
+                    <span class="action-arrow">›</span>
+                </a>
+
+                <a href="chat.html" class="action-card">
+                    <div class="action-icon orange-bg">▱</div>
+
+                    <div class="action-text">
+                        <h3>Open Messages</h3>
+                        <p>Discuss project details with providers.</p>
+                    </div>
+
+                    <span class="action-arrow">›</span>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- PROJECTS AND PROVIDERS -->
+        <section class="content-grid">
+
+            <!-- RECENT PROJECTS -->
+            <div class="panel">
+
+                <div class="section-title">
+                    <div>
+                        <h2>Recent Projects</h2>
+                        <p>Keep track of your latest work.</p>
+                    </div>
+
+                    <a href="orders.html" class="section-link">See all →</a>
+                </div>
+
+                <div class="project-list" id="projectList">
+
+                    <div class="project-item" data-search="student management system web development">
+                        <div class="project-symbol purple-bg">💻</div>
+
+                        <div class="project-info">
+                            <h3>Student Management System</h3>
+                            <p>Web Development · Updated recently</p>
+                        </div>
+
+                        <span class="status status-progress">In Progress</span>
+                    </div>
+
+                    <div class="project-item" data-search="machine learning prediction model">
+                        <div class="project-symbol green-bg">🤖</div>
+
+                        <div class="project-info">
+                            <h3>Machine Learning Prediction Model</h3>
+                            <p>Machine Learning · Awaiting response</p>
+                        </div>
+
+                        <span class="status status-pending">Pending</span>
+                    </div>
+
+                    <div class="project-item" data-search="portfolio website frontend">
+                        <div class="project-symbol orange-bg">🎨</div>
+
+                        <div class="project-info">
+                            <h3>Personal Portfolio Website</h3>
+                            <p>Frontend Development · Completed</p>
+                        </div>
+
+                        <span class="status status-completed">Completed</span>
+                    </div>
+
+                </div>
+
+                <p id="noProjects" style="display:none; padding:20px 0; font-size:12px; color:#858b9c;">
+                    No matching projects found.
+                </p>
+
+            </div>
+
+            <!-- RECOMMENDED PROVIDERS -->
+            <div class="panel">
+
+                <div class="section-title">
+                    <div>
+                        <h2>Recommended Providers</h2>
+                        <p>People you might want to work with.</p>
+                    </div>
+                </div>
+
+                <div class="provider-list">
+
+                    <div class="provider-item">
+                        <div class="provider-avatar purple-bg">AR</div>
+
+                        <div class="provider-info">
+                            <h3>Alex Rivera</h3>
+                            <p>Full Stack Development</p>
+                            <div class="rating">★ 4.9 <span style="color:#858b9c;">· Example rating</span></div>
+                        </div>
+
+                        <a href="provider-profile.html" class="view-btn">View</a>
+                    </div>
+
+                    <div class="provider-item">
+                        <div class="provider-avatar green-bg">SP</div>
+
+                        <div class="provider-info">
+                            <h3>Sam Patel</h3>
+                            <p>AI & Machine Learning</p>
+                            <div class="rating">★ 4.8 <span style="color:#858b9c;">· Example rating</span></div>
+                        </div>
+
+                        <a href="provider-profile.html" class="view-btn">View</a>
+                    </div>
+
+                    <div class="provider-item">
+                        <div class="provider-avatar orange-bg">MK</div>
+
+                        <div class="provider-info">
+                            <h3>Morgan Kim</h3>
+                            <p>UI/UX & Web Design</p>
+                            <div class="rating">★ 4.7 <span style="color:#858b9c;">· Example rating</span></div>
+                        </div>
+
+                        <a href="provider-profile.html" class="view-btn">View</a>
+                    </div>
+
+                </div>
+
+                <a href="search.html"
+                   class="btn btn-primary"
+                   style="width:100%; margin-top:15px;">
+                    Explore All Providers →
+                </a>
+
+            </div>
+
+        </section>
+
+        <div class="demo-note">
+            <strong>Development preview:</strong>
+            The projects, statistics, and provider profiles on this dashboard
+            are sample data. They will become dynamic when EduMatch is connected
+            to its backend, database, and authentication system.
+        </div>
+
+        <footer class="footer">
+            © 2026 <strong>EduMatch</strong> · Helping ideas find the right people.
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+    // Mobile sidebar
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const menuToggle = document.getElementById("menuToggle");
+
+    function toggleSidebar() {
+        sidebar.classList.toggle("open");
+        overlay.classList.toggle("show");
+    }
+
+    menuToggle.addEventListener("click", toggleSidebar);
+    overlay.addEventListener("click", toggleSidebar);
+
+    const searchInput = document.getElementById("globalSearch");
+    const projectItems = document.querySelectorAll(".project-item");
+    const noProjects = document.getElementById("noProjects");
+
+    searchInput.addEventListener("input", function () {
+        const query = this.value.toLowerCase().trim();
+        let visibleCount = 0;
+
+        projectItems.forEach(function (project) {
+            const searchableText =
+                (project.innerText + " " + project.dataset.search).toLowerCase();
+
+            const matches = searchableText.includes(query);
+
+            project.style.display = matches ? "flex" : "none";
+
+            if (matches) {
+                visibleCount++;
+            }
+        });
+
+        noProjects.style.display = visibleCount === 0 ? "block" : "none";
+    });
+
+    const savedName = localStorage.getItem("eduMatchUserName");
+
+    if (savedName) {
+        const firstName = savedName.trim().split(/\s+/)[0];
+
+        document.getElementById("welcomeName").textContent = firstName;
+        document.getElementById("profileName").textContent = savedName;
+
+        document.getElementById("profileAvatar").textContent =
+            firstName.substring(0, 2).toUpperCase();
+    }
+
+    document.getElementById("notificationBtn").addEventListener("click", function () {
+        alert("You have no new notifications in this demo.");
+    });
+</script>
+
+</body>
+</html>
