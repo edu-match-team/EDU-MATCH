@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Find Providers | EduMatch</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7657ff;
+            --primary-dark: #6042e8;
+            --dark: #111827;
+            --text: #374151;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --background: #f7f8fc;
+            --white: #ffffff;
+            --green: #16a34a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button, a {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .navbar {
+            height: 74px;
+            padding: 0 7%;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .logo-icon {
+            width: 39px;
+            height: 39px;
+            background: var(--primary);
+            color: white;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            font-size: 19px;
+        }
+
+        .logo span:last-child {
+            color: var(--primary);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .nav-link {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .avatar {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            color: var(--primary);
+            background: #eee9ff;
+            font-weight: 800;
+        }
+
+        .page {
+            max-width: 1350px;
+            margin: auto;
+            padding: 35px 5%;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 23px;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .heading {
+            margin-bottom: 26px;
+        }
+
+        .heading h1 {
+            font-size: clamp(27px, 4vw, 36px);
+            letter-spacing: -1.2px;
+            margin-bottom: 10px;
+        }
+
+        .heading p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .search-banner {
+            background: linear-gradient(115deg, #211b49, #6245e9);
+            color: white;
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 30px;
+        }
+
+        .search-banner h2 {
+            font-size: 21px;
+            margin-bottom: 8px;
+        }
+
+        .search-banner p {
+            font-size: 13px;
+            line-height: 1.7;
+            color: #e3ddff;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            background: white;
+            padding: 7px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .search-symbol {
+            padding-left: 10px;
+            color: #777;
+            font-size: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            width: 100%;
+            min-width: 0;
+            padding: 13px 8px;
+            border: none;
+            outline: none;
+            color: var(--dark);
+            font-size: 13px;
+        }
+
+        /* Google-like instant suggestions dropdown */
+        .suggestions-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 12px 36px rgba(20, 16, 60, 0.18);
+            border: 1px solid var(--border);
+            z-index: 1000;
+            overflow: hidden;
+            display: none;
+        }
+
+        .suggestions-dropdown.active {
+            display: block;
+            animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .suggestion-item {
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--text);
+            transition: background 0.15s;
+            border-bottom: 1px solid #f1f3f9;
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-item:hover,
+        .suggestion-item.selected {
+            background: #f4f1ff;
+            color: var(--primary);
+        }
+
+        .suggestion-item .sug-icon {
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .suggestion-item .sug-badge {
+            margin-left: auto;
+            font-size: 10px;
+            font-weight: 700;
+            background: #eee9ff;
+            color: #6347e8;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        /* Pop-in smooth effect for search results */
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.92) translateY(14px);
+            }
+            70% {
+                transform: scale(1.01) translateY(-2px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .provider-card {
+            animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .primary-btn {
+            border: none;
+            background: var(--primary);
+            color: white;
+            padding: 13px 20px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .search-box .primary-btn {
+            background: var(--dark);
+            white-space: nowrap;
+        }
+
+        .search-box .primary-btn:hover {
+            background: #30394c;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 255px minmax(0, 1fr);
+            gap: 25px;
+            align-items: start;
+        }
+
+        .filter-panel,
+        .provider-card,
+        .results-toolbar {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+        }
+
+        .filter-panel {
+            padding: 22px;
+            position: sticky;
+            top: 95px;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .filter-header h3 {
+            font-size: 16px;
+        }
+
+        .text-btn {
+            border: none;
+            background: none;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .filter-group {
+            padding-bottom: 22px;
+            margin-bottom: 22px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .filter-group h4 {
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .filter-group select,
+        .filter-group input[type="number"] {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            outline: none;
+            color: var(--text);
+            font-size: 12px;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .budget-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .budget-input {
+            position: relative;
+        }
+
+        .budget-input span {
+            position: absolute;
+            left: 11px;
+            top: 11px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .budget-input input {
+            padding-left: 26px !important;
+        }
+
+        .filter-apply {
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .results-toolbar {
+            padding: 18px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 17px;
+        }
+
+        .results-toolbar h3 {
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .results-toolbar p {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .sort-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .sort-box select {
+            max-width: 160px;
+            border: 1px solid var(--border);
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .provider-list {
+            display: grid;
+            gap: 17px;
+        }
+
+        .provider-card {
+            padding: 23px;
+            transition: 0.2s;
+        }
+
+        .provider-card:hover {
+            border-color: #c8bcff;
+            box-shadow: 0 8px 28px rgba(40, 30, 90, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .provider-top {
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .provider-avatar {
+            width: 58px;
+            height: 58px;
+            flex-shrink: 0;
+            border-radius: 15px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            font-weight: 800;
+            background: #eee9ff;
+            color: #6748ed;
+        }
+
+        .provider-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .provider-name-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 2px 0 7px;
+        }
+
+        .provider-name-row h3 {
+            font-size: 16px;
+        }
+
+        .verified {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--green);
+            background: #eaf9ef;
+            border-radius: 5px;
+            padding: 5px 7px;
+        }
+
+        .provider-role {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .match-badge {
+            flex-shrink: 0;
+            padding: 9px 11px;
+            background: #f0edff;
+            color: #6346e8;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .provider-description {
+            margin: 17px 0;
+            font-size: 12px;
+            line-height: 1.8;
+            color: #555f70;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 19px;
+        }
+
+        .skill {
+            background: #f3f4f8;
+            color: #4b5563;
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .provider-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            border-top: 1px solid var(--border);
+            padding-top: 17px;
+        }
+
+        .provider-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .stat strong {
+            color: var(--dark);
+            display: block;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .provider-actions {
+            display: flex;
+            gap: 9px;
+        }
+
+        .outline-btn {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--dark);
+            padding: 11px 13px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .outline-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .empty-state {
+            padding: 45px 20px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .empty-state .icon {
+            font-size: 35px;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            font-size: 17px;
+            margin-bottom: 9px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .demo-notice {
+            margin-top: 22px;
+            padding: 14px 16px;
+            background: #fff8e8;
+            border: 1px solid #f3dfae;
+            border-radius: 10px;
+            color: #805b13;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            padding: 30px 15px;
+        }
+
+        @media (max-width: 950px) {
+            .layout {
+                grid-template-columns: 220px minmax(0, 1fr);
+                gap: 15px;
+            }
+
+            .provider-card {
+                padding: 18px;
+            }
+
+            .provider-bottom {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .navbar {
+                height: 65px;
+                padding: 0 5%;
+            }
+
+            .nav-link {
+                display: none;
+            }
+
+            .page {
+                padding: 25px 4%;
+            }
+
+            .search-banner {
+                padding: 22px 17px;
+            }
+
+            .search-box {
+                flex-wrap: wrap;
+            }
+
+            .search-box input {
+                flex-basis: calc(100% - 60px);
+            }
+
+            .search-box .primary-btn {
+                width: 100%;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-panel {
+                position: static;
+            }
+
+            .results-toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .provider-top {
+                flex-wrap: wrap;
+            }
+
+            .match-badge {
+                margin-left: auto;
+            }
+
+            .provider-actions {
+                width: 100%;
+            }
+
+            .provider-actions a,
+            .provider-actions button {
+                flex: 1;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .provider-avatar {
+                width: 48px;
+                height: 48px;
+            }
+
+            .provider-name-row h3 {
+                font-size: 14px;
+            }
+
+            .match-badge {
+                font-size: 10px;
+            }
+
+            .provider-stats {
+                gap: 14px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <a href="../index.html" class="logo">
+            <span class="logo-icon">E</span>
+            <span>Edu<span>Match</span></span>
+        </a>
+
+        <div class="nav-right">
+            <a class="nav-link" href="dashboard.html">Dashboard</a>
+            <a class="nav-link" href="requirement.html">Post Requirement</a>
+            <a class="nav-link" href="chat.html">Messages</a>
+            <div class="avatar" id="userAvatar">S</div>
+        </div>
+    </nav>
+
+    <main class="page">
+
+        <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a> /
+            <span>Find Providers</span>
+        </div>
+
+        <section class="heading">
+            <h1>Find the right project provider</h1>
+            <p>Discover people with the skills you need and find the right partner for your next project.</p>
+        </section>
+
+        <section class="search-banner">
+            <h2>What kind of help do you need?</h2>
+            <p>Search by skills, technology, project type, or provider name.</p>
+
+            <form class="search-box" id="searchForm" autocomplete="off">
+                <span class="search-symbol">⌕</span>
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Try Python, web development, machine learning, 'ins'..."
+                    aria-label="Search providers"
+                    autocomplete="off"
+                >
+                <div id="suggestionsDropdown" class="suggestions-dropdown"></div>
+                <button type="submit" class="primary-btn">Search Providers</button>
+            </form>
+        </section>
+
+        <div class="layout">
+
+            <aside class="filter-panel">
+                <div class="filter-header">
+                    <h3>Filters</h3>
+                    <button class="text-btn" id="clearFilters" type="button">Clear all</button>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Project Category</h4>
+                    <select id="categoryFilter">
+                        <option value="">All categories</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="Machine Learning">Machine Learning</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="App Development">App Development</option>
+                        <option value="Database">Database</option>
+                        <option value="DSA">DSA</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Required Skill</h4>
+                    <select id="skillFilter">
+                        <option value="">All skills</option>
+                        <option value="HTML">HTML</option>
+                        <option value="CSS">CSS</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="Python">Python</option>
+                        <option value="Flask">Flask</option>
+                        <option value="Machine Learning">Machine Learning</option>
+                        <option value="SQL">SQL</option>
+                        <option value="C++">C++</option>
+                        <option value="React">React</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Maximum Budget</h4>
+                    <div class="budget-label">
+                        <span>Enter your budget</span>
+                        <span>INR (₹)</span>
+                    </div>
+                    <div class="budget-input">
+                        <span>₹</span>
+                        <input type="number" id="budgetFilter" min="0" placeholder="e.g. 5000">
+                    </div>
+                </div>
+
+                <button class="primary-btn filter-apply" id="applyFilters" type="button">
+                    Apply Filters
+                </button>
+            </aside>
+
+            <section class="results-section">
+
+                <div class="results-toolbar">
+                    <div>
+                        <h3>Available Providers</h3>
+                        <p id="resultCount" aria-live="polite">Loading providers...</p>
+                    </div>
+
+                    <div class="sort-box">
+                        <label for="sortFilter">Sort by</label>
+                        <select id="sortFilter">
+                            <option value="match">Best Match</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="price">Lowest Price</option>
+                            <option value="experience">Most Experienced</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="provider-list" id="providerList"></div>
+
+
+
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        © 2026 EduMatch · Connecting students with the right project partners.
+    </footer>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:5000/api";
+        let providers = [];
+
+        const searchInput = document.getElementById("searchInput");
+        const categoryFilter = document.getElementById("categoryFilter");
+        const skillFilter = document.getElementById("skillFilter");
+        const budgetFilter = document.getElementById("budgetFilter");
+        const sortFilter = document.getElementById("sortFilter");
+        const providerList = document.getElementById("providerList");
+        const resultCount = document.getElementById("resultCount");
+
+        // Parse query params if redirected from requirement post
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("skill")) skillFilter.value = urlParams.get("skill");
+        if (urlParams.get("category")) categoryFilter.value = urlParams.get("category");
+        if (urlParams.get("budget")) budgetFilter.value = urlParams.get("budget");
+
+        function escapeHTML(value) {
+            return String(value || "").replace(/[&<>"']/g, function(character) {
+                return {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;"
+                }[character];
+            });
+        }
+
+        async function fetchProvidersFromDSAEngine() {
+            providerList.innerHTML = '<div style="text-align:center; padding: 40px; color: var(--muted);"><p>Evaluating providers with DSA Matching Engine...</p></div>';
+
+            const query = searchInput.value.trim();
+            const category = categoryFilter.value;
+            const skill = skillFilter.value.trim();
+            const budgetVal = budgetFilter.value.trim() ? Number(budgetFilter.value) : null;
+
+            const skillsList = [];
+            if (skill) skillsList.push(skill);
+            if (query && !skillsList.includes(query)) skillsList.push(query);
+
+            try {
+                const response = await fetch(`${API_BASE}/matching/find-matches`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        skills: skillsList,
+                        category: category,
+                        budget: budgetVal,
+                        strict_budget: false
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success && Array.isArray(data.results)) {
+                    providers = data.results.map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        initials: p.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2),
+                        role: p.title || p.role || "Developer",
+                        category: p.category,
+                        description: p.description,
+                        skills: p.skills || [],
+                        rating: p.rating || 5.0,
+                        reviews: p.completed_projects || 12,
+                        projects: p.projects || p.completed_projects || 10,
+                        experience: p.experience || p.experience_years || 1,
+                        price: p.starting_price || p.price || 1500,
+                        match: Math.round(p.match_score || 85),
+                        matching_skills: p.matching_skills || [],
+                        verified: true
+                    }));
+                } else {
+                    providers = [];
+                }
+            } catch (err) {
+                console.warn("DSA Engine fallback:", err);
+                try {
+                    const res = await fetch(`${API_BASE}/providers`);
+                    const d = await res.json();
+                    providers = (d.providers || []).map(p => ({
+                        ...p,
+                        initials: p.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2),
+                        role: p.title,
+                        match: 85,
+                        verified: true
+                    }));
+                } catch (e2) {
+                    providers = [];
+                }
+            }
+
+            renderProviders();
+        }
+
+        function renderProviders() {
+            let results = [...providers];
+
+            switch (sortFilter.value) {
+                case "rating":
+                    results.sort((a, b) => b.rating - a.rating);
+                    break;
+                case "price":
+                    results.sort((a, b) => a.price - b.price);
+                    break;
+                case "experience":
+                    results.sort((a, b) => b.experience - a.experience);
+                    break;
+                default:
+                    results.sort((a, b) => b.match - a.match);
+            }
+
+            resultCount.textContent = `${results.length} provider${results.length === 1 ? "" : "s"} evaluated by DSA engine`;
+
+            if (results.length === 0) {
+                providerList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🔎</div>
+                        <h3>No providers found</h3>
+                        <p>Try a different keyword, select another skill, or increase your budget.</p>
+                        <button class="primary-btn" type="button" id="emptyReset">
+                            Clear Filters
+                        </button>
+                    </div>
+                `;
+                document.getElementById("emptyReset")?.addEventListener("click", clearAllFilters);
+                return;
+            }
+
+            providerList.innerHTML = results.map((provider, idx) => `
+                <article class="provider-card" style="animation-delay: ${idx * 0.06}s;">
+                    <div class="provider-top">
+                        <div class="provider-avatar">${escapeHTML(provider.initials)}</div>
+
+                        <div class="provider-info">
+                            <div class="provider-name-row">
+                                <h3>${escapeHTML(provider.name)}</h3>
+                                <span class="verified">✓ Verified Provider</span>
+                            </div>
+
+                            <p class="provider-role">${escapeHTML(provider.role)}</p>
+
+                            <div class="provider-meta">
+                                <span class="badge category">${escapeHTML(provider.category)}</span>
+                                <span class="badge rating">★ ${provider.rating.toFixed(1)}</span>
+                                <span class="badge match-score" style="background:#EDE9FE; color:#6D28D9; font-weight:700;">
+                                    ⚡ ${provider.match}% DSA Match
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="provider-description">
+                        ${escapeHTML(provider.description)}
+                    </p>
+
+                    <div class="skills">
+                        ${provider.skills.map(skill => `
+                            <span class="skill" style="${(provider.matching_skills || []).includes(skill.toLowerCase()) ? 'background:#DCFCE7; color:#15803D; font-weight:bold;' : ''}">
+                                ${escapeHTML(skill)}
+                            </span>
+                        `).join("")}
+                    </div>
+
+                    <div class="provider-bottom">
+                        <div class="provider-stats">
+                            <div class="stat">
+                                <strong>₹${provider.price.toLocaleString("en-IN")}</strong>
+                                Starting price
+                            </div>
+                            <div class="stat">
+                                <strong>${provider.projects}</strong>
+                                Projects
+                            </div>
+                            <div class="stat">
+                                <strong>${provider.experience} yrs</strong>
+                                Experience
+                            </div>
+                        </div>
+
+                        <div class="provider-actions" style="display:flex; gap:8px;">
+                            <a
+                                href="provider-profile.html?provider_id=${provider.id}"
+                                class="outline-btn"
+                                style="text-align:center; text-decoration:none; display:inline-block; padding:10px 14px; border-radius:8px; border:1px solid var(--border);"
+                            >View Profile</a>
+                            <a
+                                href="chat.html?provider_id=${provider.id}&provider_name=${encodeURIComponent(provider.name)}"
+                                class="primary-btn message-btn"
+                                style="text-align:center; text-decoration:none; display:inline-block; padding:10px 16px; border-radius:8px;"
+                            >Message & Connect</a>
+                        </div>
+                    </div>
+                </article>
+            `).join("");
+        }
+
+        function clearAllFilters() {
+            searchInput.value = "";
+            categoryFilter.value = "";
+            skillFilter.value = "";
+            budgetFilter.value = "";
+            sortFilter.value = "match";
+            closeSuggestions();
+            fetchProvidersFromDSAEngine();
+        }
+
+        // --- GOOGLE-LIKE AUTOCOMPLETE SUGGESTIONS POWERED BY TRIE ---
+        const suggestionsDropdown = document.getElementById("suggestionsDropdown");
+        let suggestionDebounceTimer = null;
+        let activeSuggestionIndex = -1;
+
+        function closeSuggestions() {
+            if (suggestionsDropdown) {
+                suggestionsDropdown.classList.remove("active");
+                suggestionsDropdown.innerHTML = "";
+                activeSuggestionIndex = -1;
+            }
+        }
+
+        async function fetchInstantSuggestions(query) {
+            if (!query || query.length < 1) {
+                closeSuggestions();
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/matching/suggestions?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                if (data.success && Array.isArray(data.suggestions) && data.suggestions.length > 0) {
+                    renderSuggestions(data.suggestions, query);
+                } else {
+                    closeSuggestions();
+                }
+            } catch (err) {
+                console.warn("Autocomplete suggestions error:", err);
+                closeSuggestions();
+            }
+        }
+
+        function renderSuggestions(suggestions, query) {
+            suggestionsDropdown.innerHTML = suggestions.map((sug, idx) => `
+                <div class="suggestion-item" data-index="${idx}" data-val="${escapeHTML(sug)}">
+                    <span class="sug-icon">🔍</span>
+                    <span>${escapeHTML(sug)}</span>
+                    <span class="sug-badge">Instant Match</span>
+                </div>
+            `).join("");
+
+            suggestionsDropdown.classList.add("active");
+
+            suggestionsDropdown.querySelectorAll(".suggestion-item").forEach(item => {
+                item.addEventListener("click", () => {
+                    searchInput.value = item.getAttribute("data-val");
+                    closeSuggestions();
+                    fetchProvidersFromDSAEngine();
+                });
+            });
+        }
+
+        searchInput.addEventListener("input", () => {
+            clearTimeout(suggestionDebounceTimer);
+            const val = searchInput.value.trim();
+            if (!val) {
+                closeSuggestions();
+                return;
+            }
+            suggestionDebounceTimer = setTimeout(() => {
+                fetchInstantSuggestions(val);
+            }, 120);
+        });
+
+        // Close suggestions when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!document.getElementById("searchForm").contains(e.target)) {
+                closeSuggestions();
+            }
+        });
+
+        document.getElementById("searchForm").addEventListener("submit", event => {
+            event.preventDefault();
+            closeSuggestions();
+            fetchProvidersFromDSAEngine();
+        });
+
+        document.getElementById("applyFilters").addEventListener("click", () => {
+            closeSuggestions();
+            fetchProvidersFromDSAEngine();
+        });
+
+        document.getElementById("clearFilters").addEventListener("click", clearAllFilters);
+        sortFilter.addEventListener("change", renderProviders);
+
+        fetchProvidersFromDSAEngine();
+    </script>
+    <script src="../theme.js"></script>
+</body>
+</html>

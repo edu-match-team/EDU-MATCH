@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Project Requests | EduMatch</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #7657ff;
+            --dark: #172033;
+            --muted: #64748b;
+            --border: #e3e7ef;
+            --background: #f7f8fc;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--background);
+            color: var(--dark);
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 18px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--dark);
+        }
+
+        header a.back {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 1150px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .heading {
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .heading p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .summary-card p {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card h2 {
+            font-size: 28px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .toolbar h2 {
+            font-size: 21px;
+        }
+
+        select {
+            padding: 11px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 7px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #6243eb;
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        .requests {
+            display: grid;
+            gap: 18px;
+        }
+
+        .request-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 23px;
+        }
+
+        .request-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .request-header h3 {
+            font-size: 19px;
+            margin-bottom: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .request-id {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 7px 11px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 12px;
+            font-weight: bold;
+            height: fit-content;
+        }
+
+        .badge.pending {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .badge.accepted,
+        .badge.in-progress {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .badge.completed {
+            background: #f0fdf4;
+            color: #15803d;
+        }
+
+        .badge.rejected,
+        .badge.cancelled {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .description {
+            color: var(--muted);
+            line-height: 1.7;
+            font-size: 14px;
+            margin-bottom: 18px;
+            overflow-wrap: anywhere;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 16px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-label {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .status-message {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .status-message a {
+            color: var(--primary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        @media (max-width: 800px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .details-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 500px) {
+            header {
+                padding: 18px 20px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .summary-card {
+                padding: 15px;
+            }
+
+            .summary-card h2 {
+                font-size: 23px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .heading h1 {
+                font-size: 25px;
+            }
+
+            .request-card {
+                padding: 17px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<header>
+    <a href="../index.html" class="logo">Edu<span>Match</span></a>
+    <a href="dashboard.html" class="back">← Dashboard</a>
+</header>
+
+<main>
+
+    <div class="heading">
+        <h1>My Project Requests</h1>
+        <p>Track your requirements and monitor progress with project providers.</p>
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <p>Total Requests</p>
+            <h2 id="totalCount">—</h2>
+        </div>
+
+        <div class="summary-card">
+            <p>Pending</p>
+            <h2 id="pendingCount">—</h2>
+        </div>
+
+        <div class="summary-card">
+            <p>In Progress</p>
+            <h2 id="progressCount">—</h2>
+        </div>
+
+        <div class="summary-card">
+            <p>Completed</p>
+            <h2 id="completedCount">—</h2>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <h2>Your Requests</h2>
+
+        <div>
+            <label for="statusFilter" style="font-size:13px;margin-right:8px;">
+                Filter:
+            </label>
+
+            <select id="statusFilter">
+                <option value="all">All Requests</option>
+                <option value="pending">Pending</option>
+                <option value="accepted">Accepted</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="rejected">Rejected</option>
+                <option value="cancelled">Cancelled</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="pageStatus" class="status-message" role="status" aria-live="polite">
+        Loading your project requests...
+    </div>
+
+    <div id="requests" class="requests"></div>
+
+</main>
+
+<footer>
+    © <span id="year"></span> EduMatch | My Project Requests
+</footer>
+
+<script>
+    document.getElementById("year").textContent =
+        new Date().getFullYear();
+
+    const API_BASE = "http://127.0.0.1:5000/api";
+
+    let allRequests = [];
+
+    const requestsContainer = document.getElementById("requests");
+    const pageStatus = document.getElementById("pageStatus");
+    const statusFilter = document.getElementById("statusFilter");
+
+    function setStatus(message) {
+        pageStatus.hidden = false;
+        pageStatus.replaceChildren();
+
+        const text = document.createElement("p");
+        text.textContent = message;
+        pageStatus.appendChild(text);
+    }
+
+    function safeText(value, fallback = "Not provided") {
+        if (value === null || value === undefined || value === "") {
+            return fallback;
+        }
+
+        return String(value);
+    }
+
+    function normalizeStatus(status) {
+        return String(status || "pending")
+            .toLowerCase()
+            .replace(/[\s-]+/g, "_");
+    }
+
+    function prettyStatus(status) {
+        return normalizeStatus(status)
+            .split("_")
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ");
+    }
+
+    function updateSummary() {
+        document.getElementById("totalCount").textContent =
+            allRequests.length;
+
+        document.getElementById("pendingCount").textContent =
+            allRequests.filter(item =>
+                normalizeStatus(item.status) === "pending"
+            ).length;
+
+        document.getElementById("progressCount").textContent =
+            allRequests.filter(item =>
+                normalizeStatus(item.status) === "in_progress"
+            ).length;
+
+        document.getElementById("completedCount").textContent =
+            allRequests.filter(item =>
+                normalizeStatus(item.status) === "completed"
+            ).length;
+    }
+
+    function addDetail(container, label, value) {
+        const wrapper = document.createElement("div");
+
+        const labelElement = document.createElement("span");
+        labelElement.className = "detail-label";
+        labelElement.textContent = label;
+
+        const valueElement = document.createElement("span");
+        valueElement.className = "detail-value";
+        valueElement.textContent = value;
+
+        wrapper.append(labelElement, valueElement);
+        container.appendChild(wrapper);
+    }
+
+    function createRequestCard(request) {
+        const card = document.createElement("article");
+        card.className = "request-card";
+
+        const header = document.createElement("div");
+        header.className = "request-header";
+
+        const titleContainer = document.createElement("div");
+
+        const title = document.createElement("h3");
+        title.textContent = safeText(
+            request.title || request.project_title || request.name,
+            "Project Request"
+        );
+
+        const id = document.createElement("p");
+        id.className = "request-id";
+        id.textContent = "Request ID: " + safeText(request.id);
+
+        titleContainer.append(title, id);
+
+        const status = normalizeStatus(request.status);
+
+        const badge = document.createElement("span");
+        badge.className = "badge " + status;
+        badge.textContent = prettyStatus(status);
+
+        header.append(titleContainer, badge);
+        card.appendChild(header);
+
+        const description = document.createElement("p");
+        description.className = "description";
+        description.textContent = safeText(request.description);
+        card.appendChild(description);
+
+        const details = document.createElement("div");
+        details.className = "details-grid";
+
+        addDetail(
+            details,
+            "Provider",
+            safeText(
+                request.provider_name ||
+                (request.provider && request.provider.name)
+            )
+        );
+
+        addDetail(
+            details,
+            "Submitted On",
+            safeText(request.created_at || request.submitted_at)
+        );
+
+        addDetail(
+            details,
+            "Budget",
+            request.budget !== null &&
+            request.budget !== undefined &&
+            request.budget !== ""
+                ? "₹" + request.budget
+                : "Not specified"
+        );
+
+        card.appendChild(details);
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const chatLink = document.createElement("a");
+        chatLink.className = "btn";
+        chatLink.href = request.conversation_id
+            ? `chat.html?conversation_id=${encodeURIComponent(request.conversation_id)}`
+            : "chat.html";
+        chatLink.textContent = "Open Chat";
+
+        actions.appendChild(chatLink);
+
+        if (request.provider_id) {
+            const profileLink = document.createElement("a");
+            profileLink.className = "btn btn-secondary";
+            profileLink.href =
+                `provider-profile.html?id=${encodeURIComponent(request.provider_id)}`;
+            profileLink.textContent = "View Provider";
+
+            actions.appendChild(profileLink);
+        }
+
+        card.appendChild(actions);
+
+        return card;
+    }
+
+    function renderRequests() {
+        requestsContainer.replaceChildren();
+
+        const selectedStatus = statusFilter.value;
+
+        const filtered = allRequests.filter(request => {
+            return selectedStatus === "all" ||
+                normalizeStatus(request.status) === selectedStatus;
+        });
+
+        if (filtered.length === 0) {
+            setStatus(
+                allRequests.length === 0
+                    ? "You haven't submitted any project requests yet. Once you submit a requirement, it will appear here."
+                    : "No project requests match this filter."
+            );
+            return;
+        }
+
+        pageStatus.hidden = true;
+
+        filtered.forEach(request => {
+            requestsContainer.appendChild(createRequestCard(request));
+        });
+    }
+
+    async function loadRequests() {
+        setStatus("Loading your project requests...");
+
+        try {
+            const response = await fetch(`${API_BASE}/projects/my`, {
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                throw new Error("Could not load project requests.");
+            }
+
+            const data = await response.json();
+
+            allRequests = Array.isArray(data)
+                ? data
+                : (Array.isArray(data.projects) ? data.projects : []);
+
+            updateSummary();
+            renderRequests();
+
+        } catch (error) {
+            allRequests = [];
+            updateSummary();
+
+            setStatus(
+                "Your project requests could not be loaded. The Python backend, login session, and /api/projects/my endpoint must be working before this page can display your real requests."
+            );
+        }
+    }
+
+    statusFilter.addEventListener("change", renderRequests);
+
+    loadRequests();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

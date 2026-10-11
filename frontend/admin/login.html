@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduMatch | Admin Login</title>
+
+    <style>
+        :root {
+            --primary: #635bff;
+            --primary-dark: #5046e5;
+            --background: #f5f6fc;
+            --text: #20243a;
+            --muted: #858ba3;
+            --border: #e7e9f2;
+            --white: #ffffff;
+            --danger: #c73535;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .page {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        /* LEFT SIDE */
+
+        .brand-panel {
+            background: linear-gradient(145deg, #5046e5, #786eff);
+            color: white;
+            padding: 55px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-panel::before,
+        .brand-panel::after {
+            content: "";
+            position: absolute;
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .brand-panel::before {
+            width: 430px;
+            height: 430px;
+            right: -190px;
+            top: 12%;
+        }
+
+        .brand-panel::after {
+            width: 310px;
+            height: 310px;
+            right: -125px;
+            top: 23%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand-logo {
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: white;
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .brand h2 {
+            font-size: 24px;
+            letter-spacing: -0.7px;
+        }
+
+        .brand h2 span {
+            color: #dcd9ff;
+        }
+
+        .brand-content {
+            max-width: 470px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #e1deff;
+        }
+
+        .brand-content h1 {
+            font-size: clamp(34px, 4vw, 54px);
+            line-height: 1.15;
+            letter-spacing: -1.8px;
+            margin-bottom: 22px;
+        }
+
+        .brand-content p {
+            color: #e4e2ff;
+            font-size: 15px;
+            line-height: 1.9;
+            max-width: 430px;
+        }
+
+        .brand-footer {
+            position: relative;
+            z-index: 1;
+            font-size: 12px;
+            color: #e4e2ff;
+        }
+
+        /* RIGHT SIDE */
+
+        .form-panel {
+            display: grid;
+            place-items: center;
+            padding: 35px;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .mobile-brand {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 35px;
+        }
+
+        .mobile-logo {
+            width: 39px;
+            height: 39px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            color: white;
+            background: var(--primary);
+            font-weight: bold;
+            font-size: 21px;
+        }
+
+        .mobile-brand h2 {
+            font-size: 21px;
+        }
+
+        .mobile-brand span {
+            color: var(--primary);
+        }
+
+        .admin-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #efedff;
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 22px;
+        }
+
+        .admin-tag span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .login-card h2 {
+            font-size: 32px;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 21px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            background: white;
+            color: var(--text);
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,91,255,0.09);
+        }
+
+        .password-input {
+            padding-right: 75px !important;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            background: var(--primary);
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 6px;
+            transition: 0.2s;
+        }
+
+        .login-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .login-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            display: none;
+            margin-bottom: 20px;
+            padding: 13px;
+            border-radius: 9px;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .message.error {
+            display: block;
+            background: #fff0f0;
+            color: var(--danger);
+            border: 1px solid #ffdada;
+        }
+
+        .message.success {
+            display: block;
+            background: #eafaf2;
+            color: #137750;
+            border: 1px solid #c8efdd;
+        }
+
+        .security-note {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: #f8f8fd;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 25px;
+        }
+
+        .security-icon {
+            font-size: 18px;
+        }
+
+        .security-note p {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .security-note strong {
+            color: var(--text);
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: var(--primary);
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        @media (max-width: 850px) {
+            .page {
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 35px 24px;
+            }
+
+            .login-card {
+                max-width: 450px;
+            }
+
+            .mobile-brand {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .form-panel {
+                padding: 25px 20px;
+            }
+
+            .login-card h2 {
+                font-size: 28px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="page">
+
+    <section class="brand-panel">
+
+        <a href="../index.html" class="brand"
+           style="color: white; text-decoration: none;">
+
+            <div class="brand-logo">E</div>
+
+            <h2>Edu<span>Match</span></h2>
+
+        </a>
+
+        <div class="brand-content">
+
+            <div class="eyebrow">ADMINISTRATION PORTAL</div>
+
+            <h1>Manage your platform with confidence.</h1>
+
+            <p>
+                Access the EduMatch administration portal to manage accounts,
+                review services, monitor orders and resolve platform disputes.
+            </p>
+
+        </div>
+
+        <div class="brand-footer">
+            EduMatch Administration · Authorized access only
+        </div>
+
+    </section>
+
+    <section class="form-panel">
+
+        <div class="login-card">
+
+            <a href="../index.html" class="mobile-brand"
+               style="text-decoration: none; color: inherit;">
+
+                <div class="mobile-logo">E</div>
+
+                <h2>Edu<span>Match</span></h2>
+
+            </a>
+
+            <div class="admin-tag">
+                <span></span>
+                ADMINISTRATOR ACCESS
+            </div>
+
+            <h2>Welcome back</h2>
+
+            <p class="subtitle">
+                Sign in with your authorized administrator account
+                to continue.
+            </p>
+
+            <div id="message" class="message" role="alert"></div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+
+                    <label for="email">Administrator email</label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        placeholder="Enter your admin email"
+                        autocomplete="username"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="password">Password</label>
+
+                    <div class="input-wrap">
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="password-input"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-password"
+                            id="togglePassword"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <button type="submit" class="login-button" id="loginButton">
+                    Sign in to Admin Panel
+                </button>
+
+            </form>
+
+            <div class="security-note">
+
+                <div class="security-icon">🔒</div>
+
+                <p>
+                    <strong>Secure administrator access</strong><br>
+                    Only accounts authorized as administrators by the
+                    backend should be allowed to access this panel.
+                </p>
+
+            </div>
+
+            <div class="back-link">
+                Return to <a href="../index.html">EduMatch homepage</a>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:5000/api";
+
+    const form = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginButton = document.getElementById("loginButton");
+    const message = document.getElementById("message");
+
+    function showMessage(text, type = "error") {
+        message.textContent = text;
+        message.className = "message " + type;
+    }
+
+    document.getElementById("togglePassword").addEventListener("click", () => {
+        const visible = passwordInput.type === "text";
+
+        passwordInput.type = visible ? "password" : "text";
+
+        document.getElementById("togglePassword").textContent =
+            visible ? "Show" : "Hide";
+    });
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        message.className = "message";
+        message.textContent = "";
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            showMessage("Please enter your email and password.");
+            return;
+        }
+
+        loginButton.disabled = true;
+        loginButton.textContent = "Authenticating...";
+
+        try {
+            const response = await fetch(`${API_BASE}/admin/login`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email,
+                    password
+                })
+            });
+
+            let data = {};
+
+            try {
+                data = await response.json();
+            } catch {
+                data = {};
+            }
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || "Login failed. Check your credentials."
+                );
+            }
+
+            if (!data.token) {
+                throw new Error(
+                    "The server did not return an authentication token."
+                );
+            }
+
+            /*
+             * The backend must independently verify the account's admin role.
+             * Never trust a role supplied only by the browser.
+             */
+
+            if (
+                data.user &&
+                data.user.role &&
+                String(data.user.role).toLowerCase() !== "admin"
+            ) {
+                throw new Error(
+                    "This account is not authorized to access the admin panel."
+                );
+            }
+
+            localStorage.setItem("edumatch_token", data.token);
+
+            showMessage("Login successful. Opening your dashboard...", "success");
+
+            window.location.replace("dashboard.html");
+
+        } catch (error) {
+            showMessage(
+                error.message.includes("Failed to fetch")
+                    ? "Cannot connect to the backend. Start your Flask server and check the API address."
+                    : error.message
+            );
+
+        } finally {
+            loginButton.disabled = false;
+            loginButton.textContent = "Sign in to Admin Panel";
+        }
+    });
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

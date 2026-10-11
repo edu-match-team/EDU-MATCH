@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Provider Dashboard | EduMatch</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --background: #f5f8ff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #dbe5f3;
+            --white: #ffffff;
+            --green: #16a34a;
+            --orange: #ea580c;
+            --purple: #7c3aed;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            padding: 25px 15px;
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s;
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0 10px 30px;
+        }
+
+        .logo span {
+            color: var(--purple);
+        }
+
+        .account {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 5px 25px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .account strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .account small {
+            color: var(--muted);
+        }
+
+        .nav a {
+            display: block;
+            padding: 12px 13px;
+            margin-bottom: 5px;
+            color: #334e78;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            background: #e7efff;
+            color: var(--primary);
+        }
+
+        .logout {
+            margin-top: auto;
+            padding: 12px;
+            color: #dc2626;
+            font-size: 14px;
+        }
+
+        /* Main area */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 65px;
+            padding: 0 25px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-button {
+            border: none;
+            background: none;
+            color: var(--text);
+            font-size: 25px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .small-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .welcome h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .date-label {
+            color: var(--muted);
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        /* Statistics cards */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            padding: 21px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 21px;
+        }
+
+        .blue {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .orange {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .purple {
+            background: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .stat-value {
+            font-size: 29px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-note {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* Main dashboard columns */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .column {
+            display: grid;
+            gap: 20px;
+            min-width: 0;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px;
+            min-width: 0;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+        }
+
+        .view-link {
+            font-size: 13px;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        /* Requests and orders */
+
+        .request-item,
+        .order-item {
+            padding: 16px 0;
+            border-top: 1px solid #edf1f7;
+        }
+
+        .request-item:first-child,
+        .order-item:first-child {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 9px;
+        }
+
+        .item-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            overflow-wrap: anywhere;
+        }
+
+        .item-subtitle {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .badge.pending {
+            color: #9a3412;
+            background: #ffedd5;
+        }
+
+        .badge.active {
+            color: #1d4ed8;
+            background: #dbeafe;
+        }
+
+        .badge.completed {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .item-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .price {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .small-button {
+            display: inline-block;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 8px 11px;
+            border-radius: 7px;
+            font-size: 12px;
+        }
+
+        .small-button:hover {
+            background: #dbeafe;
+        }
+
+        /* Profile completion */
+
+        .completion-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            margin: 18px 0;
+        }
+
+        .progress-circle {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--primary) 0%,
+                var(--primary) var(--progress),
+                #e5eaf3 var(--progress),
+                #e5eaf3 100%
+            );
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+        }
+
+        .progress-inner {
+            width: 73px;
+            height: 73px;
+            background: white;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        .completion-text h3 {
+            font-size: 15px;
+            margin-bottom: 7px;
+        }
+
+        .completion-text p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .completion-tips {
+            margin-top: 12px;
+            padding-left: 19px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 2;
+        }
+
+        /* Quick actions */
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .action-link {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 15px 10px;
+            color: var(--text);
+            font-size: 13px;
+            line-height: 1.5;
+            transition: background 0.2s;
+        }
+
+        .action-link:hover {
+            background: var(--primary-light);
+            border-color: #bfdbfe;
+        }
+
+        .action-icon {
+            display: block;
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .empty-message {
+            padding: 22px 10px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .notice {
+            margin-top: 22px;
+            padding: 14px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 1150px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 10;
+                transform: translateX(-100%);
+                overflow-y: auto;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 5px 0 25px #00000020;
+            }
+
+            .content {
+                padding: 20px 14px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .welcome {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .welcome h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 25px;
+            }
+
+            .stat-top {
+                align-items: flex-start;
+                flex-direction: column-reverse;
+            }
+
+            .card {
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">Edu<span>Match</span></div>
+
+        <div class="account">
+            <div class="avatar" id="providerAvatar">P</div>
+
+            <div>
+                <strong id="providerName">Provider Account</strong>
+                <small>Project Provider</small>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <a href="dashboard.html" class="active">⌂ &nbsp; Dashboard</a>
+            <a href="profile.html">◎ &nbsp; My Profile</a>
+            <a href="skills.html">✿ &nbsp; My Skills</a>
+            <a href="requests.html">♧ &nbsp; Project Requests</a>
+            <a href="orders.html">▤ &nbsp; My Orders</a>
+            <a href="chat.html">✉ &nbsp; Messages</a>
+            <a href="../index.html">← &nbsp; Back to Website</a>
+        </nav>
+
+        <a href="#" class="logout" id="logoutButton">⇥ &nbsp; Log Out</a>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <header class="topbar">
+
+            <button
+                class="menu-button"
+                id="menuToggle"
+                aria-label="Toggle navigation"
+            >
+                ☰
+            </button>
+
+            <div class="topbar-right">
+                <span id="headerProviderName">My Account</span>
+                <div class="small-avatar" id="headerAvatar">P</div>
+            </div>
+
+        </header>
+
+        <div class="content">
+
+            <!-- Welcome -->
+            <section class="welcome">
+                <div>
+                    <h1>Welcome back, <span id="welcomeName">Provider</span>! 👋</h1>
+
+                    <p>
+                        Here's an overview of your EduMatch provider account.
+                    </p>
+                </div>
+
+                <div class="date-label" id="currentDate"></div>
+            </section>
+
+            <!-- Statistics -->
+            <section class="stats-grid">
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Total Services</span>
+                        <div class="stat-icon blue">▤</div>
+                    </div>
+
+                    <div class="stat-value" id="totalServices">0</div>
+
+                    <div class="stat-note">
+                        Services in your browser demo
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">New Requests</span>
+                        <div class="stat-icon orange">♧</div>
+                    </div>
+
+                    <div class="stat-value" id="newRequests">0</div>
+
+                    <div class="stat-note">
+                        Requests awaiting a response
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Active Orders</span>
+                        <div class="stat-icon purple">▣</div>
+                    </div>
+
+                    <div class="stat-value" id="activeOrders">0</div>
+
+                    <div class="stat-note">
+                        Orders currently in progress
+                    </div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Total Earnings</span>
+                        <div class="stat-icon green">₹</div>
+                    </div>
+
+                    <div class="stat-value" id="totalEarnings">₹0</div>
+
+                    <div class="stat-note">
+                        Total project milestone value
+                    </div>
+                </article>
+
+            </section>
+
+            <!-- Dashboard columns -->
+            <section class="dashboard-grid">
+
+                <!-- Left column -->
+                <div class="column">
+
+                    <!-- Requests -->
+                    <section class="card">
+
+                        <div class="card-header">
+                            <h2>Recent Project Requests</h2>
+                            <a class="view-link" href="requests.html">
+                                View all →
+                            </a>
+                        </div>
+
+                        <div id="recentRequests"></div>
+
+                    </section>
+
+                    <!-- Orders -->
+                    <section class="card">
+
+                        <div class="card-header">
+                            <h2>Recent Orders</h2>
+                            <a class="view-link" href="orders.html">
+                                View all →
+                            </a>
+                        </div>
+
+                        <div id="recentOrders"></div>
+
+                    </section>
+
+                </div>
+
+                <!-- Right column -->
+                <div class="column">
+
+                    <!-- Profile completion -->
+                    <section class="card">
+
+                        <div class="card-header">
+                            <h2>Profile Completion</h2>
+                            <a class="view-link" href="profile.html">
+                                Edit →
+                            </a>
+                        </div>
+
+                        <div class="completion-row">
+
+                            <div
+                                class="progress-circle"
+                                id="completionCircle"
+                                style="--progress: 0%;"
+                            >
+                                <div class="progress-inner">
+                                    <span id="completionPercentage">0%</span>
+                                </div>
+                            </div>
+
+                            <div class="completion-text">
+                                <h3 id="completionTitle">Complete your profile</h3>
+
+                                <p id="completionMessage">
+                                    Add your details to help students learn about you.
+                                </p>
+                            </div>
+
+                        </div>
+
+                        <ul class="completion-tips" id="completionTips">
+                            <li>Add your profile information</li>
+                            <li>Add your technical skills</li>
+                            <li>Add a certification or portfolio item</li>
+                        </ul>
+
+                    </section>
+
+                    <!-- Quick actions -->
+                    <section class="card">
+
+                        <div class="card-header">
+                            <h2>Quick Actions</h2>
+                        </div>
+
+                        <div class="quick-actions">
+
+                            <a class="action-link" href="profile.html">
+                                <span class="action-icon">👤</span>
+                                Edit Profile
+                            </a>
+
+                            <a class="action-link" href="skills.html">
+                                <span class="action-icon">💻</span>
+                                Add Skills
+                            </a>
+
+                            <a class="action-link" href="services.html">
+                                <span class="action-icon">🛠️</span>
+                                Manage Services
+                            </a>
+
+                            <a class="action-link" href="certifications.html">
+                                <span class="action-icon">🏅</span>
+                                Certifications
+                            </a>
+
+                        </div>
+
+                    </section>
+
+                </div>
+
+            </section>
+
+            <div class="notice">
+                <strong>Demo mode:</strong>
+                Dashboard statistics and activity are based on browser data
+                where available. Real project requests, orders, payments and
+                earnings will appear after the EduMatch backend and database
+                are connected.
+            </div>
+
+        </div>
+
+    </main>
+</div>
+
+<script>
+    // ==========================================
+    // EduMatch Provider Dashboard
+    // Everything is inside this HTML file.
+    // ==========================================
+
+    const STORAGE_KEYS = {
+        profile: "edumatch_provider_profile",
+        skills: "edumatch_provider_skills",
+        certifications: "edumatch_provider_certifications",
+        services: "edumatch_provider_services",
+        requests: "edumatch_provider_requests",
+        orders: "edumatch_provider_orders",
+        earnings: "edumatch_provider_earnings"
+    };
+
+    // Safely read browser storage.
+    function readStorage(key, fallback) {
+        try {
+            const value = localStorage.getItem(key);
+
+            if (value === null) {
+                return fallback;
+            }
+
+            return JSON.parse(value);
+        } catch (error) {
+            console.warn("Unable to read storage:", key, error);
+            return fallback;
+        }
+    }
+
+    // Display a date in the user's local format.
+    function displayCurrentDate() {
+        document.getElementById("currentDate").textContent =
+            new Date().toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+            });
+    }
+
+    // Load the provider's name.
+    function loadProviderDetails() {
+        const profile = readStorage(STORAGE_KEYS.profile, {});
+        const savedName = localStorage.getItem("providerName");
+
+        const name =
+            (profile && profile.fullName) ||
+            savedName ||
+            "Provider";
+
+        const firstName = name.trim().split(/\s+/)[0] || "Provider";
+        const initial = name.trim().charAt(0).toUpperCase() || "P";
+
+        document.getElementById("providerName").textContent = name;
+        document.getElementById("welcomeName").textContent = firstName;
+        document.getElementById("headerProviderName").textContent = name;
+
+        document.getElementById("providerAvatar").textContent = initial;
+        document.getElementById("headerAvatar").textContent = initial;
+    }
+
+    // Calculate profile completion from saved profile data.
+    function calculateProfileCompletion() {
+        const profile = readStorage(STORAGE_KEYS.profile, {});
+
+        const skills = readStorage(STORAGE_KEYS.skills, []);
+        const certifications = readStorage(STORAGE_KEYS.certifications, []);
+
+        const checks = [
+            Boolean(profile.fullName && profile.fullName.trim()),
+            Boolean(profile.email && profile.email.trim()),
+            Boolean(profile.phone && profile.phone.trim()),
+            Boolean(profile.location && profile.location.trim()),
+            Boolean(profile.bio && profile.bio.trim()),
+            Boolean(profile.providerType && profile.providerType.trim()),
+            Array.isArray(skills) && skills.length > 0,
+            Array.isArray(certifications) && certifications.length > 0
+        ];
+
+        const completed = checks.filter(Boolean).length;
+        const percentage = Math.round((completed / checks.length) * 100);
+
+        document.getElementById("completionCircle")
+            .style.setProperty("--progress", percentage + "%");
+
+        document.getElementById("completionPercentage").textContent =
+            percentage + "%";
+
+        const title = document.getElementById("completionTitle");
+        const message = document.getElementById("completionMessage");
+
+        if (percentage === 100) {
+            title.textContent = "Profile completed!";
+            message.textContent =
+                "Great work! Your profile has all the tracked information.";
+        } else {
+            title.textContent = "Complete your profile";
+            message.textContent =
+                "You have completed " + completed + " of " +
+                checks.length + " profile items.";
+        }
+
+        const tips = [];
+
+        if (!checks[0] || !checks[1] || !checks[2]) {
+            tips.push("Complete your basic personal information");
+        }
+
+        if (!checks[3] || !checks[4] || !checks[5]) {
+            tips.push("Add your location, bio and provider type");
+        }
+
+        if (!checks[6]) {
+            tips.push("Add your technical skills");
+        }
+
+        if (!checks[7]) {
+            tips.push("Add a professional certification");
+        }
+
+        if (tips.length === 0) {
+            tips.push("Keep your profile and achievements up to date");
+        }
+
+        const tipsList = document.getElementById("completionTips");
+        tipsList.replaceChildren();
+
+        tips.forEach(function(tip) {
+            const item = document.createElement("li");
+            item.textContent = tip;
+            tipsList.appendChild(item);
+        });
+    }
+
+    // Count saved services.
+    function updateServiceCount() {
+        const services = readStorage(STORAGE_KEYS.services, []);
+
+        document.getElementById("totalServices").textContent =
+            Array.isArray(services) ? services.length : 0;
+    }
+
+    // Format Indian currency.
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
+
+    // Update request, order and earnings statistics.
+    function updateActivityStatistics() {
+        const requests = readStorage(STORAGE_KEYS.requests, []);
+        const orders = readStorage(STORAGE_KEYS.orders, []);
+        const earnings = readStorage(STORAGE_KEYS.earnings, 0);
+
+        const requestList = Array.isArray(requests) ? requests : [];
+        const orderList = Array.isArray(orders) ? orders : [];
+
+        const pendingRequests = requestList.filter(function(request) {
+            return ["pending", "new", "requested"].includes(
+                String(request.status || "").toLowerCase()
+            );
+        });
+
+        const activeOrdersList = orderList.filter(function(order) {
+            return ["active", "in progress", "in_progress", "accepted"].includes(
+                String(order.status || "").toLowerCase()
+            );
+        });
+
+        document.getElementById("newRequests").textContent =
+            pendingRequests.length;
+
+        document.getElementById("activeOrders").textContent =
+            activeOrdersList.length;
+
+        let totalEarnings = 0;
+
+        if (typeof earnings === "number") {
+            totalEarnings = earnings;
+        } else if (Array.isArray(earnings)) {
+            totalEarnings = earnings.reduce(function(total, entry) {
+                return total + (Number(entry.amount) || 0);
+            }, 0);
+        } else if (earnings && typeof earnings === "object") {
+            totalEarnings = Number(earnings.total) || 0;
+        }
+
+        document.getElementById("totalEarnings").textContent =
+            formatCurrency(totalEarnings);
+
+        renderRequests(requestList);
+        renderOrders(orderList);
+    }
+
+    // Create recent project request entries.
+    function renderRequests(requests) {
+        const container = document.getElementById("recentRequests");
+        container.replaceChildren();
+
+        if (requests.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty-message";
+            empty.textContent =
+                "No project requests yet. New requests will appear here when available.";
+
+            container.appendChild(empty);
+            return;
+        }
+
+        requests.slice(0, 4).forEach(function(request) {
+            const item = document.createElement("div");
+            item.className = "request-item";
+
+            const top = document.createElement("div");
+            top.className = "item-top";
+
+            const details = document.createElement("div");
+
+            const title = document.createElement("div");
+            title.className = "item-title";
+            title.textContent = request.title || request.projectTitle ||
+                "Project request";
+
+            const subtitle = document.createElement("div");
+            subtitle.className = "item-subtitle";
+            subtitle.textContent =
+                "Student: " + (request.studentName || "Student");
+
+            details.append(title, subtitle);
+
+            const status = document.createElement("span");
+            status.className = "badge pending";
+
+            const statusText = request.status || "Pending";
+            status.textContent = statusText;
+
+            top.append(details, status);
+
+            const bottom = document.createElement("div");
+            bottom.className = "item-bottom";
+
+            const price = document.createElement("span");
+            price.className = "price";
+            price.textContent = formatCurrency(
+                Number(request.budget || request.price || 0)
+            );
+
+            const link = document.createElement("a");
+            link.className = "small-button";
+            link.href = "requests.html";
+            link.textContent = "View Request";
+
+            bottom.append(price, link);
+            item.append(top, bottom);
+            container.appendChild(item);
+        });
+    }
+
+    // Create recent order entries.
+    function renderOrders(orders) {
+        const container = document.getElementById("recentOrders");
+        container.replaceChildren();
+
+        if (orders.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty-message";
+            empty.textContent =
+                "No orders yet. Accepted project requests will appear here.";
+
+            container.appendChild(empty);
+            return;
+        }
+
+        orders.slice(0, 4).forEach(function(order) {
+            const item = document.createElement("div");
+            item.className = "order-item";
+
+            const top = document.createElement("div");
+            top.className = "item-top";
+
+            const details = document.createElement("div");
+
+            const title = document.createElement("div");
+            title.className = "item-title";
+            title.textContent = order.title || order.projectTitle ||
+                "Project order";
+
+            const subtitle = document.createElement("div");
+            subtitle.className = "item-subtitle";
+            subtitle.textContent =
+                "Student: " + (order.studentName || "Student");
+
+            details.append(title, subtitle);
+
+            const status = document.createElement("span");
+            const normalizedStatus = String(order.status || "Active")
+                .toLowerCase();
+
+            status.className = "badge";
+
+            if (normalizedStatus === "completed") {
+                status.classList.add("completed");
+            } else if (
+                ["active", "in progress", "in_progress"].includes(normalizedStatus)
+            ) {
+                status.classList.add("active");
+            } else {
+                status.classList.add("pending");
+            }
+
+            status.textContent = order.status || "Active";
+
+            top.append(details, status);
+
+            const bottom = document.createElement("div");
+            bottom.className = "item-bottom";
+
+            const price = document.createElement("span");
+            price.className = "price";
+            price.textContent = formatCurrency(
+                Number(order.amount || order.price || 0)
+            );
+
+            const link = document.createElement("a");
+            link.className = "small-button";
+            link.href = "order-details.html";
+            link.textContent = "View Order";
+
+            bottom.append(price, link);
+            item.append(top, bottom);
+            container.appendChild(item);
+        });
+    }
+
+    // Sidebar toggle for smaller screens.
+    document.getElementById("menuToggle")
+        .addEventListener("click", function() {
+            document.getElementById("sidebar").classList.toggle("open");
+        });
+
+    // Demo logout.
+    document.getElementById("logoutButton")
+        .addEventListener("click", function(event) {
+            event.preventDefault();
+
+            if (confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem("providerName");
+                window.location.href = "login.html";
+            }
+        });
+
+    // Start the dashboard.
+    function initializeDashboard() {
+        displayCurrentDate();
+        loadProviderDetails();
+        calculateProfileCompletion();
+        updateServiceCount();
+        updateActivityStatistics();
+    }
+
+    initializeDashboard();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

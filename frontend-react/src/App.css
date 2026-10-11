@@ -1,0 +1,249 @@
+:root {
+  --navy: #111827;
+  --navy-light: #1C2740;
+  --purple: #7657FF;
+  --purple-light: #F0EDFF;
+  --white: #FFFFFF;
+  --background: #F7F8FC;
+  --text: #202A3C;
+  --muted: #737D90;
+  --border: #E5E8F0;
+  --green: #24845A;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--background);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  width: min(1140px, 92%);
+  margin: auto;
+}
+
+/* NAVBAR */
+.navbar {
+  height: 76px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(14px);
+}
+
+.nav-inner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-icon {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  background: var(--purple);
+  color: white;
+  border-radius: 10px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.brand-name {
+  font-family: 'Manrope', sans-serif;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: var(--navy);
+}
+
+.brand-name span {
+  color: var(--purple);
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.btn {
+  min-height: 42px;
+  padding: 10px 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: var(--purple);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #6344EB;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border-color: var(--border);
+  background: white;
+  color: var(--navy);
+}
+
+/* HERO */
+.hero {
+  background: var(--navy);
+  color: white;
+  padding: 80px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #C9BDFF;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.hero-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #A694FF;
+}
+
+.hero h1 {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(38px, 5.5vw, 62px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -2.5px;
+}
+
+.hero h1 span {
+  color: #B9A9FF;
+}
+
+.hero-description {
+  max-width: 600px;
+  margin-top: 20px;
+  color: #B8C1D2;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+/* CARDS & MATCHING */
+.section-title {
+  text-align: center;
+  margin: 60px 0 35px;
+}
+
+.section-title h2 {
+  font-family: 'Manrope', sans-serif;
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.portal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.portal-card {
+  background: white;
+  padding: 28px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  transition: all 0.25s;
+}
+
+.portal-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(35, 27, 75, 0.08);
+}
+
+.matcher-box {
+  background: white;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 30px;
+  margin: 40px 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+}
+
+.provider-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.provider-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  background: var(--purple-light);
+  color: var(--purple);
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.match-badge {
+  background: #E8F6EE;
+  color: #277A50;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+}

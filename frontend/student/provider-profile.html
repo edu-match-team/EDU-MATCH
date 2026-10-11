@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Provider Profile | EduMatch</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7657ff;
+            --primary-dark: #6042e8;
+            --dark: #111827;
+            --text: #374151;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --background: #f7f8fc;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--dark);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* Navigation */
+
+        .navbar {
+            height: 72px;
+            padding: 0 7%;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .logo-icon {
+            width: 39px;
+            height: 39px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+        }
+
+        .logo span:last-child span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Main Layout */
+
+        .container {
+            width: min(1100px, 92%);
+            margin: 35px auto;
+        }
+
+        .breadcrumb {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 25px;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 30px;
+            letter-spacing: -1px;
+            margin-bottom: 9px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .profile-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 310px;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .main-column {
+            min-width: 0;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        /* Provider Header */
+
+        .cover {
+            height: 145px;
+            background: linear-gradient(120deg, #211b49, #7657ff);
+        }
+
+        .profile-content {
+            padding: 0 25px 25px;
+        }
+
+        .profile-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: -42px;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 88px;
+            height: 88px;
+            border: 5px solid white;
+            border-radius: 22px;
+            background: #eee9ff;
+            color: var(--primary);
+            display: grid;
+            place-items: center;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .badge {
+            background: #eaf9ef;
+            color: #15803d;
+            border-radius: 8px;
+            padding: 8px 11px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .provider-name {
+            font-size: 25px;
+            margin-bottom: 9px;
+            overflow-wrap: anywhere;
+        }
+
+        .provider-role {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            font-size: 12px;
+            color: var(--text);
+        }
+
+        /* Content Sections */
+
+        .section-content {
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            font-size: 13px;
+            color: #555f70;
+            line-height: 1.9;
+            overflow-wrap: anywhere;
+        }
+
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 9px;
+        }
+
+        .skill {
+            background: #f0edff;
+            color: #6042d9;
+            padding: 9px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .empty-message {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        /* Sidebar */
+
+        .sidebar-card {
+            padding: 23px;
+        }
+
+        .price-label {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 9px;
+        }
+
+        .price {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .price small {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .price-note {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.8;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 12px;
+            margin-bottom: 18px;
+        }
+
+        .detail-row span {
+            color: var(--muted);
+        }
+
+        .detail-row strong {
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .primary-btn,
+        .secondary-btn {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 13px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .primary-btn {
+            background: var(--primary);
+            border: 1px solid var(--primary);
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .secondary-btn {
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--dark);
+        }
+
+        .secondary-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .help-text {
+            margin-top: 14px;
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        /* Loading and Error States */
+
+        .state-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 35px 22px;
+            text-align: center;
+        }
+
+        .state-card h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .state-card p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            padding: 28px 15px;
+        }
+
+        /* Responsive Design */
+
+        @media (max-width: 800px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                order: -1;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .navbar {
+                height: 65px;
+                padding: 0 4%;
+            }
+
+            .logo {
+                font-size: 19px;
+            }
+
+            .nav-links {
+                gap: 13px;
+            }
+
+            .nav-links a {
+                font-size: 11px;
+            }
+
+            .nav-links .optional {
+                display: none;
+            }
+
+            .container {
+                margin-top: 25px;
+            }
+
+            .page-heading h1 {
+                font-size: 25px;
+            }
+
+            .cover {
+                height: 110px;
+            }
+
+            .profile-content {
+                padding: 0 17px 20px;
+            }
+
+            .profile-top {
+                margin-top: -36px;
+            }
+
+            .avatar {
+                width: 76px;
+                height: 76px;
+                font-size: 25px;
+            }
+
+            .provider-name {
+                font-size: 21px;
+            }
+
+            .section-content,
+            .sidebar-card {
+                padding: 19px;
+            }
+
+            .meta {
+                gap: 10px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+
+        <a href="../index.html" class="logo">
+            <span class="logo-icon">E</span>
+            <span>Edu<span>Match</span></span>
+        </a>
+
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="search.html" class="optional">Find Providers</a>
+            <a href="chat.html">Messages</a>
+        </div>
+
+    </nav>
+
+    <main class="container">
+
+        <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a> /
+            <a href="search.html">Find Providers</a> /
+            Provider Profile
+        </div>
+
+        <div class="page-heading">
+            <h1>Provider Profile</h1>
+            <p>
+                Learn about a provider's skills and experience before contacting them.
+            </p>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="state-card">
+            <h2>Provider Profile</h2>
+            <p>
+                This page is ready for backend integration.
+                Provider information will be loaded from the database.
+            </p>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="state-card hidden">
+            <h2 id="errorTitle">Profile unavailable</h2>
+            <p id="errorMessage"></p>
+            <a href="search.html" class="primary-btn">Back to Search</a>
+        </div>
+
+        <!-- Profile -->
+        <div id="profileLayout" class="profile-layout hidden">
+
+            <div class="main-column">
+
+                <!-- Provider Information -->
+                <section class="card">
+
+                    <div class="cover"></div>
+
+                    <div class="profile-content">
+
+                        <div class="profile-top">
+                            <div class="avatar" id="providerAvatar">P</div>
+                            <span class="badge">Project Provider</span>
+                        </div>
+
+                        <h2 class="provider-name" id="providerName"></h2>
+
+                        <p class="provider-role">
+                            EduMatch Project Provider
+                        </p>
+
+                        <div class="meta">
+                            <span>⭐ <strong id="providerRating">Not rated</strong></span>
+                            <span>🛠️ <strong id="providerSkillsCount">0</strong> skills</span>
+                        </div>
+
+                    </div>
+
+                </section>
+
+                <!-- About -->
+                <section class="card">
+                    <div class="section-content">
+
+                        <h3 class="section-title">About the Provider</h3>
+
+                        <p class="description" id="providerBio">
+                            Provider information will appear here.
+                        </p>
+
+                    </div>
+                </section>
+
+                <!-- Skills -->
+                <section class="card">
+                    <div class="section-content">
+
+                        <h3 class="section-title">Skills & Technologies</h3>
+
+                        <div class="skills" id="providerSkills"></div>
+
+                    </div>
+                </section>
+
+                <!-- Direct Payment & Support Details -->
+                <section class="card" id="paymentSection" style="margin-top:20px; display:none;">
+                    <div class="section-content">
+                        <h3 class="section-title">Direct Payment & UPI Support</h3>
+                        <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+                            You can send project compensation or milestone payments directly to this verified provider using the credentials below:
+                        </p>
+                        <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:10px;">
+                            <div id="upiDisplay" style="display:none;">
+                                <strong style="font-size:12px; color:var(--muted); display:block;">UPI ID / VPA:</strong>
+                                <span id="upiText" style="font-size:15px; font-weight:700; color:var(--primary); font-family:monospace;"></span>
+                            </div>
+                            <div id="accountDisplay" style="display:none;">
+                                <strong style="font-size:12px; color:var(--muted); display:block;">Bank Account / IFSC / Phone:</strong>
+                                <span id="accountText" style="font-size:14px; font-weight:600; color:var(--dark);"></span>
+                            </div>
+                            <div id="qrDisplay" style="display:none; margin-top:8px;">
+                                <strong style="font-size:12px; color:var(--muted); display:block; margin-bottom:6px;">Payment QR Code:</strong>
+                                <img id="qrImage" src="" alt="Provider QR Code" style="max-width:180px; border-radius:8px; border:1px solid var(--border);">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+
+                <section class="card sidebar-card">
+
+                    <p class="price-label">Starting Consultation & Project Rate</p>
+
+                    <div class="price">
+                        ₹<span id="providerPrice">0</span>
+                        <small>/ project</small>
+                    </div>
+
+                    <p class="price-note">
+                        Discuss your project scope and milestones directly with the mentor before finalizing.
+                    </p>
+
+                    <div class="detail-row">
+                        <span>DSA Rating</span>
+                        <strong id="sideRating">★ 5.0</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Projects Completed</span>
+                        <strong id="sideProjects">0</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Skills</span>
+                        <strong id="sideSkills">0</strong>
+                    </div>
+
+                    <button class="primary-btn" id="messageButton" type="button">
+                        Message & Connect
+                    </button>
+
+                    <a href="search.html" class="secondary-btn">
+                        Back to Search
+                    </a>
+
+                </section>
+
+            </aside>
+
+        </div>
+
+    </main>
+
+    <footer>
+        © 2026 EduMatch. Built for students and project providers.
+    </footer>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:5000/api";
+        const loadingState = document.getElementById("loadingState");
+        const errorState = document.getElementById("errorState");
+        const profileLayout = document.getElementById("profileLayout");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const providerId = urlParams.get("provider_id");
+
+        function showError(message) {
+            loadingState.classList.add("hidden");
+            profileLayout.classList.add("hidden");
+            errorState.classList.remove("hidden");
+            document.getElementById("errorMessage").textContent = message;
+        }
+
+        async function loadProviderProfile() {
+            if (!providerId) {
+                showError("No provider ID specified. Please select a provider from Search.");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/providers/${encodeURIComponent(providerId)}`);
+                const data = await res.json();
+                if (!res.ok || !data.success || !data.provider) {
+                    throw new Error(data.message || "Provider details not found in database.");
+                }
+
+                const p = data.provider;
+                document.getElementById("providerName").textContent = p.name;
+                document.getElementById("providerAvatar").textContent = p.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+                document.querySelector(".provider-role").textContent = p.title || p.role || "Project Provider";
+                document.getElementById("providerRating").textContent = (p.rating || 5.0).toFixed(1);
+                document.getElementById("sideRating").textContent = `★ ${(p.rating || 5.0).toFixed(1)}`;
+                document.getElementById("providerBio").textContent = p.description || p.bio || "Experienced project mentor and developer.";
+                document.getElementById("providerPrice").textContent = (p.starting_price || p.price || 1500).toLocaleString("en-IN");
+                document.getElementById("sideProjects").textContent = p.completed_projects || p.projects || 0;
+
+                const skills = p.skills || [];
+                document.getElementById("providerSkillsCount").textContent = skills.length;
+                document.getElementById("sideSkills").textContent = skills.length;
+
+                const skillsContainer = document.getElementById("providerSkills");
+                skillsContainer.innerHTML = skills.map(s => `<span class="skill-tag" style="background:#eee9ff; color:#6347e8; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600; display:inline-block; margin:3px;">${s}</span>`).join("");
+
+                // Direct Payment Details
+                let hasPayment = false;
+                if (p.payment_upi) {
+                    document.getElementById("upiText").textContent = p.payment_upi;
+                    document.getElementById("upiDisplay").style.display = "block";
+                    hasPayment = true;
+                }
+                if (p.payment_account) {
+                    document.getElementById("accountText").textContent = p.payment_account;
+                    document.getElementById("accountDisplay").style.display = "block";
+                    hasPayment = true;
+                }
+                if (p.payment_qr) {
+                    document.getElementById("qrImage").src = p.payment_qr;
+                    document.getElementById("qrDisplay").style.display = "block";
+                    hasPayment = true;
+                }
+                if (hasPayment) {
+                    document.getElementById("paymentSection").style.display = "block";
+                }
+
+                // Setup Message Button
+                document.getElementById("messageButton").addEventListener("click", () => {
+                    window.location.href = `chat.html?provider_id=${p.id}&provider_name=${encodeURIComponent(p.name)}`;
+                });
+
+                loadingState.classList.add("hidden");
+                profileLayout.classList.remove("hidden");
+
+            } catch (err) {
+                showError(err.message);
+            }
+        }
+
+        loadProviderProfile();
+    </script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

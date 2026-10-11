@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Profile | EduMatch</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f7f8fc;
+            color: #172033;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* Header */
+
+        header {
+            background: #172033;
+            color: white;
+            padding: 18px 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #947cff;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .header-links a {
+            color: white;
+            padding: 10px 13px;
+            border-radius: 7px;
+        }
+
+        .header-links a:hover {
+            background: #303a50;
+        }
+
+        /* Main layout */
+
+        .container {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: #697386;
+            line-height: 1.6;
+        }
+
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 290px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Left profile card */
+
+        .profile-summary {
+            text-align: center;
+        }
+
+        .avatar {
+            width: 125px;
+            height: 125px;
+            border-radius: 50%;
+            background: #e9e3ff;
+            color: #7657ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 43px;
+            font-weight: bold;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            border: 4px solid #f0edff;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-summary h2 {
+            font-size: 22px;
+            overflow-wrap: anywhere;
+            margin-bottom: 7px;
+        }
+
+        .profile-summary .course {
+            color: #697386;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        .upload-label {
+            display: inline-block;
+            background: #eee9ff;
+            color: #6044e6;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .upload-label:hover {
+            background: #e1d9ff;
+        }
+
+        #photoInput {
+            display: none;
+        }
+
+        .completion {
+            text-align: left;
+            margin-top: 28px;
+            padding-top: 22px;
+            border-top: 1px solid #edf0f5;
+        }
+
+        .completion-heading {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .progress-track {
+            height: 9px;
+            background: #eceef4;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            background: #7657ff;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+
+        .completion p {
+            color: #697386;
+            font-size: 13px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+
+        /* Form */
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 22px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group {
+            margin-bottom: 3px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dce0e8;
+            border-radius: 8px;
+            background: white;
+            color: #172033;
+            font-size: 14px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #7657ff;
+            box-shadow: 0 0 0 3px #7657ff16;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 110px;
+            line-height: 1.6;
+        }
+
+        .help-text {
+            display: block;
+            color: #697386;
+            font-size: 12px;
+            margin-top: 7px;
+            line-height: 1.5;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .primary-btn {
+            background: #7657ff;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #6345ed;
+        }
+
+        .secondary-btn {
+            background: #edf0f5;
+            color: #172033;
+        }
+
+        #statusMessage {
+            margin-top: 17px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .success {
+            color: #16834a;
+        }
+
+        .error {
+            color: #b42323;
+        }
+
+        .danger-btn {
+            background: #fff0f0;
+            color: #b42323;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 800px) {
+            .profile-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-summary {
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 550px) {
+            header {
+                padding: 17px 5%;
+            }
+
+            .container {
+                padding: 0 13px;
+            }
+
+            .page-heading h1 {
+                font-size: 25px;
+            }
+
+            .card {
+                padding: 19px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+
+            .header-links {
+                gap: 3px;
+            }
+
+            .header-links a {
+                padding: 9px;
+                font-size: 13px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Edu<span>Match</span></div>
+
+    <nav class="header-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="notifications.html">Notifications</a>
+        <a href="settings.html">Settings</a>
+    </nav>
+</header>
+
+<main class="container">
+
+    <div class="page-heading">
+        <h1>My Profile</h1>
+        <p>
+            Manage your personal information, academic details,
+            skills and professional links.
+        </p>
+    </div>
+
+    <div class="profile-layout">
+
+        <!-- LEFT PROFILE SUMMARY -->
+
+        <aside>
+            <section class="card profile-summary">
+
+                <div class="avatar" id="avatar">
+                    <span id="avatarInitials">S</span>
+                </div>
+
+                <h2 id="previewName">Your Name</h2>
+
+                <p class="course" id="previewCourse">
+                    Add your college and degree
+                </p>
+
+                <label for="photoInput" class="upload-label">
+                    Upload Profile Photo
+                </label>
+
+                <input
+                    type="file"
+                    id="photoInput"
+                    accept="image/png,image/jpeg,image/webp"
+                >
+
+                <div class="completion">
+                    <div class="completion-heading">
+                        <span>Profile Completion</span>
+                        <span id="completionPercent">0%</span>
+                    </div>
+
+                    <div
+                        class="progress-track"
+                        role="progressbar"
+                        aria-label="Profile completion"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="0"
+                        id="progressTrack"
+                    >
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+
+                    <p id="completionText">
+                        Complete your profile to help providers understand
+                        your background and project interests.
+                    </p>
+                </div>
+
+            </section>
+        </aside>
+
+        <!-- RIGHT PROFILE FORM -->
+
+        <div>
+
+            <form id="profileForm">
+
+                <section class="card">
+                    <h2>Personal Information</h2>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label for="fullName">Full Name *</label>
+                            <input
+                                type="text"
+                                id="fullName"
+                                name="fullName"
+                                maxlength="100"
+                                placeholder="Enter your full name"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                maxlength="254"
+                                placeholder="Enter your email"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Phone Number</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                name="phone"
+                                maxlength="20"
+                                placeholder="Enter your phone number"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input
+                                type="text"
+                                id="location"
+                                name="location"
+                                maxlength="120"
+                                placeholder="City, State"
+                            >
+                        </div>
+
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>Academic Information</h2>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label for="college">College / University</label>
+                            <input
+                                type="text"
+                                id="college"
+                                name="college"
+                                maxlength="150"
+                                placeholder="Enter your college"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="degree">Degree / Course</label>
+                            <input
+                                type="text"
+                                id="degree"
+                                name="degree"
+                                maxlength="120"
+                                placeholder="e.g. BCA"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="specialization">Specialization</label>
+                            <input
+                                type="text"
+                                id="specialization"
+                                name="specialization"
+                                maxlength="120"
+                                placeholder="e.g. AI and Data Science"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="year">Current Year / Semester</label>
+                            <select id="year" name="year">
+                                <option value="">Select your semester</option>
+                                <option value="1st Semester">1st Semester</option>
+                                <option value="2nd Semester">2nd Semester</option>
+                                <option value="3rd Semester">3rd Semester</option>
+                                <option value="4th Semester">4th Semester</option>
+                                <option value="5th Semester">5th Semester</option>
+                                <option value="6th Semester">6th Semester</option>
+                                <option value="7th Semester">7th Semester</option>
+                                <option value="8th Semester">8th Semester</option>
+                                <option value="Graduate">Graduate</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>Skills and Interests</h2>
+
+                    <div class="form-grid">
+
+                        <div class="form-group full-width">
+                            <label for="skills">Technical Skills</label>
+                            <input
+                                type="text"
+                                id="skills"
+                                name="skills"
+                                maxlength="500"
+                                placeholder="Python, C++, HTML, CSS, SQL"
+                            >
+                            <span class="help-text">
+                                Separate skills with commas.
+                            </span>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="interests">Project Interests</label>
+                            <input
+                                type="text"
+                                id="interests"
+                                name="interests"
+                                maxlength="500"
+                                placeholder="Web development, machine learning..."
+                            >
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="bio">About Me</label>
+                            <textarea
+                                id="bio"
+                                name="bio"
+                                maxlength="1000"
+                                placeholder="Introduce yourself, your interests and the types of projects you want to build."
+                            ></textarea>
+                        </div>
+
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>Professional Links</h2>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label for="github">GitHub Profile</label>
+                            <input
+                                type="url"
+                                id="github"
+                                name="github"
+                                maxlength="300"
+                                placeholder="https://github.com/username"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="linkedin">LinkedIn Profile</label>
+                            <input
+                                type="url"
+                                id="linkedin"
+                                name="linkedin"
+                                maxlength="300"
+                                placeholder="https://www.linkedin.com/in/username"
+                            >
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="portfolio">Portfolio Website</label>
+                            <input
+                                type="url"
+                                id="portfolio"
+                                name="portfolio"
+                                maxlength="300"
+                                placeholder="https://your-portfolio.example"
+                            >
+                        </div>
+
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="primary-btn">
+                        Save Profile
+                    </button>
+
+                    <button
+                        type="button"
+                        class="secondary-btn"
+                        id="resetButton"
+                    >
+                        Reset Form
+                    </button>
+                </div>
+
+                <p id="statusMessage" role="status"></p>
+
+            </form>
+
+            <section class="card">
+                <h2>Account Data</h2>
+
+                <p style="color:#697386;line-height:1.7;margin-bottom:16px;">
+                    This prototype stores profile information in your current
+                    browser. It does not delete your EduMatch account.
+                    Account management can be connected to the backend later.
+                </p>
+
+                <button type="button" class="danger-btn" id="clearProfile">
+                    Clear Saved Profile Data
+                </button>
+            </section>
+
+        </div>
+
+    </div>
+
+</main>
+
+<script>
+    const STORAGE_KEY = "edumatchStudentProfile";
+
+    const form = document.getElementById("profileForm");
+    const statusMessage = document.getElementById("statusMessage");
+    const photoInput = document.getElementById("photoInput");
+
+    let profilePhoto = "";
+
+    const fieldIds = [
+        "fullName",
+        "email",
+        "phone",
+        "location",
+        "college",
+        "degree",
+        "specialization",
+        "year",
+        "skills",
+        "interests",
+        "bio",
+        "github",
+        "linkedin",
+        "portfolio"
+    ];
+
+    function getFormData() {
+        const data = {};
+
+        fieldIds.forEach(id => {
+            data[id] = document.getElementById(id).value.trim();
+        });
+
+        data.profilePhoto = profilePhoto;
+
+        return data;
+    }
+
+    function updatePreview() {
+        const name = document.getElementById("fullName").value.trim();
+        const college = document.getElementById("college").value.trim();
+        const degree = document.getElementById("degree").value.trim();
+        const specialization =
+            document.getElementById("specialization").value.trim();
+
+        document.getElementById("previewName").textContent =
+            name || "Your Name";
+
+        document.getElementById("previewCourse").textContent =
+            [degree, specialization, college].filter(Boolean).join(" • ")
+            || "Add your college and degree";
+
+        const initials = name
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(part => part[0].toUpperCase())
+            .join("");
+
+        const avatar = document.getElementById("avatar");
+
+        if (profilePhoto) {
+            avatar.innerHTML = "";
+
+            const image = document.createElement("img");
+            image.src = profilePhoto;
+            image.alt = "Profile photo";
+
+            avatar.appendChild(image);
+        } else {
+            avatar.innerHTML = "";
+
+            const initialsSpan = document.createElement("span");
+            initialsSpan.id = "avatarInitials";
+            initialsSpan.textContent = initials || "S";
+
+            avatar.appendChild(initialsSpan);
+        }
+
+        updateCompletion();
+    }
+
+    function updateCompletion() {
+        const data = getFormData();
+
+        const requiredProfileFields = [
+            "fullName",
+            "email",
+            "phone",
+            "location",
+            "college",
+            "degree",
+            "specialization",
+            "year",
+            "skills",
+            "interests",
+            "bio",
+            "github",
+            "linkedin",
+            "portfolio"
+        ];
+
+        const completed = requiredProfileFields.filter(
+            id => Boolean(data[id])
+        ).length;
+
+        const percentage = Math.round(
+            completed / requiredProfileFields.length * 100
+        );
+
+        document.getElementById("completionPercent").textContent =
+            percentage + "%";
+
+        document.getElementById("progressBar").style.width =
+            percentage + "%";
+
+        document.getElementById("progressTrack").setAttribute(
+            "aria-valuenow",
+            percentage
+        );
+
+        document.getElementById("completionText").textContent =
+            percentage === 100
+                ? "Your profile information is complete!"
+                : "Complete more profile fields to reach 100%.";
+    }
+
+    function loadProfile() {
+        try {
+            const saved = JSON.parse(
+                localStorage.getItem(STORAGE_KEY) || "null"
+            );
+
+            if (!saved || typeof saved !== "object") {
+                updatePreview();
+                return;
+            }
+
+            fieldIds.forEach(id => {
+                if (typeof saved[id] === "string") {
+                    document.getElementById(id).value = saved[id];
+                }
+            });
+
+            profilePhoto = saved.profilePhoto || "";
+
+            updatePreview();
+
+        } catch (error) {
+            console.error("Unable to load profile:", error);
+            statusMessage.textContent =
+                "Could not load the saved profile.";
+            statusMessage.className = "error";
+        }
+    }
+
+    form.addEventListener("input", updatePreview);
+
+    photoInput.addEventListener("change", function() {
+        const file = photoInput.files[0];
+
+        if (!file) return;
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+        if (!allowedTypes.includes(file.type)) {
+            statusMessage.textContent =
+                "Please select a JPG, PNG or WebP image.";
+            statusMessage.className = "error";
+            photoInput.value = "";
+            return;
+        }
+
+        if (file.size > 1024 * 1024) {
+            statusMessage.textContent =
+                "Please select an image smaller than 1 MB.";
+            statusMessage.className = "error";
+            photoInput.value = "";
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            profilePhoto = event.target.result;
+            updatePreview();
+
+            statusMessage.textContent =
+                "Photo selected. Click Save Profile to save your changes.";
+            statusMessage.className = "success";
+        };
+
+        reader.onerror = function() {
+            statusMessage.textContent =
+                "Unable to read this image.";
+            statusMessage.className = "error";
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        if (!form.reportValidity()) return;
+
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(getFormData())
+            );
+
+            updatePreview();
+
+            statusMessage.textContent =
+                "Profile saved successfully in this browser.";
+
+            statusMessage.className = "success";
+
+        } catch (error) {
+            statusMessage.textContent =
+                "Unable to save. The image or profile data may be too large.";
+
+            statusMessage.className = "error";
+        }
+    });
+
+    document.getElementById("resetButton").addEventListener(
+        "click",
+        function() {
+            form.reset();
+            profilePhoto = "";
+            photoInput.value = "";
+
+            updatePreview();
+
+            statusMessage.textContent =
+                "Form reset. Your previously saved profile has not been deleted.";
+
+            statusMessage.className = "success";
+        }
+    );
+
+    document.getElementById("clearProfile").addEventListener(
+        "click",
+        function() {
+            const confirmed = confirm(
+                "Delete the profile information saved in this browser?"
+            );
+
+            if (!confirmed) return;
+
+            localStorage.removeItem(STORAGE_KEY);
+
+            form.reset();
+            profilePhoto = "";
+            photoInput.value = "";
+
+            updatePreview();
+
+            statusMessage.textContent =
+                "Saved browser profile data has been cleared.";
+
+            statusMessage.className = "success";
+        }
+    );
+
+    loadProfile();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

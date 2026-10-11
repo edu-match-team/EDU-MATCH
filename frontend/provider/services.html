@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Services | EduMatch</title>
+
+    <style>
+        :root {
+            --primary: #6c4df6;
+            --primary-dark: #5535df;
+            --bg: #f7f7fc;
+            --white: #fff;
+            --text: #24213b;
+            --muted: #77758e;
+            --border: #e8e5f0;
+            --red: #dc2626;
+            --green: #15803d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button, input, textarea, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .layout {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 245px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 27px 16px;
+            position: fixed;
+            inset: 0 auto 0 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform .25s;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 850;
+            letter-spacing: -1px;
+            padding: 0 13px;
+            margin-bottom: 38px;
+            display: block;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-label {
+            color: #a09caf;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.3px;
+            padding: 0 13px;
+            margin-bottom: 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 650;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #f0ecff;
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .main {
+            margin-left: 245px;
+            width: calc(100% - 245px);
+        }
+
+        .topbar {
+            height: 76px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 34px;
+        }
+
+        .topbar h2 {
+            font-size: 19px;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .badge {
+            background: #eee9ff;
+            color: var(--primary);
+            padding: 10px 15px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .content {
+            max-width: 1500px;
+            margin: auto;
+            padding: 32px;
+        }
+
+        .heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            font-size: 27px;
+            margin-bottom: 8px;
+        }
+
+        .heading p {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .primary-btn {
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 9px;
+            padding: 13px 18px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .toolbar input {
+            flex: 1;
+            min-width: 0;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 13px 15px;
+            outline: none;
+            background: white;
+            font-size: 12px;
+        }
+
+        .toolbar input:focus {
+            border-color: var(--primary);
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .service-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 23px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .service-card h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            overflow-wrap: anywhere;
+        }
+
+        .service-description {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+            margin-bottom: 18px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            border-top: 1px solid #f0eef6;
+            padding-top: 17px;
+            margin-top: auto;
+        }
+
+        .price-label {
+            color: var(--muted);
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+
+        .price {
+            font-size: 19px;
+            font-weight: 850;
+            color: var(--primary);
+        }
+
+        .service-category {
+            background: #f0ecff;
+            color: var(--primary);
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 750;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        .secondary-btn,
+        .delete-btn {
+            border-radius: 8px;
+            padding: 10px 13px;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .secondary-btn {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+        }
+
+        .delete-btn {
+            border: none;
+            background: #fef2f2;
+            color: var(--red);
+        }
+
+        .notice {
+            display: none;
+            padding: 13px 15px;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .notice.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .notice.success {
+            display: block;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .notice.info {
+            display: block;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .empty-state {
+            background: white;
+            border: 1px dashed #d9d4e8;
+            border-radius: 14px;
+            padding: 55px 20px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            margin-bottom: 9px;
+        }
+
+        .empty-state p {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        /* SERVICE EDITOR */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(25, 20, 50, .5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 200;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 600px;
+            max-height: 92vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 16px;
+            padding: 27px;
+        }
+
+        .modal-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 23px;
+        }
+
+        .modal-heading h2 {
+            font-size: 19px;
+        }
+
+        .close-btn {
+            border: none;
+            background: #f1eff7;
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            font-size: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 17px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .field input,
+        .field textarea,
+        .field select {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 12px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .field textarea {
+            min-height: 115px;
+            resize: vertical;
+            line-height: 1.7;
+        }
+
+        .field input:focus,
+        .field textarea:focus,
+        .field select:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 23px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+
+        .cancel-btn {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 13px;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .mobile-menu {
+            display: none;
+            border: none;
+            background: transparent;
+            font-size: 23px;
+            margin-right: 12px;
+        }
+
+        @media (max-width: 950px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 40px #00000012;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-menu {
+                display: inline-block;
+            }
+
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .service-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .badge {
+                display: none;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="dashboard.html" class="logo">
+            Edu<span>Match</span>
+        </a>
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <a href="dashboard.html" class="nav-link">
+            <span class="nav-icon">▦</span> Dashboard
+        </a>
+
+        <a href="requests.html" class="nav-link">
+            <span class="nav-icon">♧</span> Student Requests
+        </a>
+
+        <a href="orders.html" class="nav-link">
+            <span class="nav-icon">▤</span> My Orders
+        </a>
+
+        <a href="services.html" class="nav-link active">
+            <span class="nav-icon">◇</span> My Services
+        </a>
+
+        <a href="skills.html" class="nav-link">
+            <span class="nav-icon">✳</span> My Skills
+        </a>
+
+        <a href="chat.html" class="nav-link">
+            <span class="nav-icon">▧</span> Messages
+        </a>
+
+        <div class="nav-label" style="margin-top:30px;">ACCOUNT</div>
+
+        <a href="portfolio.html" class="nav-link">
+            <span class="nav-icon">▣</span> Portfolio
+        </a>
+
+        <a href="profile.html" class="nav-link">
+            <span class="nav-icon">♙</span> My Profile
+        </a>
+
+        <a href="earnings.html" class="nav-link">
+            <span class="nav-icon">₹</span> Earnings
+        </a>
+
+        <a href="login.html" class="nav-link" id="logoutLink">
+            <span class="nav-icon">↪</span> Log Out
+        </a>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:center;">
+                <button class="mobile-menu" id="menuToggle"
+                        aria-label="Toggle navigation">☰</button>
+
+                <div>
+                    <h2>My Services</h2>
+                    <p>Manage the services you offer to students.</p>
+                </div>
+            </div>
+
+            <div class="badge">PROVIDER WORKSPACE</div>
+
+        </header>
+
+        <div class="content">
+
+            <div class="heading">
+
+                <div>
+                    <h1>Your Services</h1>
+                    <p>
+                        Publish your real services with clear descriptions
+                        and prices.
+                    </p>
+                </div>
+
+                <button class="primary-btn" id="addServiceButton">
+                    + Add Service
+                </button>
+
+            </div>
+
+            <div id="notice" class="notice"></div>
+
+            <div class="toolbar">
+                <input
+                    type="search"
+                    id="searchInput"
+                    placeholder="Search your services..."
+                    aria-label="Search services"
+                >
+            </div>
+
+            <div class="service-grid" id="serviceGrid"></div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- ADD / EDIT SERVICE MODAL -->
+
+<div class="modal" id="serviceModal" role="dialog"
+     aria-modal="true" aria-labelledby="modalTitle">
+
+    <div class="modal-card">
+
+        <div class="modal-heading">
+            <h2 id="modalTitle">Add a Service</h2>
+            <button class="close-btn" id="closeModal"
+                    aria-label="Close form">&times;</button>
+        </div>
+
+        <div id="formNotice" class="notice"></div>
+
+        <form id="serviceForm">
+
+            <input type="hidden" id="serviceId">
+
+            <div class="form-grid">
+
+                <div class="field full">
+                    <label for="serviceTitle">Service Title *</label>
+
+                    <input
+                        type="text"
+                        id="serviceTitle"
+                        maxlength="150"
+                        required
+                        placeholder="Enter the name of your service"
+                    >
+                </div>
+
+                <div class="field full">
+                    <label for="serviceDescription">Description *</label>
+
+                    <textarea
+                        id="serviceDescription"
+                        maxlength="5000"
+                        required
+                        placeholder="Explain what the service includes..."
+                    ></textarea>
+                </div>
+
+                <div class="field">
+                    <label for="serviceCategory">Category *</label>
+
+                    <select id="serviceCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="Web Development">Web Development</option>
+                        <option value="App Development">App Development</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="Machine Learning">Machine Learning</option>
+                        <option value="Database">Database</option>
+                        <option value="UI/UX Design">UI/UX Design</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="servicePrice">Price in INR (₹) *</label>
+
+                    <input
+                        type="number"
+                        id="servicePrice"
+                        min="0"
+                        max="100000000"
+                        step="0.01"
+                        required
+                        placeholder="Enter your price"
+                    >
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button type="button" class="cancel-btn" id="cancelModal">
+                    Cancel
+                </button>
+
+                <button type="submit" class="primary-btn" id="saveServiceButton">
+                    Save Service
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    const API_BASE_URL = "http://127.0.0.1:5000/api";
+
+    const serviceGrid = document.getElementById("serviceGrid");
+    const notice = document.getElementById("notice");
+    const formNotice = document.getElementById("formNotice");
+
+    const serviceModal = document.getElementById("serviceModal");
+    const serviceForm = document.getElementById("serviceForm");
+
+    const saveServiceButton =
+        document.getElementById("saveServiceButton");
+
+    let services = [];
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    function getToken() {
+        return localStorage.getItem("edumatch_token");
+    }
+
+    function showNotice(element, message, type = "info") {
+        element.textContent = message;
+        element.className = "notice " + type;
+    }
+
+    function clearNotice(element) {
+        element.textContent = "";
+        element.className = "notice";
+    }
+
+    async function apiRequest(path, options = {}) {
+        const token = getToken();
+
+        const headers = {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        };
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await fetch(API_BASE_URL + path, {
+            ...options,
+            headers,
+            credentials: "include"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(
+                data.message ||
+                data.error ||
+                `Request failed (HTTP ${response.status}).`
+            );
+        }
+
+        return data;
+    }
+
+    function formatPrice(value) {
+        if (value === null || value === undefined || value === "") {
+            return "Not specified";
+        }
+
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+            return "Not specified";
+        }
+
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
+
+    function renderServices() {
+        const query = document.getElementById("searchInput")
+            .value.trim().toLowerCase();
+
+        const filtered = services.filter(service => {
+            return [
+                service.title,
+                service.description,
+                service.category
+            ].join(" ").toLowerCase().includes(query);
+        });
+
+        if (filtered.length === 0) {
+            serviceGrid.innerHTML = `
+                <div class="empty-state">
+                    <h3>No services found</h3>
+                    <p>
+                        ${services.length
+                            ? "Try changing your search."
+                            : "Your published services will appear here. Add a service to publish your actual offering."}
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        serviceGrid.innerHTML = filtered.map(service => `
+            <article class="service-card">
+
+                <h3>${escapeHTML(service.title)}</h3>
+
+                <p class="service-description">
+                    ${escapeHTML(service.description || "No description provided.")}
+                </p>
+
+                <div class="service-meta">
+
+                    <div>
+                        <div class="price-label">Service Price</div>
+                        <div class="price">
+                            ${escapeHTML(formatPrice(service.price))}
+                        </div>
+                    </div>
+
+                    <span class="service-category">
+                        ${escapeHTML(service.category || "Other")}
+                    </span>
+
+                </div>
+
+                <div class="service-actions">
+
+                    <button class="secondary-btn"
+                        data-action="edit"
+                        data-id="${escapeHTML(service.id)}">
+                        Edit Service
+                    </button>
+
+                    <button class="delete-btn"
+                        data-action="delete"
+                        data-id="${escapeHTML(service.id)}">
+                        Delete
+                    </button>
+
+                </div>
+
+            </article>
+        `).join("");
+    }
+
+    async function loadServices() {
+        clearNotice(notice);
+
+        serviceGrid.innerHTML = `
+            <div class="empty-state">
+                <h3>Loading services...</h3>
+                <p>Retrieving your services from the server.</p>
+            </div>
+        `;
+
+        try {
+            /*
+              Required backend endpoint:
+              GET /api/provider/services
+
+              Expected response:
+              { "services": [...] }
+            */
+
+            const data = await apiRequest("/provider/services");
+
+            if (!Array.isArray(data.services)) {
+                throw new Error(
+                    "The server response does not contain a services array."
+                );
+            }
+
+            services = data.services;
+
+            renderServices();
+
+        } catch (error) {
+            services = [];
+
+            serviceGrid.innerHTML = `
+                <div class="empty-state">
+                    <h3>Services could not be loaded</h3>
+                    <p>${escapeHTML(error.message)}</p>
+                    <br>
+                    <p>
+                        Check the Flask backend and GET /api/provider/services.
+                    </p>
+                </div>
+            `;
+
+            showNotice(
+                notice,
+                "Services have not been loaded from the database. " +
+                "No example services have been inserted.",
+                "error"
+            );
+        }
+    }
+
+    function openModal(service = null) {
+        clearNotice(formNotice);
+        serviceForm.reset();
+
+        document.getElementById("serviceId").value =
+            service ? service.id : "";
+
+        document.getElementById("modalTitle").textContent =
+            service ? "Edit Service" : "Add a Service";
+
+        document.getElementById("serviceTitle").value =
+            service?.title || "";
+
+        document.getElementById("serviceDescription").value =
+            service?.description || "";
+
+        document.getElementById("serviceCategory").value =
+            service?.category || "";
+
+        document.getElementById("servicePrice").value =
+            service?.price ?? "";
+
+        serviceModal.classList.add("open");
+
+        document.getElementById("serviceTitle").focus();
+    }
+
+    function closeModal() {
+        serviceModal.classList.remove("open");
+    }
+
+    document.getElementById("addServiceButton").addEventListener(
+        "click",
+        () => openModal()
+    );
+
+    document.getElementById("closeModal").addEventListener(
+        "click",
+        closeModal
+    );
+
+    document.getElementById("cancelModal").addEventListener(
+        "click",
+        closeModal
+    );
+
+    serviceModal.addEventListener("click", event => {
+        if (event.target === serviceModal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+
+    document.getElementById("searchInput").addEventListener(
+        "input",
+        renderServices
+    );
+
+    serviceGrid.addEventListener("click", async event => {
+        const button = event.target.closest("button[data-action]");
+
+        if (!button) return;
+
+        const id = button.dataset.id;
+        const action = button.dataset.action;
+
+        const service = services.find(
+            item => String(item.id) === String(id)
+        );
+
+        if (!service) {
+            showNotice(notice, "This service is no longer available.", "error");
+            return;
+        }
+
+        if (action === "edit") {
+            openModal(service);
+            return;
+        }
+
+        if (action === "delete") {
+            const confirmed = confirm(
+                `Delete "${service.title}"? This action cannot be undone.`
+            );
+
+            if (!confirmed) return;
+
+            button.disabled = true;
+
+            try {
+                /*
+                  Required endpoint:
+                  DELETE /api/provider/services/<id>
+
+                  The backend must verify service ownership.
+                */
+
+                await apiRequest(
+                    `/provider/services/${encodeURIComponent(id)}`,
+                    { method: "DELETE" }
+                );
+
+                showNotice(notice, "Service deleted successfully.", "success");
+
+                await loadServices();
+
+            } catch (error) {
+                showNotice(notice, error.message, "error");
+                button.disabled = false;
+            }
+        }
+    });
+
+    serviceForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        clearNotice(formNotice);
+
+        const id = document.getElementById("serviceId").value;
+
+        const payload = {
+            title: document.getElementById("serviceTitle").value.trim(),
+            description: document.getElementById("serviceDescription").value.trim(),
+            category: document.getElementById("serviceCategory").value,
+            price: Number(document.getElementById("servicePrice").value)
+        };
+
+        if (!payload.title || !payload.description || !payload.category) {
+            showNotice(formNotice, "Please complete all required fields.", "error");
+            return;
+        }
+
+        if (
+            !Number.isFinite(payload.price) ||
+            payload.price < 0 ||
+            payload.price > 100000000
+        ) {
+            showNotice(formNotice, "Enter a valid service price.", "error");
+            return;
+        }
+
+        saveServiceButton.disabled = true;
+        saveServiceButton.textContent = "Saving...";
+
+        try {
+            /*
+              Create:
+              POST /api/provider/services
+
+              Update:
+              PUT /api/provider/services/<id>
+
+              Both endpoints must save changes to the real database.
+            */
+
+            if (id) {
+                await apiRequest(
+                    `/provider/services/${encodeURIComponent(id)}`,
+                    {
+                        method: "PUT",
+                        body: JSON.stringify(payload)
+                    }
+                );
+            } else {
+                await apiRequest(
+                    "/provider/services",
+                    {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    }
+                );
+            }
+
+            closeModal();
+
+            showNotice(
+                notice,
+                id ? "Service updated successfully." : "Service created successfully.",
+                "success"
+            );
+
+            await loadServices();
+
+        } catch (error) {
+            showNotice(formNotice, error.message, "error");
+
+        } finally {
+            saveServiceButton.disabled = false;
+            saveServiceButton.textContent = "Save Service";
+        }
+    });
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+        document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    document.getElementById("logoutLink").addEventListener("click", event => {
+        event.preventDefault();
+
+        localStorage.removeItem("edumatch_token");
+
+        window.location.href = "login.html";
+    });
+
+    loadServices();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

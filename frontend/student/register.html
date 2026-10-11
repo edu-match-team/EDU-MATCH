@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration | EduMatch</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #111827;
+            --purple: #7657FF;
+            --purple-dark: #6344EB;
+            --light-bg: #F7F8FC;
+            --text: #1F2937;
+            --muted: #6B7280;
+            --border: #E5E7EB;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        input,
+        button {
+            font: inherit;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            height: 76px;
+            padding: 0 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--navy);
+        }
+
+        .logo span {
+            color: var(--purple);
+        }
+
+        .back-home {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .back-home:hover {
+            color: var(--purple);
+        }
+
+        /* MAIN LAYOUT */
+        .main-container {
+            min-height: calc(100vh - 76px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .register-wrapper {
+            width: 100%;
+            max-width: 960px;
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(17, 24, 39, 0.07);
+            animation: appear 0.6s ease;
+        }
+
+        /* LEFT PANEL */
+        .welcome-panel {
+            background: var(--navy);
+            color: var(--white);
+            padding: 48px 36px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-panel::before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: rgba(118, 87, 255, 0.20);
+            border-radius: 50%;
+            top: -100px;
+            right: -120px;
+        }
+
+        .welcome-panel::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 50%;
+            bottom: -100px;
+            left: -100px;
+        }
+
+        .welcome-content,
+        .welcome-bottom {
+            position: relative;
+            z-index: 1;
+        }
+
+        .portal-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(118, 87, 255, 0.17);
+            border: 1px solid rgba(167, 148, 255, 0.25);
+            color: #C8BCFF;
+            padding: 9px 13px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 28px;
+        }
+
+        .badge-dot {
+            height: 7px;
+            width: 7px;
+            background: #A99AFF;
+            border-radius: 50%;
+        }
+
+        .welcome-panel h1 {
+            font-size: 37px;
+            line-height: 1.25;
+            letter-spacing: -1.3px;
+            margin-bottom: 18px;
+        }
+
+        .welcome-panel h1 span {
+            color: #A99AFF;
+        }
+
+        .welcome-description {
+            color: #B8C0D0;
+            font-size: 13px;
+            line-height: 1.9;
+        }
+
+        .benefits {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 34px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .benefit-icon {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(118, 87, 255, 0.20);
+            color: #C8BCFF;
+            border-radius: 10px;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .benefit-text h3 {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .benefit-text p {
+            color: #9CA3AF;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .welcome-bottom {
+            margin-top: 38px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            color: #9CA3AF;
+            font-size: 11px;
+        }
+
+        /* RIGHT FORM PANEL */
+        .form-panel {
+            padding: 42px 45px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-heading {
+            margin-bottom: 27px;
+        }
+
+        .form-heading h2 {
+            color: var(--navy);
+            font-size: 29px;
+            letter-spacing: -1px;
+            margin-bottom: 9px;
+        }
+
+        .form-heading p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            height: 47px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 0 13px;
+            outline: none;
+            background: var(--white);
+            font-size: 12px;
+            color: var(--text);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-wrapper input::placeholder {
+            color: #A0A6B2;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(118, 87, 255, 0.09);
+        }
+
+        .password-input {
+            padding-right: 65px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--purple);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toggle-password:hover {
+            color: var(--purple-dark);
+        }
+
+        /* PASSWORD STRENGTH */
+        .password-strength {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .strength-track {
+            width: 100%;
+            height: 4px;
+            background: #E5E7EB;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s;
+        }
+
+        .strength-text {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        /* TERMS */
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 9px;
+            margin: 3px 0 23px;
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .terms input {
+            margin-top: 4px;
+            accent-color: var(--purple);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        .terms a {
+            color: var(--purple);
+            font-weight: 600;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        /* REGISTER BUTTON */
+        .register-button {
+            width: 100%;
+            min-height: 49px;
+            border: none;
+            border-radius: 9px;
+            background: var(--purple);
+            color: var(--white);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+        }
+
+        .register-button:hover:not(:disabled) {
+            background: var(--purple-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(118, 87, 255, 0.22);
+        }
+
+        .register-button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        /* MESSAGES */
+        .message {
+            display: none;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 11px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .message.error {
+            display: block;
+            background: #FEF2F2;
+            color: #B91C1C;
+            border: 1px solid #FECACA;
+        }
+
+        .message.info {
+            display: block;
+            background: #F3F0FF;
+            color: #5B46C6;
+            border: 1px solid #DDD6FE;
+        }
+
+        .message.success {
+            display: block;
+            background: #F0FDF4;
+            color: #166534;
+            border: 1px solid #BBF7D0;
+        }
+
+        /* LOGIN LINK */
+        .login-text {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .login-text a {
+            color: var(--purple);
+            font-weight: 700;
+        }
+
+        .login-text a:hover {
+            text-decoration: underline;
+        }
+
+        .security-note {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 10px;
+            color: #9CA3AF;
+            line-height: 1.7;
+        }
+
+        /* ANIMATION */
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 850px) {
+            .register-wrapper {
+                max-width: 540px;
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-panel {
+                padding: 35px 30px;
+            }
+
+            .welcome-panel h1 {
+                font-size: 32px;
+            }
+
+            .benefits {
+                gap: 15px;
+                margin-top: 25px;
+            }
+
+            .welcome-bottom {
+                margin-top: 28px;
+            }
+
+            .form-panel {
+                padding: 35px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar {
+                height: 68px;
+                padding: 0 5%;
+            }
+
+            .logo {
+                font-size: 22px;
+            }
+
+            .back-home {
+                font-size: 11px;
+            }
+
+            .main-container {
+                padding: 22px 12px;
+            }
+
+            .welcome-panel {
+                padding: 28px 22px;
+            }
+
+            .form-panel {
+                padding: 30px 22px;
+            }
+
+            .form-heading h2 {
+                font-size: 26px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <a href="../index.html" class="logo">
+            Edu<span>Match</span>
+        </a>
+
+        <a href="../index.html" class="back-home">
+            ← Back to Home
+        </a>
+    </header>
+
+    <!-- MAIN REGISTRATION SECTION -->
+    <main class="main-container">
+        <div class="register-wrapper">
+
+            <!-- LEFT WELCOME PANEL -->
+            <section class="welcome-panel">
+                <div class="welcome-content">
+
+                    <div class="portal-badge">
+                        <span class="badge-dot"></span>
+                        STUDENT REGISTRATION
+                    </div>
+
+                    <h1>
+                        Your ideas deserve
+                        the right <span>team.</span>
+                    </h1>
+
+                    <p class="welcome-description">
+                        Join EduMatch and connect with project providers
+                        who can help bring your academic ideas to life.
+                        Create your account and start your journey today.
+                    </p>
+
+                    <div class="benefits">
+                        <div class="benefit">
+                            <div class="benefit-icon">⌕</div>
+                            <div class="benefit-text">
+                                <h3>Find the right expertise</h3>
+                                <p>Discover providers based on your project needs.</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit">
+                            <div class="benefit-icon">↗</div>
+                            <div class="benefit-text">
+                                <h3>Manage your projects</h3>
+                                <p>Keep your requests and projects organized.</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit">
+                            <div class="benefit-icon">✓</div>
+                            <div class="benefit-text">
+                                <h3>Bring ideas to life</h3>
+                                <p>Take the next step toward completing your projects.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="welcome-bottom">
+                    One platform. Better connections. Smarter projects.
+                </div>
+            </section>
+
+            <!-- REGISTRATION FORM -->
+            <section class="form-panel">
+
+                <div class="form-heading">
+                    <h2>Create your account</h2>
+                    <p>Enter your details to join the EduMatch community.</p>
+                </div>
+
+                <form id="registerForm">
+
+                    <!-- FULL NAME -->
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <div class="input-wrapper">
+                            <input
+                                type="text"
+                                id="fullName"
+                                name="fullName"
+                                placeholder="Enter your full name"
+                                autocomplete="name"
+                                minlength="2"
+                                maxlength="80"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- EMAIL ADDRESS -->
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <div class="input-wrapper">
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="you@example.com"
+                                autocomplete="email"
+                                maxlength="254"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- PASSWORD -->
+                    <div class="form-group">
+                        <label for="password">Create Password</label>
+                        <div class="input-wrapper">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                class="password-input"
+                                placeholder="At least 8 characters"
+                                autocomplete="new-password"
+                                minlength="8"
+                                maxlength="128"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                data-target="password"
+                            >
+                                Show
+                            </button>
+                        </div>
+
+                        <div class="password-strength" id="strengthContainer">
+                            <div class="strength-track">
+                                <div class="strength-bar" id="strengthBar"></div>
+                            </div>
+                            <p class="strength-text" id="strengthText"></p>
+                        </div>
+                    </div>
+
+                    <!-- CONFIRM PASSWORD -->
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="input-wrapper">
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                class="password-input"
+                                placeholder="Re-enter your password"
+                                autocomplete="new-password"
+                                minlength="8"
+                                maxlength="128"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                data-target="confirmPassword"
+                            >
+                                Show
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TERMS -->
+                    <label class="terms">
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            name="terms"
+                            required
+                        >
+
+                        <span>
+                            I agree to the
+                            <a href="#" id="termsLink">Terms and Conditions</a>
+                            and understand the EduMatch account rules.
+                        </span>
+                    </label>
+
+                    <!-- SUBMIT -->
+                    <button type="submit" class="register-button" id="registerButton">
+                        Create Account →
+                    </button>
+
+                    <div
+                        id="message"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+                </form>
+
+                <p class="login-text">
+                    Already have an account?
+                    <a href="login.html">Sign in</a>
+                </p>
+
+                <p class="security-note">
+                    EduMatch Student Portal
+                    <br>
+                    Your information should be handled securely.
+                </p>
+
+            </section>
+        </div>
+    </main>
+
+    <script>
+        const registerForm = document.getElementById("registerForm");
+        const fullNameInput = document.getElementById("fullName");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+        const message = document.getElementById("message");
+        const registerButton = document.getElementById("registerButton");
+
+        // Flask registration endpoint.
+        const REGISTER_API = "http://127.0.0.1:5000/api/auth/register";
+
+        // Show messages to the user.
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = "message " + type;
+        }
+
+        function clearMessage() {
+            message.textContent = "";
+            message.className = "message";
+        }
+
+        // Show or hide passwords.
+        document.querySelectorAll(".toggle-password").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const input = document.getElementById(button.dataset.target);
+
+                if (input.type === "password") {
+                    input.type = "text";
+                    button.textContent = "Hide";
+                } else {
+                    input.type = "password";
+                    button.textContent = "Show";
+                }
+            });
+        });
+
+        // Password strength indicator.
+        const strengthContainer = document.getElementById("strengthContainer");
+        const strengthBar = document.getElementById("strengthBar");
+        const strengthText = document.getElementById("strengthText");
+
+        passwordInput.addEventListener("input", function () {
+            const password = passwordInput.value;
+
+            strengthContainer.style.display = password.length > 0 ? "block" : "none";
+
+            let score = 0;
+
+            if (password.length >= 8) score++;
+            if (/[A-Z]/.test(password)) score++;
+            if (/[a-z]/.test(password)) score++;
+            if (/[0-9]/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+
+            const levels = [
+                { width: "0%", text: "", color: "#E5E7EB" },
+                { width: "20%", text: "Very weak", color: "#EF4444" },
+                { width: "40%", text: "Weak", color: "#F97316" },
+                { width: "60%", text: "Fair", color: "#EAB308" },
+                { width: "80%", text: "Good", color: "#22C55E" },
+                { width: "100%", text: "Strong", color: "#16A34A" }
+            ];
+
+            const level = levels[score];
+
+            strengthBar.style.width = level.width;
+            strengthBar.style.backgroundColor = level.color;
+            strengthText.textContent = level.text;
+        });
+
+        // The terms page does not exist yet.
+        document.getElementById("termsLink").addEventListener("click", function (event) {
+            event.preventDefault();
+
+            showMessage(
+                "The Terms and Conditions page has not been created yet.",
+                "info"
+            );
+        });
+
+        // Connect the registration form to the real Flask backend.
+        registerForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            clearMessage();
+
+            const fullName = fullNameInput.value.trim();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const termsAccepted = document.getElementById("terms").checked;
+
+            if (fullName.length < 2 || fullName.length > 80) {
+                showMessage(
+                    "Full name must contain between 2 and 80 characters.",
+                    "error"
+                );
+                fullNameInput.focus();
+                return;
+            }
+
+            if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showMessage("Please enter a valid email address.", "error");
+                emailInput.focus();
+                return;
+            }
+
+            if (password.length < 8 || password.length > 128) {
+                showMessage(
+                    "Password must contain between 8 and 128 characters.",
+                    "error"
+                );
+                passwordInput.focus();
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage(
+                    "Passwords do not match. Please try again.",
+                    "error"
+                );
+                confirmPasswordInput.focus();
+                return;
+            }
+
+            if (!termsAccepted) {
+                showMessage(
+                    "Please accept the Terms and Conditions.",
+                    "error"
+                );
+                return;
+            }
+
+            registerButton.disabled = true;
+            registerButton.textContent = "Creating Account...";
+
+            try {
+                const response = await fetch(REGISTER_API, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        fullName: fullName,
+                        email: email,
+                        password: password,
+                        confirmPassword: confirmPassword
+                    })
+                });
+
+                const result = await response.json().catch(function () {
+                    return {};
+                });
+
+                if (!response.ok || result.success !== true) {
+                    showMessage(
+                        result.message || "Registration failed. Please try again.",
+                        "error"
+                    );
+                    return;
+                }
+
+                showMessage(
+                    result.message || "Your student account has been created successfully.",
+                    "success"
+                );
+
+                registerForm.reset();
+
+                strengthContainer.style.display = "none";
+                strengthBar.style.width = "0%";
+                strengthText.textContent = "";
+
+                // Registration succeeded only after the backend confirmed it.
+                // Do not store passwords or treat localStorage as authentication.
+
+            } catch (error) {
+                console.error("Registration request failed:", error);
+
+                showMessage(
+                    "Could not connect to the EduMatch server. Make sure the Flask backend is running at http://127.0.0.1:5000, then try again.",
+                    "error"
+                );
+
+            } finally {
+                registerButton.disabled = false;
+                registerButton.textContent = "Create Account →";
+            }
+        });
+    </script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

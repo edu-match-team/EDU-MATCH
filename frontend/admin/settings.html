@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduMatch | Settings</title>
+
+<style>
+:root {
+    --primary: #5b4bdb;
+    --background: #f5f6fc;
+    --surface: #ffffff;
+    --text: #20233a;
+    --muted: #73778e;
+    --border: #e7e8f1;
+    --success: #16875d;
+    --danger: #c83e4d;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 245px;
+    background: #17172d;
+    color: white;
+    padding: 26px 16px;
+    flex-shrink: 0;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: 800;
+    margin: 0 10px 35px;
+}
+
+.brand span {
+    color: #a79aff;
+}
+
+.nav-title {
+    color: #9999b5;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 24px 10px 10px;
+}
+
+.nav-link {
+    display: block;
+    padding: 12px;
+    color: #d3d3e6;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #343052;
+    color: white;
+}
+
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 28px;
+}
+
+.topbar {
+    margin-bottom: 28px;
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.settings-card {
+    max-width: 900px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 22px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 22px;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-header h2 {
+    font-size: 18px;
+    margin-bottom: 7px;
+}
+
+.card-body {
+    padding: 22px;
+}
+
+.field {
+    margin-bottom: 22px;
+}
+
+.field:last-child {
+    margin-bottom: 0;
+}
+
+.field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    color: var(--text);
+    font: inherit;
+}
+
+.field textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.field small {
+    display: block;
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.checkbox-row input {
+    width: 17px;
+    height: 17px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.checkbox-row label {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 18px 22px;
+    border-top: 1px solid var(--border);
+    background: #fcfcff;
+}
+
+button {
+    cursor: pointer;
+    font: inherit;
+}
+
+.btn {
+    padding: 11px 17px;
+    border-radius: 8px;
+    font-weight: 700;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+button:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+.notice {
+    max-width: 900px;
+    padding: 13px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.notice.error {
+    display: block;
+    background: #ffebed;
+    color: #a52b39;
+}
+
+.notice.success {
+    display: block;
+    background: #e5f7ee;
+    color: #126b49;
+}
+
+.loading {
+    color: var(--muted);
+    padding: 18px 22px;
+}
+
+.security-note {
+    max-width: 900px;
+    border: 1px solid #f0dba6;
+    background: #fff9e8;
+    color: #75541b;
+    padding: 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 22px;
+}
+
+@media (max-width: 700px) {
+    .layout {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .main {
+        padding: 18px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}
+</style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">Edu<span>Match</span></div>
+
+        <div class="nav-title">Administration</div>
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="users.html">All Users</a>
+        <a class="nav-link" href="students.html">Students</a>
+        <a class="nav-link" href="providers.html">Providers</a>
+        <a class="nav-link" href="services.html">Services</a>
+        <a class="nav-link" href="orders.html">Orders</a>
+        <a class="nav-link" href="disputes.html">Disputes</a>
+        <a class="nav-link" href="reports.html">Reports</a>
+        <a class="nav-link active" href="settings.html">Settings</a>
+
+        <div class="nav-title">Account</div>
+        <a class="nav-link" href="#" id="logoutButton">Logout</a>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <h1>Platform Settings</h1>
+            <p class="subtitle">
+                Manage the configuration of your EduMatch platform.
+                Changes are saved only when the backend confirms success.
+            </p>
+        </header>
+
+        <div id="notice" class="notice" role="status"></div>
+
+        <div class="security-note">
+            <strong>Security:</strong>
+            Only authenticated administrators should access these settings.
+            The Flask backend must enforce admin permissions, validate every
+            value, and record important changes. Hiding this page from other
+            users is not sufficient security.
+        </div>
+
+        <form id="settingsForm">
+
+            <section class="settings-card">
+                <div class="card-header">
+                    <h2>General Settings</h2>
+                    <p class="subtitle">
+                        Basic information shown throughout the platform.
+                    </p>
+                </div>
+
+                <div id="generalLoading" class="loading">
+                    Waiting for settings from the backend...
+                </div>
+
+                <div class="card-body" id="generalFields" hidden>
+
+                    <div class="field">
+                        <label for="platformName">Platform name</label>
+                        <input
+                            type="text"
+                            id="platformName"
+                            name="platform_name"
+                            maxlength="100"
+                            required
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="supportEmail">Support email</label>
+                        <input
+                            type="email"
+                            id="supportEmail"
+                            name="support_email"
+                            maxlength="254"
+                            required
+                        >
+                        <small>
+                            Use an email address monitored by the platform team.
+                        </small>
+                    </div>
+
+                    <div class="field">
+                        <label for="platformDescription">Platform description</label>
+                        <textarea
+                            id="platformDescription"
+                            name="platform_description"
+                            maxlength="1000"
+                        ></textarea>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="settings-card">
+                <div class="card-header">
+                    <h2>Marketplace Settings</h2>
+                    <p class="subtitle">
+                        Configure how providers and services are managed.
+                    </p>
+                </div>
+
+                <div id="marketplaceLoading" class="loading">
+                    Waiting for settings from the backend...
+                </div>
+
+                <div class="card-body" id="marketplaceFields" hidden>
+
+                    <div class="field">
+                        <label for="approvalMode">Provider approval</label>
+                        <select id="approvalMode" name="provider_approval">
+                            <option value="manual">Manual approval</option>
+                            <option value="automatic">Automatic approval</option>
+                        </select>
+                        <small>
+                            The backend must enforce the selected approval policy.
+                        </small>
+                    </div>
+
+                    <div class="field">
+                        <label for="commissionRate">Platform commission (%)</label>
+                        <input
+                            type="number"
+                            id="commissionRate"
+                            name="platform_commission_percent"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            required
+                        >
+                        <small>
+                            This value configures a rate only. Actual charges and
+                            payouts require a properly implemented payment system.
+                        </small>
+                    </div>
+
+                    <div class="field">
+                        <label for="minimumOrder">Minimum order amount (INR)</label>
+                        <input
+                            type="number"
+                            id="minimumOrder"
+                            name="minimum_order_amount"
+                            min="0"
+                            step="0.01"
+                            required
+                        >
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="settings-card">
+                <div class="card-header">
+                    <h2>Notifications</h2>
+                    <p class="subtitle">
+                        Configure platform notification preferences.
+                    </p>
+                </div>
+
+                <div id="notificationLoading" class="loading">
+                    Waiting for settings from the backend...
+                </div>
+
+                <div class="card-body" id="notificationFields" hidden>
+
+                    <div class="field">
+                        <div class="checkbox-row">
+                            <input
+                                type="checkbox"
+                                id="emailNotifications"
+                                name="email_notifications_enabled"
+                            >
+                            <label for="emailNotifications">
+                                Enable email notifications
+                                <small>
+                                    This setting does not itself send emails.
+                                    A working email delivery service is required.
+                                </small>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="checkbox-row">
+                            <input
+                                type="checkbox"
+                                id="maintenanceMode"
+                                name="maintenance_mode"
+                            >
+                            <label for="maintenanceMode">
+                                Enable maintenance mode
+                                <small>
+                                    The backend must enforce maintenance mode
+                                    across the platform for this to take effect.
+                                </small>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="actions">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="reloadButton"
+                    >
+                        Reload Settings
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        id="saveButton"
+                        disabled
+                    >
+                        Save Settings
+                    </button>
+                </div>
+            </section>
+
+        </form>
+
+    </main>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000/api";
+const token = localStorage.getItem("edumatch_token");
+
+const notice = document.getElementById("notice");
+const saveButton = document.getElementById("saveButton");
+const form = document.getElementById("settingsForm");
+
+let originalSettings = null;
+let settingsLoaded = false;
+
+const groups = [
+    "generalFields",
+    "marketplaceFields",
+    "notificationFields"
+];
+
+const fields = [
+    "platformName",
+    "supportEmail",
+    "platformDescription",
+    "approvalMode",
+    "commissionRate",
+    "minimumOrder",
+    "emailNotifications",
+    "maintenanceMode"
+];
+
+function showNotice(message, type = "error") {
+    notice.className = "notice " + type;
+    notice.textContent = message;
+}
+
+function clearNotice() {
+    notice.className = "notice";
+    notice.textContent = "";
+}
+
+function setLoading(isLoading) {
+    document.getElementById("generalLoading").hidden = !isLoading;
+    document.getElementById("marketplaceLoading").hidden = !isLoading;
+    document.getElementById("notificationLoading").hidden = !isLoading;
+
+    groups.forEach(id => {
+        document.getElementById(id).hidden = isLoading;
+    });
+
+    fields.forEach(id => {
+        document.getElementById(id).disabled = isLoading;
+    });
+
+    saveButton.disabled = isLoading || !settingsLoaded;
+}
+
+async function apiRequest(path, options = {}) {
+    if (!token) {
+        throw new Error("Admin session not found. Please log in first.");
+    }
+
+    const response = await fetch(API + path, {
+        ...options,
+        headers: {
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            ...(options.headers || {})
+        }
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.error ||
+            `Request failed (${response.status}).`
+        );
+    }
+
+    return data;
+}
+
+function fillForm(settings) {
+    const map = {
+        platformName: settings.platform_name,
+        supportEmail: settings.support_email,
+        platformDescription: settings.platform_description,
+        approvalMode: settings.provider_approval,
+        commissionRate: settings.platform_commission_percent,
+        minimumOrder: settings.minimum_order_amount,
+        emailNotifications: settings.email_notifications_enabled,
+        maintenanceMode: settings.maintenance_mode
+    };
+
+    for (const [id, value] of Object.entries(map)) {
+        const element = document.getElementById(id);
+
+        if (element.type === "checkbox") {
+            element.checked = value === true;
+        } else {
+            element.value = value ?? "";
+        }
+    }
+}
+
+function readForm() {
+    return {
+        platform_name:
+            document.getElementById("platformName").value.trim(),
+
+        support_email:
+            document.getElementById("supportEmail").value.trim(),
+
+        platform_description:
+            document.getElementById("platformDescription").value.trim(),
+
+        provider_approval:
+            document.getElementById("approvalMode").value,
+
+        platform_commission_percent:
+            Number(document.getElementById("commissionRate").value),
+
+        minimum_order_amount:
+            Number(document.getElementById("minimumOrder").value),
+
+        email_notifications_enabled:
+            document.getElementById("emailNotifications").checked,
+
+        maintenance_mode:
+            document.getElementById("maintenanceMode").checked
+    };
+}
+
+function validateSettings(settings) {
+    if (!settings.platform_name) {
+        throw new Error("Platform name is required.");
+    }
+
+    if (!settings.support_email) {
+        throw new Error("Support email is required.");
+    }
+
+    if (!["manual", "automatic"].includes(settings.provider_approval)) {
+        throw new Error("Select a valid provider approval mode.");
+    }
+
+    if (
+        !Number.isFinite(settings.platform_commission_percent) ||
+        settings.platform_commission_percent < 0 ||
+        settings.platform_commission_percent > 100
+    ) {
+        throw new Error("Commission must be between 0 and 100.");
+    }
+
+    if (
+        !Number.isFinite(settings.minimum_order_amount) ||
+        settings.minimum_order_amount < 0
+    ) {
+        throw new Error("Minimum order amount cannot be negative.");
+    }
+}
+
+async function loadSettings() {
+    clearNotice();
+    settingsLoaded = false;
+    saveButton.disabled = true;
+    setLoading(true);
+
+    try {
+        const data = await apiRequest("/admin/settings");
+
+        if (!data.settings || typeof data.settings !== "object") {
+            throw new Error(
+                "The backend did not return a valid settings object."
+            );
+        }
+
+        originalSettings = data.settings;
+        fillForm(originalSettings);
+
+        settingsLoaded = true;
+        setLoading(false);
+        saveButton.disabled = false;
+
+    } catch (error) {
+        setLoading(true);
+        showNotice(error.message);
+    }
+}
+
+async function saveSettings(event) {
+    event.preventDefault();
+    clearNotice();
+
+    if (!settingsLoaded) {
+        showNotice("Load settings successfully before saving.");
+        return;
+    }
+
+    const settings = readForm();
+
+    try {
+        validateSettings(settings);
+    } catch (error) {
+        showNotice(error.message);
+        return;
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Saving...";
+
+    try {
+        const data = await apiRequest("/admin/settings", {
+            method: "PUT",
+            body: JSON.stringify(settings)
+        });
+
+        if (!data.settings || typeof data.settings !== "object") {
+            throw new Error(
+                "The server did not confirm the saved settings. " +
+                "Reload settings to verify the stored values."
+            );
+        }
+
+        originalSettings = data.settings;
+        fillForm(originalSettings);
+
+        showNotice("Settings saved successfully.", "success");
+
+    } catch (error) {
+        showNotice(error.message);
+    } finally {
+        saveButton.disabled = !settingsLoaded;
+        saveButton.textContent = "Save Settings";
+    }
+}
+
+document.getElementById("reloadButton")
+    .addEventListener("click", loadSettings);
+
+form.addEventListener("submit", saveSettings);
+
+document.getElementById("logoutButton")
+    .addEventListener("click", event => {
+        event.preventDefault();
+        localStorage.removeItem("edumatch_token");
+        window.location.href = "login.html";
+    });
+
+if (!token) {
+    setLoading(true);
+    showNotice("Please log in through the admin login page.");
+} else {
+    loadSettings();
+}
+</script>
+    <script src="../theme.js"></script>
+</body>
+</html>

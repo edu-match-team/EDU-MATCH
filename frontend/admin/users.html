@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Users | EduMatch Admin</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f5f7fc;color:#1f2937}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#111827;color:white;padding:25px 15px;flex-shrink:0}
+.logo{font-size:25px;font-weight:bold;padding:5px 12px 30px}
+.logo span{color:#818cf8}
+.sidebar h4{font-size:11px;color:#9ca3af;padding:12px;text-transform:uppercase;letter-spacing:1px}
+.nav-link{display:block;padding:13px 12px;margin:4px 0;color:#d1d5db;text-decoration:none;border-radius:8px;font-size:14px}
+.nav-link:hover,.nav-link.active{background:#312e81;color:white}
+.main{flex:1;min-width:0}
+.topbar{background:white;padding:22px 30px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.topbar h1{font-size:23px}
+.topbar p{font-size:13px;color:#6b7280;margin-top:5px}
+.admin-label{background:#eef2ff;color:#4338ca;padding:10px 14px;border-radius:20px;font-size:13px;font-weight:bold}
+.content{padding:28px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:25px}
+.card,.panel{background:white;border:1px solid #e5e7eb;border-radius:12px}
+.card{padding:22px}
+.card p{font-size:13px;color:#6b7280;margin-bottom:12px}
+.card h2{font-size:28px}
+.panel{overflow:hidden}
+.panel-head{padding:22px;border-bottom:1px solid #e5e7eb}
+.panel-head h2{font-size:19px}
+.panel-head p{font-size:13px;color:#6b7280;margin-top:6px}
+.filters{padding:18px 22px;display:flex;gap:12px;flex-wrap:wrap}
+input,select{padding:11px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;background:white}
+input{flex:1;min-width:220px}
+button{cursor:pointer;border:0;border-radius:7px;padding:10px 13px;font-size:12px;font-weight:bold}
+.primary{background:#4f46e5;color:white}
+.view{background:#eef2ff;color:#4338ca}
+.activate{background:#dcfce7;color:#166534}
+.suspend{background:#fee2e2;color:#991b1b}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:15px 17px;text-align:left;border-bottom:1px solid #f0f1f5;font-size:13px}
+th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
+.name{font-weight:bold}
+.sub{display:block;margin-top:5px;color:#6b7280;font-size:12px}
+.badge{display:inline-block;padding:6px 9px;border-radius:20px;font-size:11px;text-transform:capitalize;font-weight:bold}
+.badge.active,.badge.approved{background:#dcfce7;color:#166534}
+.badge.pending{background:#fef3c7;color:#92400e}
+.badge.suspended,.badge.inactive,.badge.blocked{background:#fee2e2;color:#991b1b}
+.message{padding:28px;text-align:center;color:#6b7280;font-size:14px}
+.error{color:#b91c1c}
+.footer{padding:15px 22px;color:#6b7280;font-size:12px}
+.modal{display:none;position:fixed;inset:0;background:#0009;z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:white;padding:25px;border-radius:14px;width:100%;max-width:560px;max-height:85vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.close{font-size:20px;background:#f3f4f6}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.detail{padding:12px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere}
+.detail small{display:block;color:#6b7280;margin-bottom:7px}
+.detail p{font-size:14px;font-weight:bold}
+.menu-toggle{display:none;background:#eef2ff;color:#4338ca}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:750px){
+.sidebar{display:none;position:fixed;inset:0 auto 0 0;z-index:900;overflow:auto}
+.sidebar.open{display:block}.menu-toggle{display:block}
+.topbar{padding:18px}.content{padding:16px}.admin-label{display:none}
+.details{grid-template-columns:1fr}
+}
+</style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+<div class="layout">
+
+<aside class="sidebar" id="sidebar">
+    <div class="logo">Edu<span>Match</span></div>
+    <h4>Administration</h4>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link active" href="users.html">All Users</a>
+    <a class="nav-link" href="students.html">Students</a>
+    <a class="nav-link" href="providers.html">Providers</a>
+    <a class="nav-link" href="services.html">Services</a>
+    <a class="nav-link" href="orders.html">Orders</a>
+    <a class="nav-link" href="disputes.html">Disputes</a>
+    <a class="nav-link" href="reports.html">Reports</a>
+    <a class="nav-link" href="settings.html">Settings</a>
+    <h4>Account</h4>
+    <a class="nav-link" href="#" id="logoutButton">Logout</a>
+</aside>
+
+<main class="main">
+
+<header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div>
+            <h1>Manage Users</h1>
+            <p>View and manage registered EduMatch accounts.</p>
+        </div>
+    </div>
+    <span class="admin-label">Administrator</span>
+</header>
+
+<section class="content">
+
+<div class="stats">
+    <div class="card"><p>Total Users</p><h2 id="total">—</h2></div>
+    <div class="card"><p>Students</p><h2 id="students">—</h2></div>
+    <div class="card"><p>Providers</p><h2 id="providers">—</h2></div>
+    <div class="card"><p>Suspended Accounts</p><h2 id="suspended">—</h2></div>
+</div>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>All Registered Users</h2>
+        <p>Records are loaded from the backend.</p>
+    </div>
+
+    <div class="filters">
+        <input id="search" type="search"
+               placeholder="Search name, email, or user ID...">
+
+        <select id="role">
+            <option value="">All roles</option>
+            <option value="student">Student</option>
+            <option value="provider">Provider</option>
+        </select>
+
+        <select id="status">
+            <option value="">All statuses</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="suspended">Suspended</option>
+            <option value="blocked">Blocked</option>
+        </select>
+
+        <button class="primary" id="refresh">Refresh</button>
+    </div>
+
+    <div id="message" class="message">Loading users...</div>
+
+    <div class="table-wrap">
+    <table>
+        <thead>
+        <tr>
+            <th>User</th>
+            <th>User ID</th>
+            <th>Role</th>
+            <th>Joined</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="userRows"></tbody>
+    </table>
+    </div>
+
+    <div class="footer" id="footer">Loading...</div>
+</section>
+
+</section>
+</main>
+</div>
+
+<div class="modal" id="modal" role="dialog"
+     aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 id="modalTitle">User Details</h2>
+            <button class="close" id="closeModal" aria-label="Close">&times;</button>
+        </div>
+        <div id="details"></div>
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000/api";
+const rows = document.getElementById("userRows");
+const message = document.getElementById("message");
+
+let users = [];
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+    })[c]);
+}
+
+function getToken() {
+    return localStorage.getItem("edumatch_token");
+}
+
+function getName(user) {
+    return user.full_name || user.name || "Name unavailable";
+}
+
+function getRole(user) {
+    return String(user.role || "").toLowerCase();
+}
+
+function getStatus(user) {
+    return String(user.status || "unknown").toLowerCase();
+}
+
+function formatDate(value) {
+    if (!value) return "Not available";
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? "Not available"
+        : date.toLocaleDateString("en-IN");
+}
+
+function showMessage(text, isError = false) {
+    message.hidden = false;
+    message.className = isError ? "message error" : "message";
+    message.textContent = text;
+}
+
+async function apiRequest(path, options = {}) {
+    const auth = getToken();
+
+    if (!auth) {
+        throw new Error("Please log in using the admin login page.");
+    }
+
+    const response = await fetch(API + path, {
+        ...options,
+        headers: {
+            "Accept": "application/json",
+            ...(options.body ? {"Content-Type":"application/json"} : {}),
+            "Authorization": "Bearer " + auth,
+            ...options.headers
+        }
+    });
+
+    const text = await response.text();
+    let data = {};
+
+    if (text) {
+        try {
+            data = JSON.parse(text);
+        } catch {
+            throw new Error("The server returned an invalid response.");
+        }
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data.message || data.error || `Request failed (${response.status}).`
+        );
+    }
+
+    return data;
+}
+
+function updateStats() {
+    document.getElementById("total").textContent = users.length;
+
+    document.getElementById("students").textContent =
+        users.filter(u => getRole(u) === "student").length;
+
+    document.getElementById("providers").textContent =
+        users.filter(u => getRole(u) === "provider").length;
+
+    document.getElementById("suspended").textContent =
+        users.filter(u => ["suspended", "blocked"].includes(getStatus(u))).length;
+}
+
+async function loadUsers() {
+    rows.innerHTML = "";
+    users = [];
+    updateStats();
+
+    showMessage("Loading users from the server...");
+    document.getElementById("footer").textContent = "Loading...";
+
+    try {
+        // Required endpoint: GET /api/admin/users
+        const data = await apiRequest("/admin/users");
+
+        if (!Array.isArray(data.users)) {
+            throw new Error("API response must contain a users array.");
+        }
+
+        users = data.users;
+        updateStats();
+        renderUsers();
+
+    } catch (error) {
+        showMessage(error.message, true);
+        document.getElementById("footer").textContent =
+            "Users could not be loaded.";
+        console.error(error);
+    }
+}
+
+function renderUsers() {
+    const query = document.getElementById("search").value.trim().toLowerCase();
+    const selectedRole = document.getElementById("role").value.toLowerCase();
+    const selectedStatus = document.getElementById("status").value.toLowerCase();
+
+    const filtered = users.filter(user => {
+        const text = [
+            user.id,
+            user.user_id,
+            getName(user),
+            user.email
+        ].join(" ").toLowerCase();
+
+        return text.includes(query)
+            && (!selectedRole || getRole(user) === selectedRole)
+            && (!selectedStatus || getStatus(user) === selectedStatus);
+    });
+
+    rows.innerHTML = "";
+
+    if (!filtered.length) {
+        showMessage(users.length
+            ? "No users match your search or filters."
+            : "No users have been returned by the server.");
+
+        document.getElementById("footer").textContent = "0 matching users";
+        return;
+    }
+
+    message.hidden = true;
+
+    filtered.forEach(user => {
+        const id = user.id ?? user.user_id;
+        const status = getStatus(user);
+        const role = getRole(user);
+
+        const canSuspend = ["active", "approved"].includes(status);
+        const canActivate = ["suspended", "blocked", "inactive"].includes(status);
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                <span class="name">${escapeHTML(getName(user))}</span>
+                <span class="sub">${escapeHTML(user.email || "Email unavailable")}</span>
+            </td>
+
+            <td>${escapeHTML(id ?? "Not available")}</td>
+
+            <td>${escapeHTML(role || "Unknown")}</td>
+
+            <td>${escapeHTML(formatDate(user.created_at))}</td>
+
+            <td>
+                <span class="badge ${escapeHTML(status)}">
+                    ${escapeHTML(status.replaceAll("_", " "))}
+                </span>
+            </td>
+
+            <td>
+                <button class="view" data-action="view"
+                        data-id="${escapeHTML(id)}">View</button>
+
+                ${canSuspend ? `
+                    <button class="suspend" data-action="suspend"
+                            data-id="${escapeHTML(id)}">Suspend</button>
+                ` : ""}
+
+                ${canActivate ? `
+                    <button class="activate" data-action="activate"
+                            data-id="${escapeHTML(id)}">Activate</button>
+                ` : ""}
+            </td>
+        `;
+
+        rows.appendChild(row);
+    });
+
+    document.getElementById("footer").textContent =
+        `Showing ${filtered.length} of ${users.length} users`;
+}
+
+async function viewUser(id) {
+    const box = document.getElementById("details");
+
+    document.getElementById("modal").classList.add("open");
+    box.textContent = "Loading user details...";
+
+    try {
+        // Required endpoint: GET /api/admin/users/<id>
+        const data = await apiRequest(
+            "/admin/users/" + encodeURIComponent(id)
+        );
+
+        if (!data.user) {
+            throw new Error("The server did not return user details.");
+        }
+
+        const user = data.user;
+
+        box.innerHTML = `
+            <div class="details">
+                <div class="detail">
+                    <small>User ID</small>
+                    <p>${escapeHTML(user.id ?? user.user_id ?? id)}</p>
+                </div>
+
+                <div class="detail">
+                    <small>Role</small>
+                    <p>${escapeHTML(user.role || "Not available")}</p>
+                </div>
+
+                <div class="detail">
+                    <small>Name</small>
+                    <p>${escapeHTML(getName(user))}</p>
+                </div>
+
+                <div class="detail">
+                    <small>Email</small>
+                    <p>${escapeHTML(user.email || "Not available")}</p>
+                </div>
+
+                <div class="detail">
+                    <small>Phone</small>
+                    <p>${escapeHTML(user.phone || "Not provided")}</p>
+                </div>
+
+                <div class="detail">
+                    <small>Status</small>
+                    <p>${escapeHTML(user.status || "Unknown")}</p>
+                </div>
+
+                <div class="detail">
+                    <small>Registered</small>
+                    <p>${escapeHTML(formatDate(user.created_at))}</p>
+                </div>
+            </div>
+        `;
+
+    } catch (error) {
+        box.textContent = error.message;
+    }
+}
+
+async function changeStatus(id, action) {
+    const newStatus = action === "suspend" ? "suspended" : "active";
+
+    if (!confirm(`Change this account's status to "${newStatus}"?`)) {
+        return;
+    }
+
+    try {
+        /*
+          Required endpoint:
+          PATCH /api/admin/users/<id>/status
+
+          Body: {"status":"active"} or {"status":"suspended"}
+        */
+        await apiRequest(
+            "/admin/users/" + encodeURIComponent(id) + "/status",
+            {
+                method: "PATCH",
+                body: JSON.stringify({status: newStatus})
+            }
+        );
+
+        alert("User status updated.");
+        await loadUsers();
+
+    } catch (error) {
+        alert("Could not update user: " + error.message);
+    }
+}
+
+rows.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+
+    if (!button) return;
+
+    const {action, id} = button.dataset;
+
+    if (action === "view") viewUser(id);
+
+    if (action === "suspend" || action === "activate") {
+        changeStatus(id, action);
+    }
+});
+
+document.getElementById("search").addEventListener("input", renderUsers);
+document.getElementById("role").addEventListener("change", renderUsers);
+document.getElementById("status").addEventListener("change", renderUsers);
+document.getElementById("refresh").addEventListener("click", loadUsers);
+
+document.getElementById("closeModal").addEventListener("click", () => {
+    document.getElementById("modal").classList.remove("open");
+});
+
+document.getElementById("modal").addEventListener("click", event => {
+    if (event.target.id === "modal") {
+        event.currentTarget.classList.remove("open");
+    }
+});
+
+document.getElementById("menuToggle").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("open");
+});
+
+document.getElementById("logoutButton").addEventListener("click", event => {
+    event.preventDefault();
+    localStorage.removeItem("edumatch_token");
+    location.href = "login.html";
+});
+
+loadUsers();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

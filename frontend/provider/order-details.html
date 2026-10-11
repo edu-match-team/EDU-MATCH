@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Details | EduMatch</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #5b4bdb;
+            --primary-light: #efedff;
+            --background: #f6f7fb;
+            --white: #ffffff;
+            --text: #20243a;
+            --muted: #777d91;
+            --border: #e8eaf1;
+            --green: #16865c;
+            --red: #c03939;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            padding: 25px 17px;
+            background: var(--white);
+            border-right: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            display: block;
+            margin: 0 10px 35px;
+        }
+
+        .logo span {
+            color: var(--text);
+        }
+
+        .nav-title {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 20px 10px 12px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 13px 12px;
+            border-radius: 9px;
+            margin: 5px 0;
+            color: #62677a;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+        }
+
+        /* Main layout */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            min-height: 75px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 30px;
+            gap: 15px;
+        }
+
+        .topbar h2 {
+            font-size: 20px;
+        }
+
+        .provider-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: var(--primary-light);
+            color: var(--primary);
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+        }
+
+        .content {
+            max-width: 1400px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 27px;
+            margin-bottom: 9px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .order-id {
+            color: var(--muted);
+            overflow-wrap: anywhere;
+        }
+
+        .status-badge {
+            display: inline-block;
+            border-radius: 20px;
+            padding: 8px 13px;
+            font-size: 12px;
+            font-weight: bold;
+            background: #eeeeee;
+            color: #444444;
+            text-transform: capitalize;
+        }
+
+        .status-badge.pending {
+            background: #fff4d9;
+            color: #956b08;
+        }
+
+        .status-badge.accepted,
+        .status-badge.in_progress {
+            background: #e9efff;
+            color: #3156a5;
+        }
+
+        .status-badge.completed {
+            background: #e5f7ee;
+            color: var(--green);
+        }
+
+        .status-badge.cancelled,
+        .status-badge.rejected {
+            background: #fdeaea;
+            color: var(--red);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+            gap: 23px;
+            align-items: start;
+        }
+
+        .left-column,
+        .right-column {
+            display: grid;
+            gap: 22px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 21px 23px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            font-size: 17px;
+        }
+
+        .card-body {
+            padding: 23px;
+        }
+
+        .service-title {
+            font-size: 19px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .description {
+            color: #62677a;
+            font-size: 14px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .detail-row:first-child {
+            padding-top: 0;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .detail-label {
+            color: var(--muted);
+        }
+
+        .detail-value {
+            font-weight: bold;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .student-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            overflow-wrap: anywhere;
+        }
+
+        .student-detail {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+        }
+
+        .price {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        .payment-note {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 9px;
+            background: #f7f7fc;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .action-button {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            margin-top: 11px;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+            background: var(--white);
+            color: var(--text);
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .action-button.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .action-button.primary:hover {
+            background: #4737bd;
+        }
+
+        .action-button:hover:not(:disabled) {
+            border-color: var(--primary);
+        }
+
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .message {
+            display: none;
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 9px;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .message.visible {
+            display: block;
+        }
+
+        .message.error {
+            color: #9d2525;
+            background: #fff0f0;
+            border: 1px solid #f3cccc;
+        }
+
+        .message.success {
+            color: #176d45;
+            background: #e9f8ef;
+            border: 1px solid #c8ecd7;
+        }
+
+        .message.info {
+            color: #244e91;
+            background: #edf3ff;
+            border: 1px solid #d5e2ff;
+        }
+
+        .empty-state {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 50px 25px;
+            text-align: center;
+        }
+
+        .empty-state h2 {
+            font-size: 20px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state p {
+            max-width: 450px;
+            margin: auto;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--muted);
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 950px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 23px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: fixed;
+                z-index: 10;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                width: 240px;
+                transition: left 0.25s;
+                box-shadow: 3px 0 15px #00000010;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .menu-toggle {
+                display: inline-block;
+            }
+
+            .topbar {
+                padding: 15px;
+            }
+
+            .topbar h2 {
+                font-size: 16px;
+            }
+
+            .content {
+                padding: 18px 13px;
+            }
+
+            .page-heading h1 {
+                font-size: 23px;
+            }
+
+            .card-body {
+                padding: 18px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="../index.html" class="logo">
+            Edu<span>Match</span>
+        </a>
+
+        <p class="nav-title">WORKSPACE</p>
+
+        <a href="dashboard.html" class="nav-link">⌂ &nbsp; Dashboard</a>
+        <a href="profile.html" class="nav-link">◎ &nbsp; My Profile</a>
+        <a href="skills.html" class="nav-link">✿ &nbsp; My Skills</a>
+        <a href="requests.html" class="nav-link">♧ &nbsp; Project Requests</a>
+        <a href="orders.html" class="nav-link active">▤ &nbsp; My Orders</a>
+        <a href="chat.html" class="nav-link">✉ &nbsp; Messages</a>
+        <a href="../index.html" class="nav-link">← &nbsp; Back to Website</a>
+        <a href="login.html" class="nav-link" id="logoutButton" style="color:#dc2626; margin-top:25px;">⇥ &nbsp; Logout</a>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button
+                    class="menu-toggle"
+                    id="menuToggle"
+                    aria-label="Toggle navigation"
+                >☰</button>
+
+                <h2>Order Details</h2>
+            </div>
+
+            <div class="provider-info">
+                <div class="avatar" id="providerAvatar">P</div>
+                <span id="providerName">Provider Account</span>
+            </div>
+
+        </header>
+
+        <div class="content">
+
+            <a href="orders.html" class="back-link">
+                ← Back to My Orders
+            </a>
+
+            <div id="errorMessage"
+                 class="message error"
+                 role="alert"></div>
+
+            <div id="successMessage"
+                 class="message success"
+                 role="status"></div>
+
+            <div id="infoMessage"
+                 class="message info"
+                 role="status"></div>
+
+            <div id="loadingState" class="loading">
+                Loading order details from the EduMatch server...
+            </div>
+
+            <section id="notFoundState" class="empty-state" hidden>
+                <h2 id="notFoundTitle">Order details unavailable</h2>
+
+                <p id="notFoundDescription">
+                    The order could not be loaded. Check the order ID,
+                    your login status, and the server connection.
+                </p>
+
+                <br>
+
+                <a href="orders.html" class="back-link">
+                    Return to My Orders
+                </a>
+            </section>
+
+            <section id="orderContent" hidden>
+
+                <div class="page-heading">
+
+                    <div>
+                        <h1>Order Details</h1>
+
+                        <p class="order-id">
+                            Order ID:
+                            <strong id="orderId">—</strong>
+                        </p>
+                    </div>
+
+                    <span id="orderStatus" class="status-badge">
+                        —
+                    </span>
+
+                </div>
+
+                <div class="layout">
+
+                    <div class="left-column">
+
+                        <!-- Service details -->
+                        <section class="card">
+
+                            <div class="card-header">
+                                <h2>Service Information</h2>
+                            </div>
+
+                            <div class="card-body">
+
+                                <h3 class="service-title" id="serviceTitle">
+                                    —
+                                </h3>
+
+                                <p class="description" id="serviceDescription">
+                                    No description available.
+                                </p>
+
+                            </div>
+
+                        </section>
+
+                        <!-- Order information -->
+                        <section class="card">
+
+                            <div class="card-header">
+                                <h2>Order Information</h2>
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Order ID</span>
+                                    <span class="detail-value" id="detailOrderId">—</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Order Status</span>
+                                    <span class="detail-value" id="detailStatus">—</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Order Created</span>
+                                    <span class="detail-value" id="createdDate">—</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Expected Delivery</span>
+                                    <span class="detail-value" id="deliveryDate">—</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Last Updated</span>
+                                    <span class="detail-value" id="updatedDate">—</span>
+                                </div>
+
+                            </div>
+
+                        </section>
+
+                        <!-- Student information -->
+                        <section class="card">
+
+                            <div class="card-header">
+                                <h2>Student Information</h2>
+                            </div>
+
+                            <div class="card-body">
+
+                                <h3 class="student-name" id="studentName">
+                                    —
+                                </h3>
+
+                                <p class="student-detail" id="studentEmail">
+                                    Email: —
+                                </p>
+
+                                <p class="student-detail" id="studentId">
+                                    Student ID: —
+                                </p>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                    <div class="right-column">
+
+                        <!-- Payment -->
+                        <section class="card">
+
+                            <div class="card-header">
+                                <h2>Payment Information</h2>
+                            </div>
+
+                            <div class="card-body">
+
+                                <p class="detail-label">Order Amount</p>
+
+                                <h2 class="price" id="orderAmount">—</h2>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Payment Status</span>
+                                    <span class="detail-value" id="paymentStatus">—</span>
+                                </div>
+
+                                <div class="detail-row">
+                                    <span class="detail-label">Transaction ID</span>
+                                    <span class="detail-value" id="transactionId">—</span>
+                                </div>
+
+                                <p class="payment-note">
+                                    Payment information is displayed from the
+                                    server. An order being completed does not
+                                    automatically mean the payment has settled.
+                                </p>
+
+                            </div>
+
+                        </section>
+
+                        <!-- Actions -->
+                        <section class="card">
+
+                            <div class="card-header">
+                                <h2>Order Actions</h2>
+                            </div>
+
+                            <div class="card-body">
+
+                                <p class="description" id="actionDescription">
+                                    Available actions depend on the order status.
+                                </p>
+
+                                <div id="actionButtons"></div>
+
+                                <button
+                                    type="button"
+                                    class="action-button"
+                                    id="refreshButton"
+                                >
+                                    Refresh Order
+                                </button>
+
+                            </div>
+
+                        </section>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    "use strict";
+
+    /*
+     * REQUIRED BACKEND ENDPOINTS
+     *
+     * GET   /api/provider/orders/<order_id>
+     * PATCH /api/provider/orders/<order_id>/status
+     *
+     * The Flask backend must:
+     * 1. Authenticate the provider.
+     * 2. Verify that the order belongs to or is assigned to that provider.
+     * 3. Return actual order and payment records.
+     * 4. Validate every requested status transition.
+     * 5. Record changes in the database.
+     *
+     * Never rely on the frontend alone to authorize an order action.
+     */
+
+    const API_BASE_URL = "http://127.0.0.1:5000/api";
+
+    const elements = {
+        sidebar: document.getElementById("sidebar"),
+        menuToggle: document.getElementById("menuToggle"),
+
+        loadingState: document.getElementById("loadingState"),
+        notFoundState: document.getElementById("notFoundState"),
+        notFoundTitle: document.getElementById("notFoundTitle"),
+        notFoundDescription: document.getElementById("notFoundDescription"),
+        orderContent: document.getElementById("orderContent"),
+
+        errorMessage: document.getElementById("errorMessage"),
+        successMessage: document.getElementById("successMessage"),
+        infoMessage: document.getElementById("infoMessage"),
+
+        providerName: document.getElementById("providerName"),
+        providerAvatar: document.getElementById("providerAvatar"),
+
+        orderId: document.getElementById("orderId"),
+        orderStatus: document.getElementById("orderStatus"),
+        serviceTitle: document.getElementById("serviceTitle"),
+        serviceDescription: document.getElementById("serviceDescription"),
+
+        detailOrderId: document.getElementById("detailOrderId"),
+        detailStatus: document.getElementById("detailStatus"),
+        createdDate: document.getElementById("createdDate"),
+        deliveryDate: document.getElementById("deliveryDate"),
+        updatedDate: document.getElementById("updatedDate"),
+
+        studentName: document.getElementById("studentName"),
+        studentEmail: document.getElementById("studentEmail"),
+        studentId: document.getElementById("studentId"),
+
+        orderAmount: document.getElementById("orderAmount"),
+        paymentStatus: document.getElementById("paymentStatus"),
+        transactionId: document.getElementById("transactionId"),
+
+        actionDescription: document.getElementById("actionDescription"),
+        actionButtons: document.getElementById("actionButtons"),
+        refreshButton: document.getElementById("refreshButton")
+    };
+
+    let currentOrder = null;
+    let isUpdating = false;
+
+    /*
+     * Read order ID from the URL.
+     *
+     * Example:
+     * order-details.html?id=123
+     *
+     * The ID must refer to a real order in the database.
+     */
+    const queryParameters = new URLSearchParams(window.location.search);
+    const orderId = queryParameters.get("id");
+
+    function showMessage(type, message) {
+        ["error", "success", "info"].forEach(function (name) {
+            const element = elements[name + "Message"];
+
+            element.textContent = "";
+            element.classList.remove("visible");
+        });
+
+        const target = elements[type + "Message"];
+
+        if (target) {
+            target.textContent = message;
+            target.classList.add("visible");
+        }
+    }
+
+    function clearMessages() {
+        ["error", "success", "info"].forEach(function (name) {
+            elements[name + "Message"].textContent = "";
+            elements[name + "Message"].classList.remove("visible");
+        });
+    }
+
+    function formatCurrency(value) {
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+            return "—";
+        }
+
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    function displayValue(value) {
+        if (value === null || value === undefined || value === "") {
+            return "—";
+        }
+
+        return String(value);
+    }
+
+    async function apiRequest(endpoint, options = {}) {
+        const token = localStorage.getItem("edumatch_token");
+
+        const headers = {
+            "Accept": "application/json",
+            ...(options.headers || {})
+        };
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        const response = await fetch(API_BASE_URL + endpoint, {
+            ...options,
+            headers,
+            credentials: "include"
+        });
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch {
+            if (response.ok) {
+                throw new Error("The server returned an invalid JSON response.");
+            }
+        }
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                throw new Error(
+                    "You are not authorized to view or update this order. " +
+                    "Please sign in with the correct provider account."
+                );
+            }
+
+            if (response.status === 404) {
+                throw new Error(
+                    "The order was not found, or the required API endpoint " +
+                    "has not been implemented."
+                );
+            }
+
+            throw new Error(
+                data.message ||
+                data.error ||
+                "The server returned HTTP " + response.status + "."
+            );
+        }
+
+        return data;
+    }
+
+    function showUnavailable(title, description) {
+        elements.loadingState.hidden = true;
+        elements.orderContent.hidden = true;
+        elements.notFoundState.hidden = false;
+
+        elements.notFoundTitle.textContent = title;
+        elements.notFoundDescription.textContent = description;
+    }
+
+    async function loadOrder() {
+        clearMessages();
+
+        if (!orderId) {
+            showUnavailable(
+                "Order ID is missing",
+                "Open this page from My Orders so the correct order ID " +
+                "can be included in the URL."
+            );
+
+            return;
+        }
+
+        elements.loadingState.hidden = false;
+        elements.orderContent.hidden = true;
+        elements.notFoundState.hidden = true;
+
+        try {
+            const data = await apiRequest(
+                "/provider/orders/" + encodeURIComponent(orderId)
+            );
+
+            if (!data.order || data.order.id === undefined) {
+                throw new Error(
+                    "The server response does not contain a valid order."
+                );
+            }
+
+            currentOrder = data.order;
+
+            renderOrder(currentOrder);
+
+            elements.loadingState.hidden = true;
+            elements.notFoundState.hidden = true;
+            elements.orderContent.hidden = false;
+
+        } catch (error) {
+            showUnavailable(
+                "Unable to load order details",
+                "Check the order ID, your provider login, and your server connection."
+            );
+
+            showMessage("error", error.message);
+
+            console.error("Order loading error:", error);
+        }
+    }
+
+    function renderOrder(order) {
+        const status = String(order.status || "unknown").toLowerCase();
+
+        elements.orderId.textContent = displayValue(order.id);
+        elements.detailOrderId.textContent = displayValue(order.id);
+
+        elements.orderStatus.textContent = status.replaceAll("_", " ");
+        elements.orderStatus.className = "status-badge";
+
+        const allowedStatuses = [
+            "pending",
+            "accepted",
+            "in_progress",
+            "completed",
+            "cancelled",
+            "rejected"
+        ];
+
+        if (allowedStatuses.includes(status)) {
+            elements.orderStatus.classList.add(status);
+        }
+
+        elements.detailStatus.textContent = status.replaceAll("_", " ");
+
+        elements.serviceTitle.textContent =
+            displayValue(order.service_title);
+
+        elements.serviceDescription.textContent =
+            displayValue(order.description);
+
+        elements.createdDate.textContent =
+            formatDate(order.created_at);
+
+        elements.deliveryDate.textContent =
+            formatDate(order.delivery_date);
+
+        elements.updatedDate.textContent =
+            formatDate(order.updated_at);
+
+        /*
+         * Display student details only when returned by the backend.
+         * The backend should return only information the provider
+         * is authorized to see.
+         */
+        const student = order.student || {};
+
+        elements.studentName.textContent =
+            displayValue(student.name);
+
+        elements.studentEmail.textContent =
+            "Email: " + displayValue(student.email);
+
+        elements.studentId.textContent =
+            "Student ID: " + displayValue(student.id);
+
+        elements.orderAmount.textContent =
+            formatCurrency(order.amount);
+
+        elements.paymentStatus.textContent =
+            displayValue(order.payment_status);
+
+        elements.transactionId.textContent =
+            displayValue(order.transaction_id);
+
+        renderActions(status);
+    }
+
+    /*
+     * Only show buttons that are appropriate for the current status.
+     * The server must independently enforce all status transitions.
+     */
+    function renderActions(status) {
+        elements.actionButtons.replaceChildren();
+
+        const actions = {
+            pending: [
+                {
+                    label: "Accept Order",
+                    nextStatus: "accepted",
+                    primary: true
+                },
+                {
+                    label: "Reject Order",
+                    nextStatus: "rejected",
+                    primary: false
+                }
+            ],
+
+            accepted: [
+                {
+                    label: "Start Work",
+                    nextStatus: "in_progress",
+                    primary: true
+                }
+            ],
+
+            in_progress: [
+                {
+                    label: "Mark as Completed",
+                    nextStatus: "completed",
+                    primary: true
+                }
+            ]
+        };
+
+        const availableActions = actions[status] || [];
+
+        if (availableActions.length === 0) {
+            elements.actionDescription.textContent =
+                "There are no status-change actions available for this order.";
+
+            return;
+        }
+
+        elements.actionDescription.textContent =
+            "Select an action to request a status change. The server " +
+            "must validate and save the change.";
+
+        availableActions.forEach(function (action) {
+            const button = document.createElement("button");
+
+            button.type = "button";
+            button.className = "action-button";
+
+            if (action.primary) {
+                button.classList.add("primary");
+            }
+
+            button.textContent = action.label;
+
+            button.addEventListener("click", function () {
+                updateOrderStatus(action.nextStatus);
+            });
+
+            elements.actionButtons.appendChild(button);
+        });
+    }
+
+    async function updateOrderStatus(nextStatus) {
+        if (!currentOrder || isUpdating) {
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "Are you sure you want to change this order's status to " +
+            nextStatus.replaceAll("_", " ") + "?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        isUpdating = true;
+
+        const buttons =
+            elements.actionButtons.querySelectorAll("button");
+
+        buttons.forEach(function (button) {
+            button.disabled = true;
+        });
+
+        clearMessages();
+
+        try {
+            const data = await apiRequest(
+                "/provider/orders/" +
+                encodeURIComponent(orderId) +
+                "/status",
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        status: nextStatus
+                    })
+                }
+            );
+
+            /*
+             * Reload the authoritative order record after updating.
+             * Do not assume the requested status was accepted.
+             */
+            showMessage(
+                "success",
+                data.message || "Order status updated by the server."
+            );
+
+            await loadOrder();
+
+        } catch (error) {
+            showMessage("error", error.message);
+
+            console.error("Order status update error:", error);
+
+        } finally {
+            isUpdating = false;
+
+            buttons.forEach(function (button) {
+                button.disabled = false;
+            });
+        }
+    }
+
+    /* Mobile navigation */
+    elements.menuToggle.addEventListener("click", function () {
+        elements.sidebar.classList.toggle("open");
+    });
+
+    /* Reload the latest server-side order */
+    elements.refreshButton.addEventListener("click", loadOrder);
+
+    /* Provider display name */
+    const providerName =
+        localStorage.getItem("edumatch_provider_name");
+
+    if (providerName) {
+        elements.providerName.textContent = providerName;
+
+        elements.providerAvatar.textContent =
+            providerName.trim().charAt(0).toUpperCase() || "P";
+    }
+
+    /*
+     * Logout is handled by your authentication system.
+     * A real logout should invalidate the server-side session/token.
+     */
+    document.getElementById("logoutButton")
+        .addEventListener("click", function (event) {
+            event.preventDefault();
+
+            localStorage.removeItem("edumatch_token");
+            localStorage.removeItem("edumatch_provider_id");
+            localStorage.removeItem("edumatch_provider_name");
+
+            window.location.href = "login.html";
+        });
+
+    loadOrder();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

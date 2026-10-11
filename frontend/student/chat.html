@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>EDU MATCH | Student Chat</title>
+    <title>EduMatch | Student Chat</title>
 
     <style>
         * {
@@ -14,72 +14,113 @@
             font-family: Arial, sans-serif;
         }
 
+        :root {
+            --primary: #5145e5;
+            --primary-dark: #4035c8;
+            --background: #f5f6fc;
+            --white: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e5e7eb;
+            --light-purple: #efedff;
+        }
+
         body {
-            background: #f5f6fc;
-            color: #1e293b;
+            background: var(--background);
+            color: var(--text);
             height: 100vh;
             overflow: hidden;
         }
 
+        button, input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        button:disabled,
+        input:disabled {
+            cursor: not-allowed;
+            opacity: 0.65;
+        }
+
+        /* MAIN LAYOUT */
+
         .app {
             display: flex;
             height: 100vh;
+            width: 100%;
         }
 
         /* SIDEBAR */
 
         .sidebar {
-            width: 280px;
-            background: white;
-            border-right: 1px solid #e5e7eb;
+            width: 310px;
+            flex-shrink: 0;
+            background: var(--white);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
         }
 
         .brand {
-            padding: 25px 20px;
-            font-size: 24px;
-            font-weight: bold;
-            color: #5145e5;
-            border-bottom: 1px solid #eee;
+            padding: 25px 22px;
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border);
         }
 
         .brand span {
-            color: #1e293b;
+            color: var(--text);
         }
 
         .back-link {
             display: block;
-            padding: 18px 20px;
+            padding: 18px 22px;
+            color: var(--muted);
             text-decoration: none;
-            color: #64748b;
             font-size: 14px;
         }
 
         .back-link:hover {
-            color: #5145e5;
+            color: var(--primary);
         }
 
-        .sidebar h3 {
-            padding: 10px 20px;
-            font-size: 13px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .sidebar-heading {
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar-heading h2 {
+            font-size: 14px;
+        }
+
+        .sidebar-heading span {
+            color: var(--muted);
+            font-size: 12px;
         }
 
         .contact-list {
+            flex: 1;
             overflow-y: auto;
         }
 
         .contact {
+            width: 100%;
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 16px 20px;
-            cursor: pointer;
-            transition: 0.2s;
+            padding: 16px;
+            background: var(--white);
+            border: none;
             border-left: 3px solid transparent;
+            text-align: left;
+            transition: background 0.2s;
         }
 
         .contact:hover {
@@ -87,21 +128,22 @@
         }
 
         .contact.active {
-            background: #efedff;
-            border-left-color: #5145e5;
+            background: var(--light-purple);
+            border-left-color: var(--primary);
         }
 
         .avatar {
-            width: 45px;
-            height: 45px;
-            background: #e8e7ff;
-            color: #5145e5;
+            width: 46px;
+            height: 46px;
+            flex-shrink: 0;
             border-radius: 50%;
+            background: #e8e7ff;
+            color: var(--primary);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 14px;
             font-weight: bold;
-            flex-shrink: 0;
         }
 
         .contact-info {
@@ -109,158 +151,193 @@
             min-width: 0;
         }
 
-        .contact-info h4 {
+        .contact-info h3 {
             font-size: 14px;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .contact-info p {
             font-size: 12px;
-            color: #94a3b8;
-            white-space: nowrap;
+            color: var(--muted);
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        .status {
-            width: 9px;
-            height: 9px;
-            background: #22c55e;
-            border-radius: 50%;
+        .contact-time {
+            font-size: 10px;
+            color: var(--muted);
+            align-self: flex-start;
         }
 
-        /* CHAT AREA */
+        /* CHAT PANEL */
 
         .chat-area {
             flex: 1;
+            min-width: 0;
             display: flex;
             flex-direction: column;
-            min-width: 0;
         }
 
         .chat-header {
-            background: white;
-            padding: 18px 25px;
+            min-height: 82px;
+            padding: 16px 25px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #e5e7eb;
+            gap: 13px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
         }
 
-        .chat-header h3 {
+        .header-info {
+            min-width: 0;
+        }
+
+        .header-info h2 {
             font-size: 16px;
-            margin-bottom: 4px;
+            margin-bottom: 5px;
+            overflow-wrap: anywhere;
         }
 
-        .chat-header p {
-            color: #22a06b;
+        .header-info p {
             font-size: 12px;
+            color: var(--muted);
         }
 
         .project-label {
             margin-left: auto;
-            background: #efedff;
-            color: #5145e5;
-            padding: 8px 12px;
+            max-width: 35%;
+            padding: 9px 12px;
             border-radius: 8px;
+            background: var(--light-purple);
+            color: var(--primary);
             font-size: 12px;
             font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
 
-        /* MESSAGES */
+        /* CONNECTION AND ERROR STATUS */
+
+        .status-message {
+            padding: 10px 18px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .status-message:empty {
+            display: none;
+        }
+
+        .status-message.error {
+            background: #fff0f0;
+            color: #b42318;
+        }
+
+        .status-message.info {
+            background: #f0f4ff;
+            color: #5145e5;
+        }
+
+        /* MESSAGE AREA */
 
         .messages {
             flex: 1;
-            padding: 25px;
             overflow-y: auto;
+            padding: 25px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
-        }
-
-        .date-label {
-            text-align: center;
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 8px;
+            gap: 17px;
         }
 
         .message {
+            max-width: 72%;
             display: flex;
             flex-direction: column;
-            max-width: 70%;
             gap: 5px;
-        }
-
-        .message.received {
-            align-self: flex-start;
         }
 
         .message.sent {
             align-self: flex-end;
         }
 
+        .message.received {
+            align-self: flex-start;
+        }
+
         .sender {
             font-size: 12px;
-            color: #64748b;
+            color: var(--muted);
         }
 
         .bubble {
             padding: 13px 16px;
-            border-radius: 14px;
             font-size: 14px;
-            line-height: 1.5;
+            line-height: 1.6;
             overflow-wrap: anywhere;
+            white-space: pre-wrap;
+            border-radius: 14px;
         }
 
         .received .bubble {
-            background: white;
-            border: 1px solid #e5e7eb;
+            background: var(--white);
+            border: 1px solid var(--border);
             border-top-left-radius: 3px;
         }
 
         .sent .bubble {
-            background: #5145e5;
-            color: white;
+            background: var(--primary);
+            color: var(--white);
             border-top-right-radius: 3px;
         }
 
-        .time {
+        .message-time {
             font-size: 10px;
-            color: #94a3b8;
+            color: var(--muted);
         }
 
-        .sent .time {
+        .sent .message-time {
             text-align: right;
         }
 
-        .empty-chat {
+        .empty-state {
             margin: auto;
+            max-width: 380px;
+            padding: 30px 20px;
             text-align: center;
-            color: #64748b;
-            padding: 30px;
+            color: var(--muted);
         }
 
-        .empty-chat h3 {
-            color: #334155;
-            margin-bottom: 8px;
+        .empty-state h3 {
+            font-size: 17px;
+            color: var(--text);
+            margin-bottom: 9px;
         }
 
-        /* MESSAGE INPUT */
-
-        .chat-input-area {
-            padding: 18px 25px;
-            background: white;
-            border-top: 1px solid #e5e7eb;
+        .empty-state p {
+            font-size: 13px;
+            line-height: 1.7;
         }
 
-        .input-row {
+        /* MESSAGE COMPOSER */
+
+        .composer {
+            padding: 17px 24px;
+            background: var(--white);
+            border-top: 1px solid var(--border);
+        }
+
+        .composer form {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .input-row input {
+        .composer input {
             flex: 1;
             min-width: 0;
             padding: 14px 16px;
@@ -270,41 +347,40 @@
             font-size: 14px;
         }
 
-        .input-row input:focus {
-            border-color: #5145e5;
+        .composer input:focus {
+            border-color: var(--primary);
         }
 
-        .send-btn {
+        .send-button {
             padding: 14px 22px;
-            background: #5145e5;
-            color: white;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
             border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: var(--white);
+            font-weight: bold;
+            transition: background 0.2s;
         }
 
-        .send-btn:hover {
-            background: #4035c8;
+        .send-button:hover:not(:disabled) {
+            background: var(--primary-dark);
         }
 
-        .input-note {
-            font-size: 11px;
-            color: #94a3b8;
+        .composer-note {
             margin-top: 10px;
+            color: #94a3b8;
+            font-size: 11px;
         }
 
-        /* RESPONSIVE */
+        /* RESPONSIVE DESIGN */
 
         @media (max-width: 700px) {
             .sidebar {
-                width: 75px;
-                flex-shrink: 0;
+                width: 76px;
             }
 
             .brand {
-                font-size: 15px;
-                padding: 22px 5px;
+                padding: 23px 3px;
+                font-size: 14px;
                 text-align: center;
             }
 
@@ -313,22 +389,22 @@
             }
 
             .back-link {
-                padding: 15px 5px;
+                padding: 15px 3px;
                 text-align: center;
                 font-size: 11px;
             }
 
-            .sidebar h3 {
+            .sidebar-heading {
                 display: none;
             }
 
             .contact {
                 justify-content: center;
-                padding: 15px 5px;
+                padding: 14px 4px;
             }
 
             .contact-info,
-            .contact .status {
+            .contact-time {
                 display: none;
             }
 
@@ -338,7 +414,12 @@
             }
 
             .chat-header {
-                padding: 15px 12px;
+                padding: 14px 10px;
+                gap: 9px;
+            }
+
+            .header-info h2 {
+                font-size: 14px;
             }
 
             .project-label {
@@ -350,33 +431,36 @@
             }
 
             .message {
-                max-width: 88%;
+                max-width: 90%;
             }
 
-            .chat-input-area {
-                padding: 12px;
+            .composer {
+                padding: 12px 10px;
             }
 
-            .input-row {
+            .composer form {
                 gap: 7px;
             }
 
-            .input-row input {
+            .composer input {
                 padding: 12px;
+                font-size: 13px;
             }
 
-            .send-btn {
+            .send-button {
                 padding: 12px;
+                font-size: 12px;
             }
         }
     </style>
+    <link rel="stylesheet" href="../theme.css">
 </head>
 
 <body>
 
 <div class="app">
 
-    <!-- SIDEBAR -->
+    <!-- LEFT SIDEBAR -->
 
     <aside class="sidebar">
 
@@ -388,148 +472,85 @@
             ← Back to Home
         </a>
 
-        <h3>Messages</h3>
+        <div class="sidebar-heading">
+            <h2>Messages</h2>
+            <span id="conversationCount">0 chats</span>
+        </div>
 
         <div class="contact-list" id="contactList">
-
-            <div class="contact active"
-                 data-id="1"
-                 data-name="Aarav Sharma"
-                 data-initial="AS"
-                 data-project="Web Development Project">
-
-                <div class="avatar">AS</div>
-
-                <div class="contact-info">
-                    <h4>Aarav Sharma</h4>
-                    <p>Let's discuss the project...</p>
-                </div>
-
-                <div class="status"></div>
+            <div class="empty-state">
+                <p>Loading conversations...</p>
             </div>
-
-            <div class="contact"
-                 data-id="2"
-                 data-name="Priya Verma"
-                 data-initial="PV"
-                 data-project="Machine Learning Project">
-
-                <div class="avatar">PV</div>
-
-                <div class="contact-info">
-                    <h4>Priya Verma</h4>
-                    <p>I've shared the project details.</p>
-                </div>
-            </div>
-
-            <div class="contact"
-                 data-id="3"
-                 data-name="Rahul Singh"
-                 data-initial="RS"
-                 data-project="Data Science Project">
-
-                <div class="avatar">RS</div>
-
-                <div class="contact-info">
-                    <h4>Rahul Singh</h4>
-                    <p>Thanks for connecting!</p>
-                </div>
-            </div>
-
         </div>
 
     </aside>
 
-
-    <!-- CHAT AREA -->
+    <!-- RIGHT CHAT PANEL -->
 
     <main class="chat-area">
 
         <header class="chat-header">
 
-            <div class="avatar" id="headerAvatar">AS</div>
+            <div class="avatar" id="headerAvatar">EM</div>
 
-            <div>
-                <h3 id="headerName">Aarav Sharma</h3>
-                <p>Project Provider</p>
+            <div class="header-info">
+                <h2 id="headerName">EduMatch Messages</h2>
+                <p id="headerSubtitle">Select a conversation</p>
             </div>
 
             <div class="project-label" id="projectLabel">
-                Web Development Project
+                No project selected
             </div>
 
         </header>
 
-
-        <!-- MESSAGE DISPLAY -->
+        <div
+            id="statusMessage"
+            class="status-message"
+            role="status"
+            aria-live="polite">
+        </div>
 
         <section class="messages" id="messages">
 
-            <div class="date-label">Today</div>
-
-            <div class="message received">
-                <span class="sender">Aarav Sharma</span>
-
-                <div class="bubble">
-                    Hi! Welcome to EDU MATCH. Are you interested
-                    in working on our web development project?
-                </div>
-
-                <span class="time">10:30 AM</span>
-            </div>
-
-            <div class="message sent">
-                <span class="sender">You</span>
-
-                <div class="bubble">
-                    Hello! Yes, I am interested. Could you please
-                    share more details about the project?
-                </div>
-
-                <span class="time">10:32 AM</span>
-            </div>
-
-            <div class="message received">
-                <span class="sender">Aarav Sharma</span>
-
-                <div class="bubble">
-                    Sure! We are building a student project portal.
-                    We can discuss the requirements and technologies here.
-                </div>
-
-                <span class="time">10:34 AM</span>
+            <div class="empty-state">
+                <h3>Your conversations</h3>
+                <p>
+                    Select a conversation from the sidebar
+                    to view its messages.
+                </p>
             </div>
 
         </section>
 
-
         <!-- MESSAGE INPUT -->
 
-        <footer class="chat-input-area">
+        <footer class="composer">
 
             <form id="messageForm">
 
-                <div class="input-row">
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Write your message..."
+                    maxlength="2000"
+                    autocomplete="off"
+                    required
+                    disabled
+                >
 
-                    <input
-                        type="text"
-                        id="messageInput"
-                        placeholder="Type your message..."
-                        autocomplete="off"
-                        maxlength="2000"
-                        required
-                    >
-
-                    <button type="submit" class="send-btn">
-                        Send ➤
-                    </button>
-
-                </div>
+                <button
+                    type="submit"
+                    class="send-button"
+                    id="sendButton"
+                    disabled>
+                    Send ➤
+                </button>
 
             </form>
 
-            <p class="input-note">
-                EDU MATCH · Student-Provider Communication
+            <p class="composer-note">
+                EduMatch · Student-Provider Communication
             </p>
 
         </footer>
@@ -538,193 +559,690 @@
 
 </div>
 
-
 <script>
-    const messagesContainer = document.getElementById("messages");
-    const messageInput = document.getElementById("messageInput");
-    const messageForm = document.getElementById("messageForm");
-    const contacts = document.querySelectorAll(".contact");
+"use strict";
 
-    const headerName = document.getElementById("headerName");
-    const headerAvatar = document.getElementById("headerAvatar");
-    const projectLabel = document.getElementById("projectLabel");
+/*
+    REQUIRED FLASK API CONTRACT
 
-    let currentContact = "1";
+    1. GET /api/student/conversations
 
-    // Sample conversations for demonstration.
-    const conversations = {
-        "1": [
-            {
-                sender: "received",
-                text: "Hi! Welcome to EDU MATCH. Are you interested in working on our web development project?",
-                time: "10:30 AM"
-            },
-            {
-                sender: "sent",
-                text: "Hello! Yes, I am interested. Could you please share more details about the project?",
-                time: "10:32 AM"
-            },
-            {
-                sender: "received",
-                text: "Sure! We are building a student project portal. We can discuss the requirements and technologies here.",
-                time: "10:34 AM"
-            }
-        ],
+       Response:
+       {
+         "current_user": {"id": 10},
+         "conversations": [
+           {
+             "id": 25,
+             "participant": {
+               "id": 20,
+               "name": "Actual participant name",
+               "role": "Provider"
+             },
+             "project_title": "Actual project title",
+             "last_message": "Actual latest message",
+             "updated_at": "2026-10-10T10:30:00"
+           }
+         ]
+       }
 
-        "2": [
-            {
-                sender: "received",
-                text: "Hello! I have shared the details of our machine learning project.",
-                time: "11:00 AM"
-            }
-        ],
+    2. GET /api/student/conversations/<id>/messages
 
-        "3": [
-            {
-                sender: "received",
-                text: "Hi! Thanks for connecting. Let's discuss our data science project.",
-                time: "11:15 AM"
-            }
-        ]
-    };
+       Response:
+       {
+         "current_user": {"id": 10},
+         "messages": [
+           {
+             "id": 100,
+             "sender_id": 20,
+             "sender_name": "Actual participant name",
+             "message": "Message stored in the database",
+             "created_at": "2026-10-10T10:30:00"
+           }
+         ]
+       }
 
+    3. POST /api/student/conversations/<id>/messages
 
-    // Display a conversation.
-    function renderMessages() {
-        messagesContainer.replaceChildren();
+       Request:
+       {"message": "Message written by the student"}
 
-        const dateLabel = document.createElement("div");
-        dateLabel.className = "date-label";
-        dateLabel.textContent = "Conversation";
-        messagesContainer.appendChild(dateLabel);
+       Response:
+       {
+         "message": {
+           "id": 101,
+           "sender_id": 10,
+           "sender_name": "Actual student name",
+           "message": "Message written by the student",
+           "created_at": "2026-10-10T10:35:00"
+         }
+       }
 
-        const conversation = conversations[currentContact] || [];
+    These endpoints must be implemented in Flask.
+    The backend must authenticate users, verify conversation
+    membership, and store messages in the database.
+*/
 
-        if (conversation.length === 0) {
-            const empty = document.createElement("div");
-            empty.className = "empty-chat";
+const API_BASE_URL = "http://127.0.0.1:5000/api";
 
-            const heading = document.createElement("h3");
-            heading.textContent = "Start a conversation";
+const contactList = document.getElementById("contactList");
+const conversationCount = document.getElementById("conversationCount");
 
-            const paragraph = document.createElement("p");
-            paragraph.textContent = "Send your first message below.";
+const messagesContainer = document.getElementById("messages");
+const messageForm = document.getElementById("messageForm");
+const messageInput = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
 
-            empty.append(heading, paragraph);
-            messagesContainer.appendChild(empty);
-            return;
-        }
+const headerAvatar = document.getElementById("headerAvatar");
+const headerName = document.getElementById("headerName");
+const headerSubtitle = document.getElementById("headerSubtitle");
+const projectLabel = document.getElementById("projectLabel");
 
-        conversation.forEach(function(message) {
-            addMessageToScreen(
-                message.sender,
-                message.text,
-                message.time,
-                false
-            );
-        });
+const statusMessage = document.getElementById("statusMessage");
 
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+let conversations = [];
+let currentConversationId = null;
+let currentUserId = null;
+let isSending = false;
+let refreshTimer = null;
+let requestVersion = 0;
+let lastMessageSignature = "";
+
+/* STATUS DISPLAY */
+
+function showStatus(message, type = "info") {
+    statusMessage.textContent = message;
+    statusMessage.className = "status-message " + type;
+}
+
+function clearStatus() {
+    statusMessage.textContent = "";
+    statusMessage.className = "status-message";
+}
+
+/* TEXT AND DATE HELPERS */
+
+function getInitials(name) {
+    return String(name || "EM")
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map(word => word[0].toUpperCase())
+        .join("");
+}
+
+function formatTime(value) {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+function formatDate(value) {
+    if (!value) return "";
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) return "";
+
+    return date.toLocaleDateString([], {
+        day: "numeric",
+        month: "short"
+    });
+}
+
+/* EMPTY STATES */
+
+function showEmpty(container, title, description) {
+    container.replaceChildren();
+
+    const box = document.createElement("div");
+    box.className = "empty-state";
+
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+
+    const paragraph = document.createElement("p");
+    paragraph.textContent = description;
+
+    box.append(heading, paragraph);
+    container.appendChild(box);
+}
+
+/* AUTHENTICATED API REQUEST */
+
+async function apiRequest(path, options = {}) {
+
+    const token = localStorage.getItem("edumatch_token");
+
+    if (!token) {
+        window.location.href = "login.html";
+        throw new Error("Please log in to access your messages.");
     }
 
+    let response;
 
-    // Safely create and display a message.
-    function addMessageToScreen(sender, text, time, scroll = true) {
-        const message = document.createElement("div");
-        message.className = "message " + sender;
+    try {
 
-        const senderLabel = document.createElement("span");
-        senderLabel.className = "sender";
-        senderLabel.textContent = sender === "sent"
+        response = await fetch(API_BASE_URL + path, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                ...options.headers
+            }
+        });
+
+    } catch (error) {
+
+        throw new Error(
+            "Cannot connect to Flask. Start your backend and try again."
+        );
+
+    }
+
+    if (response.status === 401) {
+
+        localStorage.removeItem("edumatch_token");
+        window.location.href = "login.html";
+
+        throw new Error("Your session has expired. Please log in again.");
+    }
+
+    if (!response.ok) {
+
+        const data = await response.json().catch(() => ({}));
+
+        throw new Error(
+            data.message ||
+            data.error ||
+            "Server error: " + response.status
+        );
+    }
+
+    if (response.status === 204) {
+        return null;
+    }
+
+    return response.json();
+}
+
+/* BUILD THE CONVERSATION SIDEBAR */
+
+function renderConversations() {
+
+    contactList.replaceChildren();
+
+    conversationCount.textContent =
+        conversations.length + (
+            conversations.length === 1 ? " chat" : " chats"
+        );
+
+    if (conversations.length === 0) {
+
+        showEmpty(
+            contactList,
+            "No conversations",
+            "Your conversations will appear here when available."
+        );
+
+        return;
+    }
+
+    conversations.forEach(conversation => {
+
+        const participant = conversation.participant || {};
+
+        const name =
+            participant.name ||
+            participant.full_name ||
+            "EduMatch user";
+
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "contact";
+
+        button.setAttribute(
+            "aria-pressed",
+            String(String(conversation.id) === String(currentConversationId))
+        );
+
+        if (String(conversation.id) === String(currentConversationId)) {
+            button.classList.add("active");
+        }
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = getInitials(name);
+
+        const info = document.createElement("div");
+        info.className = "contact-info";
+
+        const title = document.createElement("h3");
+        title.textContent = name;
+
+        const preview = document.createElement("p");
+        preview.textContent =
+            conversation.last_message ||
+            conversation.last_message_text ||
+            "No messages yet";
+
+        info.append(title, preview);
+
+        const time = document.createElement("span");
+        time.className = "contact-time";
+
+        time.textContent = formatDate(
+            conversation.updated_at ||
+            conversation.last_message_at
+        );
+
+        button.append(avatar, info, time);
+
+        button.addEventListener("click", () => {
+            selectConversation(String(conversation.id));
+        });
+
+        contactList.appendChild(button);
+    });
+}
+
+/* DETERMINE WHO SENT A MESSAGE */
+
+function messageIsMine(message) {
+    return currentUserId !== null &&
+        message.sender_id !== undefined &&
+        String(message.sender_id) === String(currentUserId);
+}
+
+/* RENDER DATABASE MESSAGES */
+
+function renderMessages(messages) {
+
+    messagesContainer.replaceChildren();
+
+    if (messages.length === 0) {
+
+        showEmpty(
+            messagesContainer,
+            "Start a conversation",
+            "No messages exist in this conversation yet. Write your first message below."
+        );
+
+        lastMessageSignature = "";
+        return;
+    }
+
+    lastMessageSignature = messages
+        .map(message =>
+            String(message.id ?? "") + ":" +
+            String(message.created_at ?? "") + ":" +
+            String(message.message ?? "")
+        )
+        .join("|");
+
+    messages.forEach(message => {
+
+        const mine = messageIsMine(message);
+
+        const row = document.createElement("div");
+        row.className = "message " + (mine ? "sent" : "received");
+
+        const sender = document.createElement("span");
+        sender.className = "sender";
+
+        sender.textContent = mine
             ? "You"
-            : headerName.textContent;
+            : (message.sender_name || "Conversation participant");
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
-        bubble.textContent = text;
 
-        const timeLabel = document.createElement("span");
-        timeLabel.className = "time";
-        timeLabel.textContent = time;
+        bubble.textContent = message.message ?? "";
 
-        message.append(senderLabel, bubble, timeLabel);
-        messagesContainer.appendChild(message);
+        const time = document.createElement("span");
+        time.className = "message-time";
+        time.textContent = formatTime(message.created_at);
 
-        if (scroll) {
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        row.append(sender, bubble, time);
+        messagesContainer.appendChild(row);
+    });
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+/* LOAD ALL CONVERSATIONS */
+
+async function loadConversations() {
+
+    showEmpty(
+        contactList,
+        "Loading conversations",
+        "Connecting to the EduMatch server..."
+    );
+
+    try {
+
+        const data = await apiRequest("/student/conversations");
+
+        if (!data || !Array.isArray(data.conversations)) {
+            throw new Error(
+                "The conversations API returned an unexpected response."
+            );
         }
-    }
 
+        conversations = data.conversations;
 
-    // Send a demo message.
-    messageForm.addEventListener("submit", function(event) {
-        event.preventDefault();
+        if (data.current_user?.id !== undefined) {
+            currentUserId = data.current_user.id;
+        }
 
-        const text = messageInput.value.trim();
+        renderConversations();
 
-        if (!text) {
+        if (conversations.length === 0) {
+
+            currentConversationId = null;
+
+            headerAvatar.textContent = "EM";
+            headerName.textContent = "EduMatch Messages";
+            headerSubtitle.textContent = "No conversation selected";
+            projectLabel.textContent = "No project selected";
+
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            showEmpty(
+                messagesContainer,
+                "No conversations yet",
+                "When you have an actual conversation with a provider, it will appear here."
+            );
+
             return;
         }
 
-        if (!conversations[currentContact]) {
-            conversations[currentContact] = [];
+        const urlParams = new URLSearchParams(window.location.search);
+        const provParam = urlParams.get("provider_id");
+        if (provParam) {
+            try {
+                const startRes = await apiRequest("/chat/start", {
+                    method: "POST",
+                    body: JSON.stringify({ other_user_id: Number(provParam) })
+                });
+                if (startRes && startRes.conversation_id) {
+                    const reloadData = await apiRequest("/student/conversations");
+                    if (reloadData && Array.isArray(reloadData.conversations)) {
+                        conversations = reloadData.conversations;
+                        renderConversations();
+                    }
+                    await selectConversation(String(startRes.conversation_id), true);
+                    return;
+                }
+            } catch (err) {
+                console.warn("Could not auto-start chat:", err);
+            }
         }
+        const queryId = urlParams.get("conversation");
 
-        const now = new Date();
+        const initialConversation =
+            conversations.find(
+                item => String(item.id) === queryId
+            ) || conversations[0];
 
-        const time = now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-
-        const message = {
-            sender: "sent",
-            text: text,
-            time: time
-        };
-
-        conversations[currentContact].push(message);
-
-        renderMessages();
-
-        // Update the contact preview.
-        const activeContact = document.querySelector(
-            '.contact[data-id="' + currentContact + '"]'
+        await selectConversation(
+            String(initialConversation.id),
+            false
         );
 
-        if (activeContact) {
-            activeContact.querySelector(".contact-info p").textContent =
-                text;
+    } catch (error) {
+
+        showStatus(error.message, "error");
+
+        showEmpty(
+            contactList,
+            "Unable to load conversations",
+            "Check that your Flask backend and API route are available."
+        );
+
+        showEmpty(
+            messagesContainer,
+            "Messages unavailable",
+            "Your messages could not be loaded from the server."
+        );
+    }
+}
+
+/* OPEN ONE CONVERSATION */
+
+async function selectConversation(id, updateSidebar = true) {
+
+    currentConversationId = String(id);
+
+    const selected = conversations.find(
+        item => String(item.id) === currentConversationId
+    );
+
+    if (!selected) return;
+
+    const participant = selected.participant || {};
+
+    const name =
+        participant.name ||
+        participant.full_name ||
+        "EduMatch user";
+
+    headerAvatar.textContent = getInitials(name);
+    headerName.textContent = name;
+
+    headerSubtitle.textContent =
+        participant.role || "Conversation participant";
+
+    projectLabel.textContent =
+        selected.project_title ||
+        selected.service_title ||
+        "Project conversation";
+
+    messageInput.disabled = false;
+    sendButton.disabled = false;
+
+    clearStatus();
+
+    if (updateSidebar) {
+        renderConversations();
+    }
+
+    const thisRequest = ++requestVersion;
+
+    showEmpty(
+        messagesContainer,
+        "Loading messages",
+        "Retrieving messages from the server..."
+    );
+
+    try {
+
+        const data = await apiRequest(
+            "/student/conversations/" +
+            encodeURIComponent(currentConversationId) +
+            "/messages"
+        );
+
+        // Ignore a response if the user switched conversations meanwhile.
+        if (thisRequest !== requestVersion) return;
+
+        if (!data || !Array.isArray(data.messages)) {
+            throw new Error(
+                "The messages API returned an unexpected response."
+            );
         }
 
+        if (data.current_user?.id !== undefined) {
+            currentUserId = data.current_user.id;
+        }
+
+        renderMessages(data.messages);
+
+        const newUrl =
+            window.location.pathname +
+            "?conversation=" +
+            encodeURIComponent(currentConversationId);
+
+        window.history.replaceState({}, "", newUrl);
+
+    } catch (error) {
+
+        if (thisRequest !== requestVersion) return;
+
+        showStatus(error.message, "error");
+
+        showEmpty(
+            messagesContainer,
+            "Unable to load messages",
+            "Please try selecting this conversation again."
+        );
+    }
+}
+
+/* SEND A MESSAGE TO THE BACKEND */
+
+messageForm.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    if (isSending || !currentConversationId) return;
+
+    const text = messageInput.value.trim();
+
+    if (!text) return;
+
+    const conversationId = currentConversationId;
+
+    isSending = true;
+    sendButton.disabled = true;
+    messageInput.disabled = true;
+
+    showStatus("Sending message...");
+
+    try {
+
+        await apiRequest(
+            "/student/conversations/" +
+            encodeURIComponent(conversationId) +
+            "/messages",
+            {
+                method: "POST",
+                body: JSON.stringify({
+                    message: text
+                })
+            }
+        );
+
         messageInput.value = "";
+
+        // Reload from the database rather than inventing a local message.
+        await selectConversation(conversationId);
+
+        showStatus("Message sent.");
+
         messageInput.focus();
-    });
 
+    } catch (error) {
 
-    // Switch between sample conversations.
-    contacts.forEach(function(contact) {
-        contact.addEventListener("click", function() {
-            contacts.forEach(function(item) {
-                item.classList.remove("active");
-            });
+        showStatus(error.message, "error");
 
-            contact.classList.add("active");
+        // Keep the unsent text so the student can retry.
+        messageInput.value = text;
 
-            currentContact = contact.dataset.id;
+    } finally {
 
-            headerName.textContent = contact.dataset.name;
-            headerAvatar.textContent = contact.dataset.initial;
-            projectLabel.textContent = contact.dataset.project;
+        isSending = false;
 
-            renderMessages();
-        });
-    });
+        messageInput.disabled = !currentConversationId;
+        sendButton.disabled = !currentConversationId;
+    }
+});
 
+/* CHECK FOR NEW MESSAGES EVERY FIVE SECONDS */
 
-    // Initial conversation.
-    renderMessages();
+async function refreshMessages() {
+
+    if (
+        document.hidden ||
+        isSending ||
+        !currentConversationId
+    ) {
+        return;
+    }
+
+    const conversationId = currentConversationId;
+
+    try {
+
+        const data = await apiRequest(
+            "/student/conversations/" +
+            encodeURIComponent(conversationId) +
+            "/messages"
+        );
+
+        // Do not update the screen if the user has switched chats.
+        if (String(currentConversationId) !== String(conversationId)) {
+            return;
+        }
+
+        if (!data || !Array.isArray(data.messages)) {
+            return;
+        }
+
+        if (data.current_user?.id !== undefined) {
+            currentUserId = data.current_user.id;
+        }
+
+        const signature = data.messages
+            .map(message =>
+                String(message.id ?? "") + ":" +
+                String(message.created_at ?? "") + ":" +
+                String(message.message ?? "")
+            )
+            .join("|");
+
+        if (signature !== lastMessageSignature) {
+            renderMessages(data.messages);
+        }
+
+    } catch (error) {
+        // Do not interrupt the student with repeated pop-ups.
+    }
+}
+
+/* START */
+
+if (!localStorage.getItem("edumatch_token")) {
+
+    window.location.href = "login.html";
+
+} else {
+
+    loadConversations();
+
+    refreshTimer = window.setInterval(
+        refreshMessages,
+        5000
+    );
+}
+
+window.addEventListener("beforeunload", function() {
+
+    if (refreshTimer) {
+        window.clearInterval(refreshTimer);
+    }
+});
 </script>
 
+    <script src="../theme.js"></script>
 </body>
 </html>

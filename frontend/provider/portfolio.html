@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Portfolio | EduMatch</title>
+
+    <style>
+        :root {
+            --primary: #5b4bdb;
+            --primary-light: #efedff;
+            --background: #f6f7fb;
+            --white: #ffffff;
+            --text: #20243a;
+            --muted: #777d91;
+            --border: #e8eaf1;
+            --green: #16865c;
+            --red: #c03939;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            padding: 25px 17px;
+        }
+
+        .logo {
+            display: block;
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 10px 35px;
+        }
+
+        .logo span {
+            color: var(--text);
+        }
+
+        .nav-title {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin: 20px 10px 12px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 13px 12px;
+            margin: 5px 0;
+            border-radius: 9px;
+            color: #62677a;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+        }
+
+        /* Main */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            min-height: 75px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar h2 {
+            font-size: 20px;
+        }
+
+        .provider-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .content {
+            max-width: 1450px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-bottom: 27px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            margin-bottom: 9px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .primary-button {
+            display: inline-block;
+            border: none;
+            border-radius: 9px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 17px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .primary-button:hover {
+            background: #4737bd;
+        }
+
+        .primary-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Stats */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            padding: 22px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 13px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            font-size: 27px;
+            font-weight: 800;
+        }
+
+        /* Form */
+
+        .form-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 21px 23px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            margin-bottom: 7px;
+        }
+
+        .card-header p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .form-body {
+            padding: 24px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--text);
+            outline: none;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        input {
+            min-height: 44px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.7;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .secondary-button {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+            padding: 12px 17px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .secondary-button:hover {
+            border-color: var(--primary);
+        }
+
+        /* Portfolio projects */
+
+        .portfolio-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .portfolio-heading h2 {
+            font-size: 21px;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .project-card {
+            min-width: 0;
+            padding: 22px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .project-icon {
+            width: 46px;
+            height: 46px;
+            display: grid;
+            place-items: center;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+            font-size: 22px;
+            margin-bottom: 18px;
+        }
+
+        .project-card h3 {
+            font-size: 17px;
+            margin-bottom: 12px;
+            overflow-wrap: anywhere;
+        }
+
+        .project-description {
+            color: #62677a;
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            margin-bottom: 17px;
+            flex: 1;
+        }
+
+        .technology-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-bottom: 18px;
+        }
+
+        .technology {
+            display: inline-block;
+            background: #f1f2f8;
+            color: #535970;
+            border-radius: 6px;
+            padding: 6px 9px;
+            font-size: 11px;
+        }
+
+        .project-link {
+            display: inline-block;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .project-link:hover {
+            text-decoration: underline;
+        }
+
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border);
+        }
+
+        .project-date {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .delete-button {
+            border: 1px solid #f1d4d4;
+            border-radius: 7px;
+            background: #fff4f4;
+            color: var(--red);
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background: #fdeaea;
+        }
+
+        /* Messages and states */
+
+        .message {
+            display: none;
+            padding: 13px 15px;
+            margin-bottom: 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .message.visible {
+            display: block;
+        }
+
+        .message.error {
+            background: #fff0f0;
+            color: #9d2525;
+            border: 1px solid #f3cccc;
+        }
+
+        .message.success {
+            background: #e9f8ef;
+            color: #176d45;
+            border: 1px solid #c8ecd7;
+        }
+
+        .message.info {
+            background: #edf3ff;
+            color: #244e91;
+            border: 1px solid #d5e2ff;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            max-width: 440px;
+            margin: auto;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .loading {
+            padding: 45px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1150px) {
+            .portfolio-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 850px) {
+            .content {
+                padding: 22px;
+            }
+
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: -260px;
+                z-index: 10;
+                width: 240px;
+                transition: left 0.25s;
+                box-shadow: 3px 0 15px #00000010;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .menu-toggle {
+                display: inline-block;
+            }
+
+            .topbar {
+                padding: 14px;
+            }
+
+            .topbar h2 {
+                font-size: 16px;
+            }
+
+            .content {
+                padding: 18px 12px;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .form-body {
+                padding: 18px;
+            }
+
+            .portfolio-heading h2 {
+                font-size: 19px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="../index.html" class="logo">
+            Edu<span>Match</span>
+        </a>
+
+        <p class="nav-title">MAIN MENU</p>
+
+        <a href="dashboard.html" class="nav-link">Dashboard</a>
+        <a href="requests.html" class="nav-link">Student Requests</a>
+        <a href="orders.html" class="nav-link">My Orders</a>
+        <a href="services.html" class="nav-link">My Services</a>
+        <a href="chat.html" class="nav-link">Messages</a>
+
+        <p class="nav-title">ACCOUNT</p>
+
+        <a href="profile.html" class="nav-link">My Profile</a>
+        <a href="portfolio.html" class="nav-link active">Portfolio</a>
+        <a href="earnings.html" class="nav-link">Earnings</a>
+        <a href="login.html" class="nav-link" id="logoutButton">Logout</a>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="menu-toggle" id="menuToggle"
+                        aria-label="Toggle navigation">☰</button>
+                <h2>My Portfolio</h2>
+            </div>
+
+            <div class="provider-info">
+                <div class="avatar" id="providerAvatar">P</div>
+                <span id="providerName">Provider Account</span>
+            </div>
+
+        </header>
+
+        <div class="content">
+
+            <div class="page-heading">
+                <div>
+                    <h1>My Portfolio</h1>
+                    <p>
+                        Showcase your real projects and demonstrate your
+                        technical skills to students.
+                    </p>
+                </div>
+
+                <button class="primary-button" id="addProjectButton">
+                    + Add Project
+                </button>
+            </div>
+
+            <div id="errorMessage" class="message error" role="alert"></div>
+            <div id="successMessage" class="message success" role="status"></div>
+            <div id="infoMessage" class="message info" role="status"></div>
+
+            <section class="stats-grid">
+
+                <article class="stat-card">
+                    <p class="stat-label">Portfolio Projects</p>
+                    <h2 class="stat-value" id="projectCount">—</h2>
+                </article>
+
+                <article class="stat-card">
+                    <p class="stat-label">Projects With Links</p>
+                    <h2 class="stat-value" id="linkedProjectCount">—</h2>
+                </article>
+
+            </section>
+
+            <!-- Add project form -->
+            <section class="form-card" id="projectFormCard" hidden>
+
+                <div class="card-header">
+                    <h2>Add Portfolio Project</h2>
+                    <p>
+                        Enter details of a project you actually created.
+                        Projects are saved to your provider account through Flask.
+                    </p>
+                </div>
+
+                <div class="form-body">
+
+                    <form id="projectForm">
+
+                        <div class="form-grid">
+
+                            <div class="form-group">
+                                <label for="projectTitle">Project Title *</label>
+
+                                <input
+                                    type="text"
+                                    id="projectTitle"
+                                    maxlength="150"
+                                    required
+                                    placeholder="Enter your project title"
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="projectTechnologies">
+                                    Technologies Used
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="projectTechnologies"
+                                    maxlength="500"
+                                    placeholder="Python, Flask, HTML, CSS"
+                                >
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="projectDescription">
+                                    Project Description *
+                                </label>
+
+                                <textarea
+                                    id="projectDescription"
+                                    maxlength="5000"
+                                    required
+                                    placeholder="Explain what your project does, which problem it solves, and your contribution."
+                                ></textarea>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label for="projectUrl">
+                                    Project URL
+                                </label>
+
+                                <input
+                                    type="url"
+                                    id="projectUrl"
+                                    maxlength="2048"
+                                    placeholder="https://github.com/your-username/project"
+                                >
+                            </div>
+
+                        </div>
+
+                        <div class="form-actions">
+
+                            <button
+                                type="submit"
+                                class="primary-button"
+                                id="saveProjectButton"
+                            >
+                                Save Project
+                            </button>
+
+                            <button
+                                type="button"
+                                class="secondary-button"
+                                id="cancelFormButton"
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+            <!-- Projects -->
+            <section>
+
+                <div class="portfolio-heading">
+                    <h2>My Projects</h2>
+                </div>
+
+                <div id="loadingState" class="loading">
+                    Loading portfolio projects from EduMatch...
+                </div>
+
+                <div id="emptyState" class="empty-state" hidden>
+                    <h3 id="emptyTitle">No portfolio projects yet</h3>
+                    <p id="emptyDescription">
+                        Add a project you have actually built to showcase
+                        your experience to students.
+                    </p>
+                </div>
+
+                <div class="portfolio-grid" id="portfolioGrid" hidden></div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    "use strict";
+
+    /*
+     * REQUIRED FLASK ENDPOINTS
+     *
+     * GET    /api/provider/portfolio
+     * POST   /api/provider/portfolio
+     * DELETE /api/provider/portfolio/<project_id>
+     *
+     * These endpoints must be implemented in Flask.
+     *
+     * The backend must verify provider identity and project ownership.
+     * This page does not use localStorage as a project database.
+     */
+
+    const API_BASE_URL = "http://127.0.0.1:5000/api";
+
+    const el = {
+        sidebar: document.getElementById("sidebar"),
+        menuToggle: document.getElementById("menuToggle"),
+
+        providerName: document.getElementById("providerName"),
+        providerAvatar: document.getElementById("providerAvatar"),
+
+        projectCount: document.getElementById("projectCount"),
+        linkedProjectCount: document.getElementById("linkedProjectCount"),
+
+        errorMessage: document.getElementById("errorMessage"),
+        successMessage: document.getElementById("successMessage"),
+        infoMessage: document.getElementById("infoMessage"),
+
+        projectFormCard: document.getElementById("projectFormCard"),
+        projectForm: document.getElementById("projectForm"),
+        projectTitle: document.getElementById("projectTitle"),
+        projectTechnologies: document.getElementById("projectTechnologies"),
+        projectDescription: document.getElementById("projectDescription"),
+        projectUrl: document.getElementById("projectUrl"),
+        saveProjectButton: document.getElementById("saveProjectButton"),
+
+        addProjectButton: document.getElementById("addProjectButton"),
+        cancelFormButton: document.getElementById("cancelFormButton"),
+
+        loadingState: document.getElementById("loadingState"),
+        emptyState: document.getElementById("emptyState"),
+        emptyTitle: document.getElementById("emptyTitle"),
+        emptyDescription: document.getElementById("emptyDescription"),
+
+        portfolioGrid: document.getElementById("portfolioGrid")
+    };
+
+    let projects = [];
+    let savingProject = false;
+
+    function clearMessages() {
+        ["error", "success", "info"].forEach(function (name) {
+            const message = el[name + "Message"];
+
+            message.textContent = "";
+            message.classList.remove("visible");
+        });
+    }
+
+    function showMessage(type, message) {
+        clearMessages();
+
+        const target = el[type + "Message"];
+
+        if (target) {
+            target.textContent = message;
+            target.classList.add("visible");
+        }
+    }
+
+    async function apiRequest(endpoint, options = {}) {
+        const token = localStorage.getItem("edumatch_token");
+
+        const headers = {
+            "Accept": "application/json",
+            ...(options.headers || {})
+        };
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        const response = await fetch(API_BASE_URL + endpoint, {
+            ...options,
+            headers,
+            credentials: "include"
+        });
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch {
+            if (response.ok) {
+                throw new Error("The server returned invalid JSON.");
+            }
+        }
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                throw new Error(
+                    "Authentication failed. Please sign in using your provider account."
+                );
+            }
+
+            throw new Error(
+                data.message ||
+                data.error ||
+                "The request failed with HTTP " + response.status + "."
+            );
+        }
+
+        return data;
+    }
+
+    function validExternalUrl(value) {
+        if (!value) {
+            return true;
+        }
+
+        try {
+            const url = new URL(value);
+
+            return url.protocol === "https:" || url.protocol === "http:";
+        } catch {
+            return false;
+        }
+    }
+
+    async function loadProjects() {
+        clearMessages();
+
+        el.loadingState.hidden = false;
+        el.emptyState.hidden = true;
+        el.portfolioGrid.hidden = true;
+
+        try {
+            const data = await apiRequest("/provider/portfolio");
+
+            if (!Array.isArray(data.projects)) {
+                throw new Error(
+                    "Invalid API response: expected a projects array."
+                );
+            }
+
+            projects = data.projects;
+
+            el.projectCount.textContent = projects.length;
+
+            el.linkedProjectCount.textContent = projects.filter(
+                function (project) {
+                    return Boolean(project.project_url);
+                }
+            ).length;
+
+            renderProjects();
+
+        } catch (error) {
+            el.loadingState.hidden = true;
+
+            el.projectCount.textContent = "—";
+            el.linkedProjectCount.textContent = "—";
+
+            el.emptyState.hidden = false;
+            el.emptyTitle.textContent = "Unable to load portfolio";
+            el.emptyDescription.textContent =
+                "Check the Flask server and portfolio API before trying again.";
+
+            showMessage("error", error.message);
+
+            console.error("Portfolio loading error:", error);
+        }
+    }
+
+    function renderProjects() {
+        el.portfolioGrid.replaceChildren();
+
+        el.loadingState.hidden = true;
+        el.emptyState.hidden = true;
+        el.portfolioGrid.hidden = true;
+
+        if (projects.length === 0) {
+            el.emptyState.hidden = false;
+            el.emptyTitle.textContent = "No portfolio projects yet";
+            el.emptyDescription.textContent =
+                "Add a project you have actually built. Your saved projects will be displayed here.";
+
+            return;
+        }
+
+        projects.forEach(function (project) {
+            const card = document.createElement("article");
+            card.className = "project-card";
+
+            const icon = document.createElement("div");
+            icon.className = "project-icon";
+            icon.textContent = "</>";
+
+            const title = document.createElement("h3");
+            title.textContent = project.title || "Untitled project";
+
+            const description = document.createElement("p");
+            description.className = "project-description";
+            description.textContent =
+                project.description || "No description provided.";
+
+            const technologyList = document.createElement("div");
+            technologyList.className = "technology-list";
+
+            const technologies = Array.isArray(project.technologies)
+                ? project.technologies
+                : [];
+
+            technologies.forEach(function (technology) {
+                const tag = document.createElement("span");
+
+                tag.className = "technology";
+                tag.textContent = String(technology);
+
+                technologyList.appendChild(tag);
+            });
+
+            const footer = document.createElement("div");
+            footer.className = "project-footer";
+
+            const date = document.createElement("span");
+            date.className = "project-date";
+
+            if (project.created_at) {
+                const parsedDate = new Date(project.created_at);
+
+                date.textContent = Number.isNaN(parsedDate.getTime())
+                    ? ""
+                    : "Added " + parsedDate.toLocaleDateString("en-IN");
+            } else {
+                date.textContent = "";
+            }
+
+            footer.appendChild(date);
+
+            card.append(icon, title, description, technologyList);
+
+            if (project.project_url) {
+                if (validExternalUrl(project.project_url)) {
+                    const link = document.createElement("a");
+
+                    link.className = "project-link";
+                    link.href = project.project_url;
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                    link.textContent = "View Project ↗";
+
+                    card.appendChild(link);
+                } else {
+                    const invalidLink = document.createElement("p");
+
+                    invalidLink.className = "secondary-text";
+                    invalidLink.textContent =
+                        "The saved project link is invalid.";
+
+                    card.appendChild(invalidLink);
+                }
+            }
+
+            const deleteButton = document.createElement("button");
+
+            deleteButton.type = "button";
+            deleteButton.className = "delete-button";
+            deleteButton.textContent = "Delete";
+
+            deleteButton.addEventListener("click", function () {
+                deleteProject(project);
+            });
+
+            footer.appendChild(deleteButton);
+            card.appendChild(footer);
+
+            el.portfolioGrid.appendChild(card);
+        });
+
+        el.portfolioGrid.hidden = false;
+    }
+
+    async function saveProject(event) {
+        event.preventDefault();
+        clearMessages();
+
+        if (savingProject) {
+            return;
+        }
+
+        const title = el.projectTitle.value.trim();
+        const description = el.projectDescription.value.trim();
+        const technologyText = el.projectTechnologies.value.trim();
+        const projectUrl = el.projectUrl.value.trim();
+
+        if (!title || !description) {
+            showMessage(
+                "error",
+                "Project title and description are required."
+            );
+
+            return;
+        }
+
+        if (!validExternalUrl(projectUrl)) {
+            showMessage(
+                "error",
+                "Enter a valid HTTP or HTTPS project URL."
+            );
+
+            return;
+        }
+
+        const technologies = technologyText
+            ? technologyText.split(",")
+                .map(function (item) {
+                    return item.trim();
+                })
+                .filter(Boolean)
+            : [];
+
+        const payload = {
+            title: title,
+            description: description,
+            technologies: technologies,
+            project_url: projectUrl || null
+        };
+
+        savingProject = true;
+        el.saveProjectButton.disabled = true;
+        el.saveProjectButton.textContent = "Saving...";
+
+        try {
+            const data = await apiRequest("/provider/portfolio", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!data.project) {
+                throw new Error(
+                    "The server did not return the saved project."
+                );
+            }
+
+            el.projectForm.reset();
+            el.projectFormCard.hidden = true;
+
+            showMessage("success", "Project saved successfully.");
+
+            await loadProjects();
+
+        } catch (error) {
+            showMessage("error", error.message);
+
+            console.error("Portfolio save error:", error);
+
+        } finally {
+            savingProject = false;
+            el.saveProjectButton.disabled = false;
+            el.saveProjectButton.textContent = "Save Project";
+        }
+    }
+
+    async function deleteProject(project) {
+        if (project.id === undefined || project.id === null) {
+            showMessage(
+                "error",
+                "This project has no valid server ID and cannot be deleted."
+            );
+
+            return;
+        }
+
+        const confirmed = window.confirm(
+            "Delete this portfolio project? This action cannot be undone."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        clearMessages();
+
+        try {
+            await apiRequest(
+                "/provider/portfolio/" + encodeURIComponent(project.id),
+                {
+                    method: "DELETE"
+                }
+            );
+
+            showMessage("success", "Project deleted successfully.");
+
+            await loadProjects();
+
+        } catch (error) {
+            showMessage("error", error.message);
+
+            console.error("Portfolio deletion error:", error);
+        }
+    }
+
+    el.addProjectButton.addEventListener("click", function () {
+        el.projectFormCard.hidden = false;
+
+        el.projectFormCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        el.projectTitle.focus();
+    });
+
+    el.cancelFormButton.addEventListener("click", function () {
+        el.projectForm.reset();
+        el.projectFormCard.hidden = true;
+        clearMessages();
+    });
+
+    el.projectForm.addEventListener("submit", saveProject);
+
+    el.menuToggle.addEventListener("click", function () {
+        el.sidebar.classList.toggle("open");
+    });
+
+    const providerName =
+        localStorage.getItem("edumatch_provider_name");
+
+    if (providerName) {
+        el.providerName.textContent = providerName;
+
+        el.providerAvatar.textContent =
+            providerName.trim().charAt(0).toUpperCase() || "P";
+    }
+
+    document.getElementById("logoutButton")
+        .addEventListener("click", function (event) {
+            event.preventDefault();
+
+            localStorage.removeItem("edumatch_token");
+            localStorage.removeItem("edumatch_provider_id");
+            localStorage.removeItem("edumatch_provider_name");
+
+            window.location.href = "login.html";
+        });
+
+    loadProjects();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

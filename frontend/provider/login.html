@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login | EduMatch</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #6c4cff;
+            --primary-dark: #5435df;
+            --background: #f5f6fc;
+            --text: #17182b;
+            --muted: #777b91;
+            --border: #e6e7f0;
+            --white: #ffffff;
+            --success: #168653;
+            --danger: #d83d53;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 18px;
+            background:
+                radial-gradient(circle at 10% 10%, #e8e2ff 0, transparent 30%),
+                radial-gradient(circle at 90% 90%, #dff6ff 0, transparent 30%),
+                var(--background);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 1050px;
+            min-height: 620px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            border-radius: 25px;
+            background: var(--white);
+            box-shadow: 0 25px 80px rgba(36, 30, 85, 0.13);
+        }
+
+        /* LEFT PANEL */
+
+        .brand-panel {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px;
+            overflow: hidden;
+            color: white;
+            background: linear-gradient(145deg, #211b55, #4931bd 60%, #775cff);
+        }
+
+        .brand-panel::before,
+        .brand-panel::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .brand-panel::before {
+            width: 340px;
+            height: 340px;
+            right: -150px;
+            top: 100px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow:
+                0 0 0 35px rgba(255, 255, 255, 0.035),
+                0 0 0 70px rgba(255, 255, 255, 0.025);
+        }
+
+        .brand-panel::after {
+            width: 180px;
+            height: 180px;
+            left: -100px;
+            bottom: 80px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .brand,
+        .brand-content,
+        .brand-footer {
+            position: relative;
+            z-index: 1;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 23px;
+        }
+
+        .brand-content {
+            margin-top: 70px;
+            margin-bottom: auto;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 9px 13px;
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .brand-content h1 {
+            max-width: 390px;
+            margin-bottom: 20px;
+            font-size: clamp(32px, 4vw, 44px);
+            line-height: 1.2;
+            letter-spacing: -1.7px;
+        }
+
+        .brand-content p {
+            max-width: 365px;
+            color: #e2defe;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+        .benefits {
+            display: grid;
+            gap: 18px;
+            margin-top: 38px;
+        }
+
+        .benefit {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            color: #f0edff;
+        }
+
+        .benefit-icon {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .brand-footer {
+            margin-top: 55px;
+            color: #d3cdfc;
+            font-size: 11px;
+        }
+
+        /* RIGHT PANEL */
+
+        .form-panel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 48px 55px;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .mobile-brand {
+            display: none;
+            margin-bottom: 35px;
+            color: var(--primary);
+            font-size: 23px;
+            font-weight: 800;
+        }
+
+        .form-heading {
+            margin-bottom: 10px;
+            font-size: 31px;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .form-subheading {
+            margin-bottom: 32px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .form-group {
+            margin-bottom: 21px;
+        }
+
+        .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 9px;
+        }
+
+        label {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .forgot-link {
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            top: 50%;
+            left: 15px;
+            transform: translateY(-50%);
+            color: #9396aa;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        input[type="email"],
+        input[type="password"],
+        input[type="text"] {
+            width: 100%;
+            height: 51px;
+            padding: 0 45px;
+            outline: none;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            background: #fcfcff;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(108, 76, 255, 0.09);
+        }
+
+        input::placeholder {
+            color: #a4a6b7;
+        }
+
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 13px;
+            transform: translateY(-50%);
+            padding: 5px;
+            border: none;
+            background: transparent;
+            color: #85889e;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .options-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin: 2px 0 25px;
+        }
+
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .remember-label input {
+            accent-color: var(--primary);
+        }
+
+        .student-badge {
+            color: #777b91;
+            font-size: 11px;
+        }
+
+        .login-button {
+            width: 100%;
+            min-height: 51px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            border: none;
+            border-radius: 11px;
+            background: var(--primary);
+            color: white;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .login-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(108, 76, 255, 0.22);
+        }
+
+        .login-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .message {
+            display: none;
+            margin-top: 16px;
+            padding: 12px 13px;
+            border-radius: 9px;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .message.error {
+            display: block;
+            border: 1px solid #ffd8de;
+            background: #fff2f4;
+            color: var(--danger);
+        }
+
+        .message.success {
+            display: block;
+            border: 1px solid #cceedd;
+            background: #effbf4;
+            color: var(--success);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin: 25px 0;
+            color: #a1a3b3;
+            font-size: 10px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            flex: 1;
+            background: var(--border);
+        }
+
+        .register-text {
+            color: var(--muted);
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .register-text a {
+            color: var(--primary);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .security-note {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+            margin-top: 30px;
+            color: #8d90a3;
+            font-size: 10px;
+        }
+
+        .spinner {
+            width: 15px;
+            height: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 850px) {
+            .login-wrapper {
+                max-width: 480px;
+                grid-template-columns: 1fr;
+            }
+
+            .brand-panel {
+                display: none;
+            }
+
+            .form-panel {
+                padding: 42px 35px;
+            }
+
+            .mobile-brand {
+                display: block;
+            }
+        }
+
+        @media (max-width: 420px) {
+            body {
+                padding: 15px;
+            }
+
+            .login-wrapper {
+                border-radius: 18px;
+            }
+
+            .form-panel {
+                padding: 32px 23px;
+            }
+
+            .form-heading {
+                font-size: 27px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+    <main class="login-wrapper">
+
+        <!-- LEFT BRAND PANEL -->
+
+        <section class="brand-panel">
+
+            <div class="brand">
+                <div class="brand-icon">✦</div>
+                <span>EduMatch</span>
+            </div>
+
+            <div class="brand-content">
+
+                <span class="eyebrow">Your academic journey</span>
+
+                <h1>Find the right match for your next big idea.</h1>
+
+                <p>
+                    Connect with project providers, explore opportunities,
+                    and take the next step in your academic journey with EduMatch.
+                </p>
+
+                <div class="benefits">
+
+                    <div class="benefit">
+                        <span class="benefit-icon">✓</span>
+                        <span>Discover project opportunities</span>
+                    </div>
+
+                    <div class="benefit">
+                        <span class="benefit-icon">↗</span>
+                        <span>Connect with project providers</span>
+                    </div>
+
+                    <div class="benefit">
+                        <span class="benefit-icon">◎</span>
+                        <span>Manage your academic activities</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="brand-footer">
+                © 2026 EduMatch. Built for students.
+            </div>
+
+        </section>
+
+
+        <!-- LOGIN FORM -->
+
+        <section class="form-panel">
+
+            <div class="form-container">
+
+                <div class="mobile-brand">
+                    ✦ EduMatch
+                </div>
+
+                <h2 class="form-heading">Welcome back!</h2>
+
+                <p class="form-subheading">
+                    Sign in to your student account to continue.
+                </p>
+
+                <form id="loginForm">
+
+                    <div class="form-group">
+
+                        <div class="label-row">
+                            <label for="email">Email address</label>
+                        </div>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">✉</span>
+
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                placeholder="you@example.com"
+                                autocomplete="username"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <div class="label-row">
+                            <label for="password">Password</label>
+
+                            <a href="#" class="forgot-link" id="forgotPassword">
+                                Forgot password?
+                            </a>
+                        </div>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">♙</span>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                            >
+
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                id="togglePassword"
+                            >
+                                SHOW
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="options-row">
+
+                        <label class="remember-label">
+                            <input type="checkbox" id="rememberMe">
+                            Remember me
+                        </label>
+
+                        <span class="student-badge">
+                            Student account
+                        </span>
+
+                    </div>
+
+
+                    <button type="submit" class="login-button" id="loginButton">
+                        <span id="buttonText">Sign in to EduMatch</span>
+                    </button>
+
+                    <div
+                        id="message"
+                        class="message"
+                        role="status"
+                        aria-live="polite"
+                    ></div>
+
+                </form>
+
+
+                <div class="divider">
+                    OR CONTINUE WITH
+                </div>
+
+                <button type="button" class="google-button" id="googleLogin" style="width: 100%; min-height: 48px; border: 1px solid var(--border); border-radius: 10px; background: white; color: #374151; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                    Continue with Google
+                </button>
+
+                <p class="register-text">
+                    Don't have an account?
+                    <a href="register.html">Create an account</a>
+                </p>
+
+                <div class="security-note">
+                    <span>🔒</span>
+                    <span>Your account is protected by secure authentication.</span>
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script>
+        /*
+         * EduMatch Student Login
+         *
+         * Frontend: HTML + CSS + JavaScript
+         * Backend: Flask
+         * Database: SQLite
+         *
+         * Make sure the Flask server is running on port 5000.
+         */
+
+        const API_BASE_URL = "http://127.0.0.1:5000/api/auth";
+
+        const loginForm = document.getElementById("loginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const loginButton = document.getElementById("loginButton");
+        const buttonText = document.getElementById("buttonText");
+        const messageBox = document.getElementById("message");
+
+        let loginInProgress = false;
+
+
+        // Display a message to the user.
+
+        function showMessage(text, type) {
+            messageBox.textContent = text;
+            messageBox.className = "message " + type;
+        }
+
+
+        // Hide the message.
+
+        function clearMessage() {
+            messageBox.textContent = "";
+            messageBox.className = "message";
+        }
+
+
+        // Show or hide the password.
+
+        document.getElementById("togglePassword").addEventListener(
+            "click",
+            function () {
+                const isPassword =
+                    passwordInput.type === "password";
+
+                passwordInput.type =
+                    isPassword ? "text" : "password";
+
+                this.textContent =
+                    isPassword ? "HIDE" : "SHOW";
+            }
+        );
+
+
+        // Password recovery is not implemented in the current backend.
+
+        document.getElementById("forgotPassword").addEventListener(
+            "click",
+            function (event) {
+                event.preventDefault();
+
+                showMessage(
+                    "Password recovery is not available yet. Please contact your administrator.",
+                    "error"
+                );
+            }
+        );
+
+
+        // Clear old messages when the user edits the form.
+
+        emailInput.addEventListener("input", clearMessage);
+        passwordInput.addEventListener("input", clearMessage);
+
+
+        // Perform login.
+
+        loginForm.addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+            if (loginInProgress) {
+                return;
+            }
+
+            clearMessage();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showMessage(
+                    "Please enter your email address and password.",
+                    "error"
+                );
+                return;
+            }
+
+            loginInProgress = true;
+            loginButton.disabled = true;
+
+            buttonText.innerHTML =
+                '<span class="spinner"></span> Signing in...';
+
+            try {
+
+                /*
+                 * STEP 1:
+                 * Send login credentials to Flask.
+                 *
+                 * credentials: "include" is essential for session cookies.
+                 */
+
+                const loginResponse = await fetch(
+                    `${API_BASE_URL}/login`,
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    }
+                );
+
+                let loginResult;
+
+                try {
+                    loginResult = await loginResponse.json();
+                } catch {
+                    throw new Error(
+                        "The backend returned an invalid response."
+                    );
+                }
+
+                if (!loginResponse.ok || !loginResult.success) {
+
+                    showMessage(
+                        loginResult.message ||
+                        "Login failed. Please check your credentials.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * STEP 2:
+                 * Ask Flask to verify the session it just created.
+                 */
+
+                const sessionResponse = await fetch(
+                    `${API_BASE_URL}/me`,
+                    {
+                        method: "GET",
+                        credentials: "include",
+                        headers: {
+                            "Accept": "application/json"
+                        },
+                        cache: "no-store"
+                    }
+                );
+
+                let sessionResult;
+
+                try {
+                    sessionResult = await sessionResponse.json();
+                } catch {
+                    throw new Error(
+                        "The session verification response was invalid."
+                    );
+                }
+
+                /*
+                 * A successful login response is not enough.
+                 * The server must confirm the authenticated session.
+                 */
+
+                if (!sessionResponse.ok || !sessionResult.success) {
+
+                    showMessage(
+                        "Your login was accepted, but the server could not verify your session. Check CORS and session-cookie settings.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * STEP 3:
+                 * Ensure this is a provider account.
+                 */
+
+                const user = sessionResult.user;
+
+                if (!user || user.role !== "provider") {
+
+                    showMessage(
+                        "This account is not authorized for the provider dashboard.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                /*
+                 * STEP 4:
+                 * Login and session verification succeeded.
+                 * Open the student dashboard.
+                 */
+
+                if (loginResult && loginResult.token) {
+                    localStorage.setItem("edumatch_token", loginResult.token);
+                }
+                if (user) {
+                    localStorage.setItem("eduMatchUser", JSON.stringify(user));
+                    localStorage.setItem("providerName", user.fullName || user.full_name || "Provider");
+                }
+
+                showMessage(
+                    "Login successful! Opening your dashboard...",
+                    "success"
+                );
+
+                buttonText.textContent = "Login successful";
+
+                window.location.assign("dashboard.html");
+
+            } catch (error) {
+
+                console.error("EduMatch login error:", error);
+
+                showMessage(
+                    "Cannot verify your login session. Check that Flask is running and that CORS and session cookies are configured correctly.",
+                    "error"
+                );
+
+            } finally {
+
+                loginInProgress = false;
+
+                /*
+                 * Re-enable the button if the page has not redirected.
+                 */
+
+                if (
+                    !messageBox.classList.contains("success")
+                ) {
+                    loginButton.disabled = false;
+                    buttonText.textContent = "Sign in to EduMatch";
+                }
+            }
+
+        });
+
+        // Google Sign-in for Provider
+        const googleLoginBtn = document.getElementById("googleLogin");
+        if (googleLoginBtn) {
+            googleLoginBtn.addEventListener("click", async function () {
+                googleLoginBtn.disabled = true;
+                googleLoginBtn.textContent = "Connecting with Google...";
+
+                try {
+                    const googleEmail = prompt("Enter your Google Email to continue as Provider:", "provider.google@edumatch.edu");
+                    if (!googleEmail) {
+                        googleLoginBtn.disabled = false;
+                        googleLoginBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg> Continue with Google`;
+                        return;
+                    }
+
+                    const response = await fetch("http://127.0.0.1:5000/api/auth/google", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: googleEmail,
+                            fullName: googleEmail.split("@")[0].replace(".", " "),
+                            role: "provider"
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (data.success && data.user) {
+                        localStorage.setItem("edumatch_token", data.token);
+                        localStorage.setItem("eduMatchUser", JSON.stringify(data.user));
+                        localStorage.setItem("providerName", data.user.fullName || "Provider");
+                        showMessage("Google sign-in successful! Redirecting...", "success");
+                        setTimeout(() => {
+                            window.location.assign("dashboard.html");
+                        }, 800);
+                    } else {
+                        showMessage(data.message || "Google sign-in failed.", "error");
+                        googleLoginBtn.disabled = false;
+                        googleLoginBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg> Continue with Google`;
+                    }
+                } catch (err) {
+                    console.error("Google sign-in error:", err);
+                    showMessage("Could not connect to authentication service.", "error");
+                    googleLoginBtn.disabled = false;
+                    googleLoginBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg> Continue with Google`;
+                }
+            });
+        }
+
+    </script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

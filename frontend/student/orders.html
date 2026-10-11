@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>My Project Requests | EduMatch</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7657ff;
+            --primary-dark: #6042e8;
+            --dark: #111827;
+            --text: #374151;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --background: #f7f8fc;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--dark);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* Navigation */
+
+        .navbar {
+            height: 72px;
+            padding: 0 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .logo-icon {
+            width: 39px;
+            height: 39px;
+            border-radius: 12px;
+            background: var(--primary);
+            color: white;
+            display: grid;
+            place-items: center;
+        }
+
+        .logo-name span {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        /* Main Container */
+
+        .container {
+            width: min(1100px, 92%);
+            margin: 35px auto;
+        }
+
+        .breadcrumb {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 25px;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .page-header h1 {
+            font-size: 30px;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            font-size: 13px;
+            line-height: 1.8;
+            color: var(--muted);
+        }
+
+        .primary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary);
+            border: 1px solid var(--primary);
+            color: white;
+            border-radius: 9px;
+            padding: 12px 17px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Summary Cards */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 17px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 21px;
+        }
+
+        .summary-card p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 13px;
+        }
+
+        .summary-card h2 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .summary-card small {
+            display: block;
+            margin-top: 8px;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        /* Requests Section */
+
+        .requests-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .requests-header {
+            padding: 23px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .requests-header h2 {
+            font-size: 17px;
+            margin-bottom: 7px;
+        }
+
+        .requests-header p {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 18px 23px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .filter-btn {
+            background: white;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 9px 13px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #f0edff;
+            color: var(--primary);
+            border-color: #d8ceff;
+        }
+
+        /* Table */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 720px;
+        }
+
+        th {
+            padding: 15px 20px;
+            background: #fafaff;
+            color: var(--muted);
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-top: 1px solid #f0f1f5;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .project-name {
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .project-description {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .provider-name {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .budget {
+            font-weight: 700;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 7px 10px;
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fff5dc;
+            color: #a16207;
+        }
+
+        .status-accepted {
+            background: #e8f2ff;
+            color: #1d4ed8;
+        }
+
+        .status-progress {
+            background: #f0eaff;
+            color: #6d28d9;
+        }
+
+        .status-completed {
+            background: #e8f9ee;
+            color: #15803d;
+        }
+
+        .status-rejected,
+        .status-cancelled {
+            background: #feecec;
+            color: #b91c1c;
+        }
+
+        .view-btn {
+            padding: 8px 11px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+            border-radius: 7px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .view-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Empty State */
+
+        .empty-state {
+            text-align: center;
+            padding: 55px 20px;
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+            display: grid;
+            place-items: center;
+            background: #f0edff;
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 28px;
+            margin: 0 auto 18px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.9;
+            max-width: 420px;
+            margin: 0 auto 20px;
+        }
+
+        /* Loading and Error States */
+
+        .message-state {
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Modal */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal {
+            background: white;
+            width: min(480px, 100%);
+            padding: 27px;
+            border-radius: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+        }
+
+        .close-btn {
+            border: none;
+            background: none;
+            color: var(--muted);
+            font-size: 24px;
+        }
+
+        .modal-row {
+            padding: 13px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            font-size: 12px;
+        }
+
+        .modal-row span {
+            color: var(--muted);
+        }
+
+        .modal-row strong {
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            padding: 30px 15px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 850px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 550px) {
+            .navbar {
+                height: 65px;
+                padding: 0 4%;
+            }
+
+            .logo {
+                font-size: 19px;
+            }
+
+            .nav-links {
+                gap: 12px;
+            }
+
+            .nav-links a {
+                font-size: 10px;
+            }
+
+            .nav-links .optional {
+                display: none;
+            }
+
+            .container {
+                margin-top: 25px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .page-header h1 {
+                font-size: 25px;
+            }
+
+            .summary-grid {
+                gap: 10px;
+            }
+
+            .summary-card {
+                padding: 16px;
+            }
+
+            .summary-card h2 {
+                font-size: 24px;
+            }
+
+            .requests-header {
+                align-items: flex-start;
+                flex-direction: column;
+                padding: 19px;
+            }
+
+            .filters {
+                padding: 15px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+
+        <a href="../index.html" class="logo">
+            <span class="logo-icon">E</span>
+            <span class="logo-name">Edu<span>Match</span></span>
+        </a>
+
+        <div class="nav-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="search.html" class="optional">Find Providers</a>
+            <a href="orders.html" class="active">My Requests</a>
+        </div>
+
+    </nav>
+
+    <main class="container">
+
+        <div class="breadcrumb">
+            <a href="dashboard.html">Dashboard</a> / My Project Requests
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+
+            <div>
+                <h1>My Project Requests</h1>
+
+                <p>
+                    Track your project requests and monitor their progress
+                    from one place.
+                </p>
+            </div>
+
+            <a href="requirement.html" class="primary-btn">
+                + Create Requirement
+            </a>
+
+        </div>
+
+        <!-- Summary Cards -->
+        <section class="summary-grid">
+
+            <div class="summary-card">
+                <p>Total Requests</p>
+                <h2 id="totalCount">—</h2>
+                <small>All your project requests</small>
+            </div>
+
+            <div class="summary-card">
+                <p>Pending</p>
+                <h2 id="pendingCount">—</h2>
+                <small>Awaiting a decision</small>
+            </div>
+
+            <div class="summary-card">
+                <p>In Progress</p>
+                <h2 id="progressCount">—</h2>
+                <small>Currently being worked on</small>
+            </div>
+
+            <div class="summary-card">
+                <p>Completed</p>
+                <h2 id="completedCount">—</h2>
+                <small>Successfully finished</small>
+            </div>
+
+        </section>
+
+        <!-- Requests Table -->
+        <section class="requests-card">
+
+            <div class="requests-header">
+
+                <div>
+                    <h2>Project Request History</h2>
+                    <p>Review your requests and their latest status.</p>
+                </div>
+
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+
+                <button class="filter-btn active" data-filter="all">
+                    All Requests
+                </button>
+
+                <button class="filter-btn" data-filter="pending">
+                    Pending
+                </button>
+
+                <button class="filter-btn" data-filter="accepted">
+                    Accepted
+                </button>
+
+                <button class="filter-btn" data-filter="in_progress">
+                    In Progress
+                </button>
+
+                <button class="filter-btn" data-filter="completed">
+                    Completed
+                </button>
+
+            </div>
+
+            <!-- Loading -->
+            <div id="loadingState" class="message-state">
+                Loading your project requests...
+            </div>
+
+            <!-- Error -->
+            <div id="errorState" class="message-state hidden">
+                Your project requests could not be loaded.
+                <br><br>
+                <button class="view-btn" id="retryButton" type="button">
+                    Try Again
+                </button>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state hidden">
+
+                <div class="empty-icon">📋</div>
+
+                <h3 id="emptyTitle">No project requests yet</h3>
+
+                <p id="emptyDescription">
+                    When you submit a project requirement and it is saved
+                    to your account, it will appear here.
+                </p>
+
+                <a href="requirement.html" class="primary-btn">
+                    Create a Requirement
+                </a>
+
+            </div>
+
+            <!-- Table -->
+            <div id="tableWrapper" class="table-wrapper hidden">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Provider</th>
+                            <th>Budget</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="requestsTableBody"></tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Request Details Modal -->
+    <div id="detailsModal" class="modal-overlay hidden">
+
+        <div class="modal">
+
+            <div class="modal-header">
+
+                <h2>Request Details</h2>
+
+                <button class="close-btn"
+                        id="closeModalButton"
+                        type="button"
+                        aria-label="Close">
+                    &times;
+                </button>
+
+            </div>
+
+            <div id="modalContent"></div>
+
+        </div>
+
+    </div>
+
+    <footer>
+        © 2026 EduMatch. Built for students and project providers.
+    </footer>
+
+    <script>
+        /*
+         * EduMatch: Student Project Requests
+         *
+         * This page is prepared for backend integration.
+         *
+         * Planned API:
+         * GET /api/projects/my
+         *
+         * The Python backend must verify the logged-in student
+         * and return only that student's project requests.
+         *
+         * No fake project records are created here.
+         */
+
+        const API_BASE_URL = "http://127.0.0.1:5000";
+
+        const loadingState = document.getElementById("loadingState");
+        const errorState = document.getElementById("errorState");
+        const emptyState = document.getElementById("emptyState");
+        const tableWrapper = document.getElementById("tableWrapper");
+        const tableBody = document.getElementById("requestsTableBody");
+
+        const totalCount = document.getElementById("totalCount");
+        const pendingCount = document.getElementById("pendingCount");
+        const progressCount = document.getElementById("progressCount");
+        const completedCount = document.getElementById("completedCount");
+
+        let allRequests = [];
+        let currentFilter = "all";
+
+        function showOnly(element) {
+            loadingState.classList.add("hidden");
+            errorState.classList.add("hidden");
+            emptyState.classList.add("hidden");
+            tableWrapper.classList.add("hidden");
+
+            element.classList.remove("hidden");
+        }
+
+        function normalizeStatus(status) {
+            return String(status || "pending")
+                .trim()
+                .toLowerCase()
+                .replaceAll(" ", "_")
+                .replaceAll("-", "_");
+        }
+
+        function readableStatus(status) {
+            const normalized = normalizeStatus(status);
+
+            const labels = {
+                pending: "Pending",
+                accepted: "Accepted",
+                in_progress: "In Progress",
+                completed: "Completed",
+                rejected: "Rejected",
+                cancelled: "Cancelled"
+            };
+
+            return labels[normalized] || "Pending";
+        }
+
+        function statusClass(status) {
+            const normalized = normalizeStatus(status);
+
+            const classes = {
+                pending: "status-pending",
+                accepted: "status-accepted",
+                in_progress: "status-progress",
+                completed: "status-completed",
+                rejected: "status-rejected",
+                cancelled: "status-cancelled"
+            };
+
+            return classes[normalized] || "status-pending";
+        }
+
+        function formatBudget(budget) {
+            if (budget === null || budget === undefined || budget === "") {
+                return "Not specified";
+            }
+
+            const amount = Number(budget);
+
+            if (!Number.isFinite(amount)) {
+                return "Not specified";
+            }
+
+            return "₹" + amount.toLocaleString("en-IN");
+        }
+
+        function updateSummary() {
+            totalCount.textContent = allRequests.length;
+
+            pendingCount.textContent = allRequests.filter(request =>
+                normalizeStatus(request.status) === "pending"
+            ).length;
+
+            progressCount.textContent = allRequests.filter(request =>
+                normalizeStatus(request.status) === "in_progress"
+            ).length;
+
+            completedCount.textContent = allRequests.filter(request =>
+                normalizeStatus(request.status) === "completed"
+            ).length;
+        }
+
+        function createCell(text, className = "") {
+            const cell = document.createElement("td");
+            cell.textContent = text;
+
+            if (className) {
+                cell.className = className;
+            }
+
+            return cell;
+        }
+
+        function renderRequests() {
+            tableBody.replaceChildren();
+
+            const filteredRequests = allRequests.filter(request => {
+                if (currentFilter === "all") {
+                    return true;
+                }
+
+                return normalizeStatus(request.status) === currentFilter;
+            });
+
+            if (filteredRequests.length === 0) {
+                if (allRequests.length === 0) {
+                    document.getElementById("emptyTitle").textContent =
+                        "No project requests yet";
+
+                    document.getElementById("emptyDescription").textContent =
+                        "Your saved project requests will appear here after " +
+                        "you submit a requirement and connect to the backend.";
+                } else {
+                    document.getElementById("emptyTitle").textContent =
+                        "No matching requests";
+
+                    document.getElementById("emptyDescription").textContent =
+                        "There are no project requests under this status.";
+                }
+
+                showOnly(emptyState);
+                return;
+            }
+
+            filteredRequests.forEach(request => {
+                const row = document.createElement("tr");
+
+                const projectCell = document.createElement("td");
+
+                const projectName = document.createElement("div");
+                projectName.className = "project-name";
+                projectName.textContent =
+                    request.title || request.project_name || "Untitled project";
+
+                const projectDescription = document.createElement("div");
+                projectDescription.className = "project-description";
+                projectDescription.textContent =
+                    request.created_at
+                        ? "Submitted: " + request.created_at
+                        : "Project request";
+
+                projectCell.append(projectName, projectDescription);
+
+                const providerCell = createCell(
+                    request.provider_name || "Not assigned",
+                    "provider-name"
+                );
+
+                const budgetCell = createCell(
+                    formatBudget(request.budget),
+                    "budget"
+                );
+
+                const statusCell = document.createElement("td");
+
+                const statusBadge = document.createElement("span");
+                statusBadge.className =
+                    "status " + statusClass(request.status);
+
+                statusBadge.textContent = readableStatus(request.status);
+                statusCell.appendChild(statusBadge);
+
+                const actionCell = document.createElement("td");
+
+                const viewButton = document.createElement("button");
+                viewButton.className = "view-btn";
+                viewButton.type = "button";
+                viewButton.textContent = "View Details";
+
+                viewButton.addEventListener("click", () => {
+                    showDetails(request);
+                });
+
+                actionCell.appendChild(viewButton);
+
+                row.append(
+                    projectCell,
+                    providerCell,
+                    budgetCell,
+                    statusCell,
+                    actionCell
+                );
+
+                tableBody.appendChild(row);
+            });
+
+            showOnly(tableWrapper);
+        }
+
+        function addModalRow(label, value) {
+            const row = document.createElement("div");
+            row.className = "modal-row";
+
+            const labelElement = document.createElement("span");
+            labelElement.textContent = label;
+
+            const valueElement = document.createElement("strong");
+            valueElement.textContent =
+                value === null || value === undefined || value === ""
+                    ? "Not specified"
+                    : String(value);
+
+            row.append(labelElement, valueElement);
+
+            return row;
+        }
+
+        function showDetails(request) {
+            const modalContent = document.getElementById("modalContent");
+            modalContent.replaceChildren();
+
+            modalContent.append(
+                addModalRow(
+                    "Project",
+                    request.title || request.project_name
+                ),
+                addModalRow(
+                    "Description",
+                    request.description
+                ),
+                addModalRow(
+                    "Provider",
+                    request.provider_name || "Not assigned"
+                ),
+                addModalRow(
+                    "Budget",
+                    formatBudget(request.budget)
+                ),
+                addModalRow(
+                    "Status",
+                    readableStatus(request.status)
+                ),
+                addModalRow(
+                    "Submitted",
+                    request.created_at
+                )
+            );
+
+            document.getElementById("detailsModal")
+                .classList.remove("hidden");
+        }
+
+        function closeModal() {
+            document.getElementById("detailsModal")
+                .classList.add("hidden");
+        }
+
+        async function loadRequests() {
+            showOnly(loadingState);
+
+            /*
+             * The backend endpoint is not implemented yet.
+             * We deliberately do not create sample project records.
+             */
+
+            try {
+                const response = await fetch(
+                    API_BASE_URL + "/api/projects/my",
+                    {
+                        method: "GET",
+                        credentials: "include"
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(
+                        "The backend returned status " + response.status
+                    );
+                }
+
+                const data = await response.json();
+
+                allRequests = Array.isArray(data)
+                    ? data
+                    : data.projects || data.requests || [];
+
+                updateSummary();
+                renderRequests();
+
+            } catch (error) {
+                console.error("Could not load project requests:", error);
+
+                totalCount.textContent = "—";
+                pendingCount.textContent = "—";
+                progressCount.textContent = "—";
+                completedCount.textContent = "—";
+
+                showOnly(errorState);
+            }
+        }
+
+        // Filter buttons
+        document.querySelectorAll(".filter-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                document.querySelectorAll(".filter-btn").forEach(item => {
+                    item.classList.remove("active");
+                });
+
+                button.classList.add("active");
+                currentFilter = button.dataset.filter;
+
+                renderRequests();
+            });
+        });
+
+        // Modal controls
+        document.getElementById("closeModalButton")
+            .addEventListener("click", closeModal);
+
+        document.getElementById("detailsModal")
+            .addEventListener("click", event => {
+                if (event.target.id === "detailsModal") {
+                    closeModal();
+                }
+            });
+
+        document.addEventListener("keydown", event => {
+            if (event.key === "Escape") {
+                closeModal();
+            }
+        });
+
+        document.getElementById("retryButton")
+            .addEventListener("click", loadRequests);
+
+        // Start
+        loadRequests();
+    </script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

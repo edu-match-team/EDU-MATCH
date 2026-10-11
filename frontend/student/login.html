@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Student Login | EduMatch</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #111827;
+            --purple: #7657FF;
+            --purple-dark: #6344EB;
+            --background: #F7F8FC;
+            --text: #1F2937;
+            --muted: #6B7280;
+            --border: #E5E7EB;
+            --white: #FFFFFF;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        .navbar {
+            height: 76px;
+            padding: 0 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .logo span {
+            color: var(--purple);
+        }
+
+        .back-home {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .back-home:hover {
+            color: var(--purple);
+        }
+
+        .main-container {
+            min-height: calc(100vh - 76px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(17, 24, 39, .07);
+        }
+
+        .welcome-panel {
+            position: relative;
+            overflow: hidden;
+            background: var(--navy);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 570px;
+        }
+
+        .welcome-panel::before {
+            content: "";
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            right: -120px;
+            top: -100px;
+            border-radius: 50%;
+            background: rgba(118, 87, 255, .2);
+        }
+
+        .panel-content, .panel-bottom {
+            position: relative;
+            z-index: 1;
+        }
+
+        .portal-badge {
+            display: inline-block;
+            padding: 9px 13px;
+            margin-bottom: 30px;
+            color: #C8BCFF;
+            background: rgba(118, 87, 255, .17);
+            border: 1px solid rgba(167, 148, 255, .25);
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .welcome-panel h1 {
+            font-size: clamp(30px, 3vw, 43px);
+            line-height: 1.25;
+            letter-spacing: -1.3px;
+            margin-bottom: 20px;
+        }
+
+        .welcome-panel h1 span {
+            color: #A99AFF;
+        }
+
+        .welcome-description {
+            max-width: 370px;
+            color: #B8C0D0;
+            font-size: 14px;
+            line-height: 1.9;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 20px;
+            margin-top: 35px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #E5E7EB;
+            font-size: 13px;
+        }
+
+        .feature-icon {
+            width: 33px;
+            height: 33px;
+            display: grid;
+            place-items: center;
+            background: rgba(118, 87, 255, .2);
+            border-radius: 10px;
+            color: #C8BCFF;
+        }
+
+        .panel-bottom {
+            margin-top: 35px;
+            padding-top: 22px;
+            border-top: 1px solid rgba(255, 255, 255, .12);
+            color: #9CA3AF;
+            font-size: 12px;
+        }
+
+        .form-panel {
+            padding: 50px 43px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .form-heading {
+            margin-bottom: 30px;
+        }
+
+        .form-heading h2 {
+            color: var(--navy);
+            font-size: 29px;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .form-heading p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 9px;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            height: 49px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 4px rgba(118, 87, 255, .1);
+        }
+
+        .password-input {
+            padding-right: 75px !important;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--purple);
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .form-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 3px 0 25px;
+            font-size: 12px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--muted);
+        }
+
+        .remember-me input {
+            accent-color: var(--purple);
+        }
+
+        .forgot-password {
+            color: var(--purple);
+            font-weight: 600;
+        }
+
+        .login-button {
+            width: 100%;
+            min-height: 50px;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: var(--purple);
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .login-button:hover:not(:disabled) {
+            background: var(--purple-dark);
+        }
+
+        .login-button:disabled {
+            opacity: .7;
+            cursor: not-allowed;
+        }
+
+        .message {
+            display: none;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .message.error, .message.success, .message.info {
+            display: block;
+        }
+
+        .message.error {
+            color: #B91C1C;
+            background: #FEF2F2;
+            border: 1px solid #FECACA;
+        }
+
+        .message.success {
+            color: #166534;
+            background: #F0FDF4;
+            border: 1px solid #BBF7D0;
+        }
+
+        .message.info {
+            color: #5B46C6;
+            background: #F3F0FF;
+            border: 1px solid #DDD6FE;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin: 24px 0;
+            color: #9CA3AF;
+            font-size: 11px;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .google-button {
+            width: 100%;
+            min-height: 48px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: white;
+            color: #374151;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .google-button:hover {
+            background: #F9FAFB;
+        }
+
+        .register-text {
+            text-align: center;
+            margin-top: 28px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .register-text a {
+            color: var(--purple);
+            font-weight: 700;
+        }
+
+        .security-note {
+            margin-top: 22px;
+            color: #9CA3AF;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 800px) {
+            .navbar {
+                padding: 0 5%;
+            }
+
+            .login-wrapper {
+                max-width: 520px;
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-panel {
+                min-height: auto;
+                padding: 35px 30px;
+            }
+
+            .form-panel {
+                padding: 38px 30px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .navbar {
+                height: 68px;
+            }
+
+            .logo {
+                font-size: 22px;
+            }
+
+            .main-container {
+                padding: 20px 10px;
+            }
+
+            .welcome-panel, .form-panel {
+                padding: 28px 22px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="../index.html" class="logo">Edu<span>Match</span></a>
+    <a href="../index.html" class="back-home">← Back to Home</a>
+</header>
+
+<main class="main-container">
+    <div class="login-wrapper">
+
+        <section class="welcome-panel">
+            <div class="panel-content">
+                <div class="portal-badge">● STUDENT PORTAL</div>
+
+                <h1>
+                    Welcome back to
+                    <span>EduMatch.</span>
+                </h1>
+
+                <p class="welcome-description">
+                    Discover project providers, share your requirements,
+                    and manage your project journey in one place.
+                </p>
+
+                <div class="feature-list">
+                    <div class="feature">
+                        <div class="feature-icon">⌕</div>
+                        <span>Discover project providers</span>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">↗</div>
+                        <span>Manage your project requests</span>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <span>Keep track of your project progress</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-bottom">
+                Connecting student ideas with the right expertise.
+            </div>
+        </section>
+
+        <section class="form-panel">
+
+            <div class="form-heading">
+                <h2>Sign in</h2>
+                <p>Enter your account details to continue to EduMatch.</p>
+            </div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="email">Email address</label>
+
+                    <div class="input-wrapper">
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            autocomplete="username"
+                            maxlength="254"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <div class="input-wrapper">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="password-input"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            maxlength="128"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            id="togglePassword"
+                            aria-label="Show password"
+                        >Show</button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="rememberMe">
+                        Remember me
+                    </label>
+
+                    <a href="#" class="forgot-password" id="forgotPassword">
+                        Forgot password?
+                    </a>
+                </div>
+
+                <button type="submit" class="login-button">
+                    Sign In to EduMatch →
+                </button>
+
+                <div id="message" class="message"
+                     role="status" aria-live="polite"></div>
+
+            </form>
+
+            <div class="divider">OR CONTINUE WITH</div>
+
+            <button type="button" class="google-button" id="googleLogin">
+                G &nbsp; Continue with Google
+            </button>
+
+            <p class="register-text">
+                Don't have an account?
+                <a href="register.html">Create an account</a>
+            </p>
+
+            <p class="security-note">
+                Your account is authenticated by the EduMatch backend.
+                <br>EduMatch Student Portal
+            </p>
+
+        </section>
+    </div>
+</main>
+
+<script>
+    const API_BASE_URL = "http://127.0.0.1:5000/api/auth";
+
+    const loginForm = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const togglePassword = document.getElementById("togglePassword");
+    const loginButton = loginForm.querySelector(".login-button");
+    const message = document.getElementById("message");
+
+    let loginInProgress = false;
+
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = "message " + type;
+    }
+
+    function clearMessage() {
+        message.textContent = "";
+        message.className = "message";
+    }
+
+    togglePassword.addEventListener("click", function () {
+        const show = passwordInput.type === "password";
+
+        passwordInput.type = show ? "text" : "password";
+        togglePassword.textContent = show ? "Hide" : "Show";
+        togglePassword.setAttribute(
+            "aria-label",
+            show ? "Hide password" : "Show password"
+        );
+    });
+
+    loginForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        if (loginInProgress) return;
+
+        clearMessage();
+
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !password) {
+            showMessage("Please enter your email and password.", "error");
+            return;
+        }
+
+        loginInProgress = true;
+        loginButton.disabled = true;
+        loginButton.textContent = "Signing in...";
+
+        try {
+            const response = await fetch(API_BASE_URL + "/login", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || result.success !== true) {
+                showMessage(
+                    result.message || "Login failed. Check your credentials.",
+                    "error"
+                );
+                return;
+            }
+
+            if (!result.user || result.user.role !== "student") {
+                showMessage(
+                    "This account cannot access the student dashboard.",
+                    "error"
+                );
+                return;
+            }
+
+            // Verify the server-side session before navigating.
+            const sessionResponse = await fetch(API_BASE_URL + "/me", {
+                method: "GET",
+                credentials: "include",
+                headers: { "Accept": "application/json" }
+            });
+
+            const sessionResult = await sessionResponse.json();
+
+            if (
+                !sessionResponse.ok ||
+                !sessionResult.user ||
+                sessionResult.user.role !== "student"
+            ) {
+                showMessage(
+                    "Your login session could not be verified. Check the backend and session-cookie configuration.",
+                    "error"
+                );
+                return;
+            }
+
+            if (result.token) {
+                localStorage.setItem("edumatch_token", result.token);
+            }
+            if (result.user) {
+                localStorage.setItem("eduMatchUser", JSON.stringify(result.user));
+                localStorage.setItem("eduMatchUserName", result.user.fullName || result.user.full_name);
+            }
+
+            showMessage(
+                "Login successful! Opening your dashboard...",
+                "success"
+            );
+
+            loginButton.textContent = "Login successful";
+
+            // Both HTML files are in frontend/student/.
+            window.location.href = "dashboard.html";
+
+        } catch (error) {
+            console.error("Login error:", error);
+
+            showMessage(
+                "Unable to connect to EduMatch. Ensure Flask is running and check for CORS errors.",
+                "error"
+            );
+        } finally {
+            loginInProgress = false;
+
+            if (message.classList.contains("error")) {
+                loginButton.disabled = false;
+                loginButton.textContent = "Sign In to EduMatch →";
+            }
+        }
+    });
+
+    document.getElementById("forgotPassword").addEventListener(
+        "click",
+        function (event) {
+            event.preventDefault();
+            showMessage(
+                "Password recovery has not been implemented yet.",
+                "info"
+            );
+        }
+    );
+
+    document.getElementById("googleLogin").addEventListener(
+        "click",
+        async function () {
+            const googleBtn = document.getElementById("googleLogin");
+            googleBtn.disabled = true;
+            googleBtn.textContent = "Connecting with Google...";
+
+            try {
+                // Prompt user for Google account email or default to sample Google student
+                const googleEmail = prompt("Enter your Google Email to continue:", "student.google@edumatch.edu");
+                if (!googleEmail) {
+                    googleBtn.disabled = false;
+                    googleBtn.textContent = "G   Continue with Google";
+                    return;
+                }
+
+                const response = await fetch("http://127.0.0.1:5000/api/auth/google", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email: googleEmail,
+                        fullName: googleEmail.split("@")[0].replace(".", " "),
+                        role: "student"
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success && data.user) {
+                    localStorage.setItem("edumatch_token", data.token);
+                    localStorage.setItem("eduMatchUser", JSON.stringify(data.user));
+                    localStorage.setItem("studentName", data.user.fullName || "Student");
+                    showMessage("Google sign-in successful! Redirecting...", "success");
+                    setTimeout(() => {
+                        window.location.href = "dashboard.html";
+                    }, 800);
+                } else {
+                    showMessage(data.message || "Google sign-in failed.", "error");
+                    googleBtn.disabled = false;
+                    googleBtn.textContent = "G   Continue with Google";
+                }
+            } catch (err) {
+                console.error("Google sign-in error:", err);
+                showMessage("Could not connect to authentication service.", "error");
+                googleBtn.disabled = false;
+                googleBtn.textContent = "G   Continue with Google";
+            }
+        }
+    );
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

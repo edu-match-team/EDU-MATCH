@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Orders | EduMatch Admin</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f7fc;
+            color: #1f2937;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 245px;
+            background: #111827;
+            color: white;
+            padding: 25px 15px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            padding: 5px 12px 30px;
+        }
+
+        .logo span {
+            color: #818cf8;
+        }
+
+        .sidebar h4 {
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 13px 12px;
+            margin: 4px 0;
+            color: #d1d5db;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #312e81;
+            color: white;
+        }
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            background: white;
+            padding: 22px 30px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .topbar h1 {
+            font-size: 23px;
+        }
+
+        .topbar p {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .admin-label {
+            background: #eef2ff;
+            color: #4338ca;
+            padding: 10px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 22px;
+        }
+
+        .stat-card p {
+            color: #6b7280;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card h2 {
+            font-size: 28px;
+        }
+
+        .stat-card small {
+            display: block;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 22px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .panel-header h2 {
+            font-size: 19px;
+        }
+
+        .panel-header p {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 18px 22px;
+        }
+
+        input,
+        select {
+            padding: 11px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 13px;
+            background: white;
+        }
+
+        input {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        select {
+            min-width: 150px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 7px;
+            padding: 11px 15px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .primary-btn {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #4338ca;
+        }
+
+        .secondary-btn {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th,
+        td {
+            padding: 16px 18px;
+            text-align: left;
+            border-bottom: 1px solid #f0f1f5;
+            font-size: 13px;
+        }
+
+        th {
+            color: #6b7280;
+            background: #fafbff;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            vertical-align: middle;
+        }
+
+        .order-id {
+            font-weight: bold;
+            color: #4f46e5;
+        }
+
+        .person {
+            font-weight: bold;
+        }
+
+        .subtext {
+            display: block;
+            margin-top: 5px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 9px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: capitalize;
+            white-space: nowrap;
+        }
+
+        .badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.active,
+        .badge.in_progress {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge.completed,
+        .badge.delivered,
+        .badge.paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge.cancelled,
+        .badge.rejected,
+        .badge.failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.refunded {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .view-btn {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .message {
+            padding: 30px 20px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .message.error {
+            color: #b91c1c;
+        }
+
+        .table-footer {
+            padding: 16px 22px;
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(17, 24, 39, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-box {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            background: #f3f4f6;
+            font-size: 20px;
+            padding: 5px 11px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .detail-item {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 12px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .detail-item small {
+            display: block;
+            color: #6b7280;
+            margin-bottom: 7px;
+        }
+
+        .detail-item p {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .description {
+            margin-top: 20px;
+            line-height: 1.7;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .description h3 {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        @media (max-width: 1100px) {
+            .stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 750px) {
+            .sidebar {
+                display: none;
+                position: fixed;
+                inset: 0 auto 0 0;
+                z-index: 900;
+                overflow-y: auto;
+            }
+
+            .sidebar.open {
+                display: block;
+            }
+
+            .menu-toggle {
+                display: inline-block;
+            }
+
+            .topbar {
+                padding: 18px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card h2 {
+                font-size: 23px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-label {
+                display: none;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar h1 {
+                font-size: 19px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">Edu<span>Match</span></div>
+
+        <h4>Administration</h4>
+
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="users.html">All Users</a>
+        <a class="nav-link" href="students.html">Students</a>
+        <a class="nav-link" href="providers.html">Providers</a>
+        <a class="nav-link" href="services.html">Services</a>
+        <a class="nav-link active" href="orders.html">Orders</a>
+        <a class="nav-link" href="disputes.html">Disputes</a>
+        <a class="nav-link" href="reports.html">Reports</a>
+        <a class="nav-link" href="settings.html">Settings</a>
+
+        <h4>Account</h4>
+        <a class="nav-link" href="#" id="logoutButton">Logout</a>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="menu-toggle" id="menuToggle"
+                        aria-label="Open navigation">☰</button>
+
+                <div>
+                    <h1>Manage Orders</h1>
+                    <p>Review and monitor real EduMatch orders.</p>
+                </div>
+            </div>
+
+            <span class="admin-label">Administrator</span>
+        </header>
+
+        <section class="content">
+
+            <div class="stats">
+
+                <div class="stat-card">
+                    <p>Total Orders</p>
+                    <h2 id="totalOrders">—</h2>
+                    <small>Orders returned by the server</small>
+                </div>
+
+                <div class="stat-card">
+                    <p>Pending</p>
+                    <h2 id="pendingOrders">—</h2>
+                    <small>Awaiting action</small>
+                </div>
+
+                <div class="stat-card">
+                    <p>In Progress</p>
+                    <h2 id="activeOrders">—</h2>
+                    <small>Currently being processed</small>
+                </div>
+
+                <div class="stat-card">
+                    <p>Completed</p>
+                    <h2 id="completedOrders">—</h2>
+                    <small>Successfully completed orders</small>
+                </div>
+
+            </div>
+
+            <section class="panel">
+
+                <div class="panel-header">
+                    <h2>All Orders</h2>
+                    <p>Order information is loaded from the admin API.</p>
+                </div>
+
+                <div class="filters">
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search order ID, student, provider, service..."
+                        aria-label="Search orders">
+
+                    <select id="statusFilter" aria-label="Filter by status">
+                        <option value="">All statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="active">Active</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="delivered">Delivered</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="refunded">Refunded</option>
+                    </select>
+
+                    <button class="primary-btn" id="refreshButton">
+                        Refresh
+                    </button>
+                </div>
+
+                <div id="tableMessage" class="message" hidden></div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Service</th>
+                                <th>Student</th>
+                                <th>Provider</th>
+                                <th>Amount</th>
+                                <th>Order Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="ordersTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer" id="tableFooter">
+                    Waiting for the server...
+                </div>
+
+            </section>
+
+        </section>
+    </main>
+</div>
+
+<!-- Order details modal -->
+<div class="modal" id="orderModal" role="dialog"
+     aria-modal="true" aria-labelledby="modalTitle">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+            <h2 id="modalTitle">Order Details</h2>
+            <button class="close-btn" id="closeModal"
+                    aria-label="Close dialog">&times;</button>
+        </div>
+
+        <div id="orderDetails"></div>
+
+    </div>
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:5000/api";
+
+    const tableBody = document.getElementById("ordersTableBody");
+    const tableMessage = document.getElementById("tableMessage");
+    const tableFooter = document.getElementById("tableFooter");
+
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+
+    let allOrders = [];
+
+    function getToken() {
+        return localStorage.getItem("edumatch_token");
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+        })[character]);
+    }
+
+    function formatMoney(amount, currency = "INR") {
+        const number = Number(amount);
+
+        if (!Number.isFinite(number)) {
+            return "Not available";
+        }
+
+        try {
+            return new Intl.NumberFormat("en-IN", {
+                style: "currency",
+                currency: currency,
+                maximumFractionDigits: 2
+            }).format(number);
+        } catch {
+            return `${currency} ${number.toFixed(2)}`;
+        }
+    }
+
+    function formatDate(value) {
+        if (!value) return "Not available";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "Not available";
+        }
+
+        return date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    function getName(person) {
+        if (typeof person === "string") {
+            return person;
+        }
+
+        return person?.name
+            || person?.full_name
+            || person?.fullName
+            || "Not available";
+    }
+
+    function getEmail(person) {
+        if (typeof person === "object" && person !== null) {
+            return person.email || "Not available";
+        }
+
+        return "Not available";
+    }
+
+    function getServiceTitle(order) {
+        if (typeof order.service === "object" && order.service !== null) {
+            return order.service.title || order.service.name || "Not available";
+        }
+
+        return order.service_title
+            || order.service_name
+            || "Not available";
+    }
+
+    function getOrderStatus(order) {
+        return String(order.status || "unknown").toLowerCase();
+    }
+
+    function statusBadge(status) {
+        const safeStatus = escapeHTML(status);
+
+        return `<span class="badge ${safeStatus}">${safeStatus.replaceAll("_", " ")}</span>`;
+    }
+
+    function showMessage(message, isError = false) {
+        tableMessage.hidden = false;
+        tableMessage.className = isError ? "message error" : "message";
+        tableMessage.textContent = message;
+    }
+
+    function hideMessage() {
+        tableMessage.hidden = true;
+        tableMessage.textContent = "";
+    }
+
+    function resetStats() {
+        document.getElementById("totalOrders").textContent = "—";
+        document.getElementById("pendingOrders").textContent = "—";
+        document.getElementById("activeOrders").textContent = "—";
+        document.getElementById("completedOrders").textContent = "—";
+    }
+
+    function updateStats(orders) {
+        document.getElementById("totalOrders").textContent = orders.length;
+
+        document.getElementById("pendingOrders").textContent =
+            orders.filter(order => getOrderStatus(order) === "pending").length;
+
+        document.getElementById("activeOrders").textContent =
+            orders.filter(order =>
+                ["active", "in_progress"].includes(getOrderStatus(order))
+            ).length;
+
+        document.getElementById("completedOrders").textContent =
+            orders.filter(order =>
+                ["completed", "delivered"].includes(getOrderStatus(order))
+            ).length;
+    }
+
+    async function apiRequest(path, options = {}) {
+        const token = getToken();
+
+        if (!token) {
+            throw new Error("Admin login required. Please log in first.");
+        }
+
+        const response = await fetch(`${API_BASE}${path}`, {
+            ...options,
+            headers: {
+                "Accept": "application/json",
+                ...(options.body ? { "Content-Type": "application/json" } : {}),
+                "Authorization": `Bearer ${token}`,
+                ...options.headers
+            }
+        });
+
+        if (response.status === 401 || response.status === 403) {
+            throw new Error(
+                "Your session is invalid or you do not have admin permission. Please log in again."
+            );
+        }
+
+        const text = await response.text();
+        let data = {};
+
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch {
+                throw new Error("The server returned an invalid response.");
+            }
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || data.error || `Request failed (${response.status}).`
+            );
+        }
+
+        return data;
+    }
+
+    async function loadOrders() {
+        tableBody.innerHTML = "";
+        resetStats();
+        showMessage("Loading orders from the server...");
+        tableFooter.textContent = "Loading...";
+
+        try {
+            /*
+              Required backend endpoint:
+              GET /api/admin/orders
+
+              Expected response:
+              {
+                "orders": [
+                  {
+                    "id": 123,
+                    "service_title": "Service title",
+                    "student": {"id": 1, "name": "Student name", "email": "..."},
+                    "provider": {"id": 2, "name": "Provider name", "email": "..."},
+                    "amount": 1500,
+                    "currency": "INR",
+                    "status": "pending",
+                    "created_at": "2026-10-10T10:00:00"
+                  }
+                ]
+              }
+
+              These are the expected field names, not example records.
+            */
+
+            const data = await apiRequest("/admin/orders");
+
+            if (!Array.isArray(data.orders)) {
+                throw new Error(
+                    "The API response must contain an orders array."
+                );
+            }
+
+            allOrders = data.orders;
+
+            updateStats(allOrders);
+            renderOrders();
+
+        } catch (error) {
+            allOrders = [];
+            tableBody.innerHTML = "";
+            resetStats();
+
+            showMessage(error.message, true);
+            tableFooter.textContent = "Orders could not be loaded.";
+
+            console.error("Unable to load orders:", error);
+        }
+    }
+
+    function renderOrders() {
+        const search = searchInput.value.trim().toLowerCase();
+        const selectedStatus = statusFilter.value.toLowerCase();
+
+        const filteredOrders = allOrders.filter(order => {
+            const student = getName(order.student);
+            const provider = getName(order.provider);
+            const service = getServiceTitle(order);
+            const orderId = String(order.id ?? order.order_id ?? "");
+            const status = getOrderStatus(order);
+
+            const searchableText =
+                `${orderId} ${student} ${provider} ${service}`.toLowerCase();
+
+            const matchesSearch = searchableText.includes(search);
+            const matchesStatus =
+                !selectedStatus || status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        tableBody.innerHTML = "";
+
+        if (filteredOrders.length === 0) {
+            if (allOrders.length === 0) {
+                showMessage("No orders have been returned by the server.");
+            } else {
+                showMessage("No orders match your search or selected filter.");
+            }
+
+            tableFooter.textContent = "0 matching orders";
+            return;
+        }
+
+        hideMessage();
+
+        filteredOrders.forEach(order => {
+            const id = order.id ?? order.order_id;
+            const student = getName(order.student);
+            const provider = getName(order.provider);
+            const service = getServiceTitle(order);
+            const status = getOrderStatus(order);
+            const currency = order.currency || "INR";
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>
+                    <span class="order-id">#${escapeHTML(id ?? "Unavailable")}</span>
+                </td>
+
+                <td>
+                    <span class="person">${escapeHTML(service)}</span>
+                </td>
+
+                <td>${escapeHTML(student)}</td>
+
+                <td>${escapeHTML(provider)}</td>
+
+                <td>${escapeHTML(formatMoney(order.amount, currency))}</td>
+
+                <td>${escapeHTML(formatDate(order.created_at))}</td>
+
+                <td>${statusBadge(status)}</td>
+
+                <td>
+                    <button class="view-btn" data-order-id="${escapeHTML(id)}">
+                        View
+                    </button>
+                </td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+
+        tableFooter.textContent =
+            `Showing ${filteredOrders.length} of ${allOrders.length} orders`;
+    }
+
+    async function showOrderDetails(orderId) {
+        const modal = document.getElementById("orderModal");
+        const details = document.getElementById("orderDetails");
+
+        modal.classList.add("open");
+        details.textContent = "Loading order details...";
+
+        try {
+            /*
+              Required backend endpoint:
+              GET /api/admin/orders/<order_id>
+
+              Expected response:
+              {"order": { ...order fields... }}
+            */
+
+            const data = await apiRequest(
+                `/admin/orders/${encodeURIComponent(orderId)}`
+            );
+
+            if (!data.order || typeof data.order !== "object") {
+                throw new Error("The server did not return order details.");
+            }
+
+            const order = data.order;
+
+            const student = order.student;
+            const provider = order.provider;
+
+            const id = order.id ?? order.order_id;
+            const status = getOrderStatus(order);
+            const currency = order.currency || "INR";
+
+            details.innerHTML = `
+                <div class="detail-grid">
+
+                    <div class="detail-item">
+                        <small>Order ID</small>
+                        <p>#${escapeHTML(id ?? "Not available")}</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Status</small>
+                        <p>${statusBadge(status)}</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Service</small>
+                        <p>${escapeHTML(getServiceTitle(order))}</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Amount</small>
+                        <p>${escapeHTML(formatMoney(order.amount, currency))}</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Student</small>
+                        <p>${escapeHTML(getName(student))}</p>
+                        <span class="subtext">${escapeHTML(getEmail(student))}</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Provider</small>
+                        <p>${escapeHTML(getName(provider))}</p>
+                        <span class="subtext">${escapeHTML(getEmail(provider))}</span>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Created</small>
+                        <p>${escapeHTML(formatDate(order.created_at))}</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Delivery Date</small>
+                        <p>${escapeHTML(formatDate(order.delivery_date))}</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Payment Status</small>
+                        <p>${escapeHTML(order.payment_status || "Not available")}</p>
+                    </div>
+
+                    <div class="detail-item">
+                        <small>Last Updated</small>
+                        <p>${escapeHTML(formatDate(order.updated_at))}</p>
+                    </div>
+
+                </div>
+
+                <div class="description">
+                    <h3>Order Description</h3>
+                    <p>${escapeHTML(order.description || "No description provided.")}</p>
+                </div>
+            `;
+
+        } catch (error) {
+            details.textContent = error.message;
+        }
+    }
+
+    tableBody.addEventListener("click", event => {
+        const button = event.target.closest("[data-order-id]");
+
+        if (button) {
+            showOrderDetails(button.dataset.orderId);
+        }
+    });
+
+    searchInput.addEventListener("input", renderOrders);
+    statusFilter.addEventListener("change", renderOrders);
+
+    document.getElementById("refreshButton").addEventListener(
+        "click",
+        loadOrders
+    );
+
+    document.getElementById("closeModal").addEventListener("click", () => {
+        document.getElementById("orderModal").classList.remove("open");
+    });
+
+    document.getElementById("orderModal").addEventListener("click", event => {
+        if (event.target.id === "orderModal") {
+            event.currentTarget.classList.remove("open");
+        }
+    });
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+        document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", event => {
+        event.preventDefault();
+
+        localStorage.removeItem("edumatch_token");
+        window.location.href = "login.html";
+    });
+
+    loadOrders();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

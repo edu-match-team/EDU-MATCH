@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reviews & Ratings | EduMatch</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f8fc;
+            color: #172033;
+        }
+
+        :root {
+            --primary: #7657ff;
+            --border: #e3e7ef;
+            --muted: #64748b;
+        }
+
+        header {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            padding: 18px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 25px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #172033;
+        }
+
+        header a.back {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        main {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .heading {
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .heading p {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 22px;
+        }
+
+        .card h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .description {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            margin-bottom: 18px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .stars {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .stars button {
+            border: none;
+            background: none;
+            font-size: 32px;
+            color: #cbd5e1;
+            cursor: pointer;
+        }
+
+        .stars button.selected {
+            color: #f5a623;
+        }
+
+        .btn {
+            border: none;
+            background: var(--primary);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 7px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: #6243eb;
+        }
+
+        .status {
+            color: var(--muted);
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .review-list {
+            margin-top: 20px;
+        }
+
+        .review-item {
+            border-bottom: 1px solid var(--border);
+            padding: 18px 0;
+        }
+
+        .review-item:last-child {
+            border-bottom: none;
+        }
+
+        .review-item h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .review-rating {
+            color: #f5a623;
+            margin-bottom: 8px;
+        }
+
+        .review-item p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            padding: 25px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                padding: 18px 20px;
+            }
+
+            .heading h1 {
+                font-size: 25px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<header>
+    <a href="../index.html" class="logo">Edu<span>Match</span></a>
+    <a href="dashboard.html" class="back">← Dashboard</a>
+</header>
+
+<main>
+    <div class="heading">
+        <h1>Reviews & Ratings</h1>
+        <p>Share your experience and help other students find reliable project providers.</p>
+    </div>
+
+    <div class="grid">
+
+        <section class="card">
+            <h2>Write a Review</h2>
+            <p class="description">
+                Reviews should reflect your genuine experience with a provider.
+                You must have an eligible project before submitting a review.
+            </p>
+
+            <form id="reviewForm">
+                <label for="providerId">Provider ID</label>
+                <input
+                    type="number"
+                    id="providerId"
+                    min="1"
+                    required
+                    placeholder="Provider ID from EduMatch"
+                >
+
+                <label>Your Rating</label>
+
+                <div class="stars" id="starPicker" aria-label="Choose a rating">
+                    <button type="button" data-rating="1" aria-label="1 star">★</button>
+                    <button type="button" data-rating="2" aria-label="2 stars">★</button>
+                    <button type="button" data-rating="3" aria-label="3 stars">★</button>
+                    <button type="button" data-rating="4" aria-label="4 stars">★</button>
+                    <button type="button" data-rating="5" aria-label="5 stars">★</button>
+                </div>
+
+                <input type="hidden" id="rating" value="0">
+
+                <label for="reviewText">Your Review</label>
+                <textarea
+                    id="reviewText"
+                    maxlength="1000"
+                    required
+                    placeholder="Describe your experience..."
+                ></textarea>
+
+                <button type="submit" class="btn">Submit Review</button>
+            </form>
+
+            <p class="description" id="formStatus" role="status" style="margin-top:15px"></p>
+        </section>
+
+        <section class="card">
+            <h2>Provider Reviews</h2>
+            <p class="description">
+                Reviews and ratings will appear here after they are retrieved
+                from the EduMatch database.
+            </p>
+
+            <label for="searchProviderId">Provider ID</label>
+            <input
+                type="number"
+                id="searchProviderId"
+                min="1"
+                placeholder="Enter a provider ID"
+            >
+
+            <button type="button" class="btn" id="loadReviews">
+                Load Reviews
+            </button>
+
+            <div class="review-list" id="reviewList" aria-live="polite">
+                <p class="status">
+                    Reviews will appear here once the backend is connected.
+                    No sample reviews are displayed.
+                </p>
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<footer>
+    © <span id="year"></span> EduMatch | Reviews & Ratings
+</footer>
+
+<script>
+    // Update the footer year.
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Backend API base URL. The API will be implemented later.
+    const API_BASE = "http://127.0.0.1:5000/api";
+
+    let selectedRating = 0;
+
+    const starButtons = document.querySelectorAll("#starPicker button");
+    const ratingInput = document.getElementById("rating");
+    const formStatus = document.getElementById("formStatus");
+    const reviewList = document.getElementById("reviewList");
+
+    function updateStars() {
+        starButtons.forEach(function(button) {
+            const value = Number(button.dataset.rating);
+            button.classList.toggle("selected", value <= selectedRating);
+            button.setAttribute("aria-pressed", value === selectedRating);
+        });
+    }
+
+    starButtons.forEach(function(button) {
+        button.addEventListener("click", function() {
+            selectedRating = Number(button.dataset.rating);
+            ratingInput.value = selectedRating;
+            updateStars();
+        });
+    });
+
+    document.getElementById("reviewForm").addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const providerId = document.getElementById("providerId").value;
+        const review = document.getElementById("reviewText").value.trim();
+
+        if (selectedRating < 1 || selectedRating > 5) {
+            formStatus.textContent = "Please select a rating from 1 to 5 stars.";
+            return;
+        }
+
+        if (!review) {
+            formStatus.textContent = "Please write your review.";
+            return;
+        }
+
+        formStatus.textContent = "Submitting review...";
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/providers/${encodeURIComponent(providerId)}/reviews`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        rating: selectedRating,
+                        review: review
+                    })
+                }
+            );
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(data.message || "The review could not be submitted.");
+            }
+
+            formStatus.textContent = "Your review was submitted successfully.";
+            document.getElementById("reviewText").value = "";
+            selectedRating = 0;
+            ratingInput.value = 0;
+            updateStars();
+
+            document.getElementById("searchProviderId").value = providerId;
+            await loadProviderReviews(providerId);
+
+        } catch (error) {
+            formStatus.textContent =
+                "Review not saved. The backend may not be running or the review API may not be implemented yet.";
+        }
+    });
+
+    async function loadProviderReviews(providerId) {
+        reviewList.innerHTML = "";
+
+        const status = document.createElement("p");
+        status.className = "status";
+        status.textContent = "Loading reviews...";
+        reviewList.appendChild(status);
+
+        try {
+            const response = await fetch(
+                `${API_BASE}/providers/${encodeURIComponent(providerId)}/reviews`,
+                { credentials: "include" }
+            );
+
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error("Could not load reviews.");
+            }
+
+            const reviews = Array.isArray(data) ? data : data.reviews;
+
+            if (!Array.isArray(reviews) || reviews.length === 0) {
+                status.textContent = "No reviews have been submitted for this provider yet.";
+                return;
+            }
+
+            reviewList.innerHTML = "";
+
+            reviews.forEach(function(review) {
+                const item = document.createElement("article");
+                item.className = "review-item";
+
+                const title = document.createElement("h3");
+                title.textContent = review.student_name || "Student";
+
+                const stars = document.createElement("div");
+                stars.className = "review-rating";
+                stars.textContent =
+                    "★".repeat(Math.max(0, Math.min(5, Number(review.rating) || 0))) +
+                    "☆".repeat(5 - Math.max(0, Math.min(5, Number(review.rating) || 0)));
+
+                const text = document.createElement("p");
+                text.textContent = review.review || review.comment || "";
+
+                item.append(title, stars, text);
+                reviewList.appendChild(item);
+            });
+
+        } catch (error) {
+            status.textContent =
+                "Reviews cannot be loaded yet. The backend review API must be implemented first.";
+        }
+    }
+
+    document.getElementById("loadReviews").addEventListener("click", function() {
+        const providerId = document.getElementById("searchProviderId").value.trim();
+
+        if (!providerId || Number(providerId) < 1) {
+            reviewList.textContent = "Please enter a valid provider ID.";
+            return;
+        }
+
+        loadProviderReviews(providerId);
+    });
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

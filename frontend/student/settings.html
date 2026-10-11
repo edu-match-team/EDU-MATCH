@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings | EduMatch</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f7f8fc;
+            color: #172033;
+        }
+
+        header {
+            background: #172033;
+            color: white;
+            padding: 20px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #947cff;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .back {
+            background: #7657ff;
+            color: white;
+            padding: 11px 16px;
+            border-radius: 8px;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 35px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #697386;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px #1720330d;
+        }
+
+        .card h2 {
+            margin-bottom: 20px;
+            font-size: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dce0e8;
+            border-radius: 8px;
+            margin-bottom: 18px;
+        }
+
+        .option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .option:last-child {
+            border-bottom: none;
+        }
+
+        .option p {
+            color: #697386;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        input[type="checkbox"] {
+            width: 19px;
+            height: 19px;
+            accent-color: #7657ff;
+        }
+
+        button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .save {
+            background: #7657ff;
+            color: white;
+        }
+
+        .reset {
+            background: #e9eaf0;
+            color: #172033;
+            margin-left: 8px;
+        }
+
+        #message {
+            margin-top: 15px;
+            color: #16834a;
+        }
+
+        @media (max-width: 550px) {
+            header {
+                padding: 18px;
+                gap: 15px;
+                flex-wrap: wrap;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">Edu<span>Match</span></div>
+    <a class="back" href="dashboard.html">← Dashboard</a>
+</header>
+
+<main>
+    <h1>Account Settings</h1>
+    <p class="subtitle">
+        Manage your preferences and personalize your experience.
+    </p>
+
+    <form id="settingsForm">
+
+        <section class="card">
+            <h2>Profile Preferences</h2>
+
+            <label for="name">Display Name</label>
+            <input type="text" id="name" placeholder="Enter your name">
+
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </section>
+
+        <section class="card">
+            <h2>Notifications</h2>
+
+            <div class="option">
+                <div>
+                    <strong>Project Updates</strong>
+                    <p>Updates about your project requests.</p>
+                </div>
+                <input type="checkbox" id="projectUpdates">
+            </div>
+
+            <div class="option">
+                <div>
+                    <strong>Chat Messages</strong>
+                    <p>Preferences for new message notifications.</p>
+                </div>
+                <input type="checkbox" id="chatUpdates">
+            </div>
+
+            <div class="option">
+                <div>
+                    <strong>Provider Updates</strong>
+                    <p>Updates related to your providers.</p>
+                </div>
+                <input type="checkbox" id="providerUpdates">
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Appearance</h2>
+
+            <div class="option">
+                <div>
+                    <strong>Dark Mode</strong>
+                    <p>Enable a darker appearance on this page.</p>
+                </div>
+                <input type="checkbox" id="darkMode">
+            </div>
+        </section>
+
+        <button type="submit" class="save">Save Settings</button>
+        <button type="button" class="reset" id="resetButton">
+            Reset
+        </button>
+
+        <p id="message" role="status"></p>
+    </form>
+</main>
+
+<script>
+    const form = document.getElementById("settingsForm");
+    const message = document.getElementById("message");
+
+    const fields = [
+        "name",
+        "email",
+        "projectUpdates",
+        "chatUpdates",
+        "providerUpdates",
+        "darkMode"
+    ];
+
+    function applyDarkMode() {
+        document.body.style.background =
+            document.getElementById("darkMode").checked
+                ? "#101522"
+                : "#f7f8fc";
+
+        document.body.style.color =
+            document.getElementById("darkMode").checked
+                ? "#ffffff"
+                : "#172033";
+
+        document.querySelectorAll(".card").forEach(card => {
+            card.style.background =
+                document.getElementById("darkMode").checked
+                    ? "#1c2537"
+                    : "#ffffff";
+        });
+    }
+
+    function loadSettings() {
+        try {
+            const saved = JSON.parse(
+                localStorage.getItem("edumatchSettings") || "{}"
+            );
+
+            fields.forEach(id => {
+                const element = document.getElementById(id);
+
+                if (saved[id] !== undefined) {
+                    if (element.type === "checkbox") {
+                        element.checked = saved[id];
+                    } else {
+                        element.value = saved[id];
+                    }
+                }
+            });
+        } catch (error) {
+            console.error("Unable to load settings:", error);
+        }
+
+        applyDarkMode();
+    }
+
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const settings = {};
+
+        fields.forEach(id => {
+            const element = document.getElementById(id);
+
+            settings[id] = element.type === "checkbox"
+                ? element.checked
+                : element.value.trim();
+        });
+
+        localStorage.setItem(
+            "edumatchSettings",
+            JSON.stringify(settings)
+        );
+
+        applyDarkMode();
+        message.textContent = "Settings saved successfully!";
+    });
+
+    document.getElementById("darkMode").addEventListener(
+        "change",
+        applyDarkMode
+    );
+
+    document.getElementById("resetButton").addEventListener("click", function() {
+        localStorage.removeItem("edumatchSettings");
+        form.reset();
+        applyDarkMode();
+        message.textContent = "Settings reset successfully.";
+    });
+
+    loadSettings();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

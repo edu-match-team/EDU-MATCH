@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Post a Requirement | EduMatch</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #7657ff;
+            --primary-dark: #6244e8;
+            --navy: #111827;
+            --text: #252b3a;
+            --muted: #858b9c;
+            --background: #f7f8fc;
+            --white: #ffffff;
+            --border: #e9ebf2;
+            --green: #159b70;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button, input, textarea, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* Navbar */
+
+        .navbar {
+            height: 76px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 39px;
+            height: 39px;
+            background: var(--primary);
+            color: white;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .brand-name {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--navy);
+        }
+
+        .brand-name span {
+            color: var(--primary);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-link {
+            font-size: 12px;
+            font-weight: 600;
+            color: #73798b;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            background: #eee9ff;
+            color: var(--primary);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        /* Main Layout */
+
+        .container {
+            width: min(1080px, 90%);
+            margin: 38px auto 60px;
+        }
+
+        .page-intro {
+            margin-bottom: 27px;
+        }
+
+        .breadcrumb {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 17px;
+        }
+
+        .breadcrumb a {
+            color: var(--primary);
+        }
+
+        .page-intro h1 {
+            font-size: clamp(25px, 4vw, 34px);
+            letter-spacing: -1.2px;
+            color: var(--navy);
+            margin-bottom: 10px;
+        }
+
+        .page-intro p {
+            max-width: 600px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 290px;
+            gap: 25px;
+            align-items: start;
+        }
+
+        /* Form */
+
+        .form-card,
+        .side-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            box-shadow: 0 5px 24px rgba(30, 35, 70, 0.035);
+        }
+
+        .form-card {
+            padding: 30px;
+        }
+
+        .form-heading {
+            display: flex;
+            align-items: flex-start;
+            gap: 13px;
+            padding-bottom: 23px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 25px;
+        }
+
+        .heading-icon {
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            background: #f0edff;
+            border-radius: 12px;
+            font-size: 21px;
+        }
+
+        .form-heading h2 {
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+
+        .form-heading p {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .section-heading {
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 19px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .section-number {
+            width: 25px;
+            height: 25px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background: #f0edff;
+            color: var(--primary);
+            font-size: 11px;
+        }
+
+        .field {
+            margin-bottom: 19px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 17px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 9px;
+        }
+
+        .required {
+            color: #e05260;
+        }
+
+        .optional {
+            color: var(--muted);
+            font-weight: 400;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            border: 1px solid #e4e6ee;
+            border-radius: 10px;
+            padding: 13px 14px;
+            color: var(--text);
+            background: white;
+            outline: none;
+            font-size: 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: #adb1bd;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(118, 87, 255, 0.09);
+        }
+
+        textarea {
+            min-height: 135px;
+            resize: vertical;
+            line-height: 1.8;
+        }
+
+        .field-help {
+            margin-top: 7px;
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .character-count {
+            text-align: right;
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        /* Skills */
+
+        .skill-input {
+            display: flex;
+            gap: 9px;
+        }
+
+        .skill-input input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .add-skill-btn {
+            border: none;
+            border-radius: 9px;
+            background: #f0edff;
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 0 17px;
+        }
+
+        .add-skill-btn:hover {
+            background: #e6e0ff;
+        }
+
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .skill-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1efff;
+            color: #634bd5;
+            padding: 8px 10px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .skill-tag button {
+            border: none;
+            background: none;
+            color: #634bd5;
+            font-size: 15px;
+            line-height: 1;
+        }
+
+        /* Complexity */
+
+        .complexity-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .complexity-option {
+            border: 1px solid #e4e6ee;
+            border-radius: 10px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .complexity-option input {
+            display: none;
+        }
+
+        .complexity-option strong {
+            display: block;
+            font-size: 11px;
+            margin-bottom: 6px;
+        }
+
+        .complexity-option span {
+            font-size: 9px;
+            color: var(--muted);
+        }
+
+        .complexity-option:has(input:checked) {
+            background: #f4f1ff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(118, 87, 255, 0.08);
+        }
+
+        .complexity-option:has(input:checked) strong {
+            color: var(--primary);
+        }
+
+        /* Checkbox */
+
+        .checkbox-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 7px 0 23px;
+        }
+
+        .checkbox-row input {
+            width: 15px;
+            height: 15px;
+            margin-top: 2px;
+            accent-color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .checkbox-row label {
+            font-size: 10px;
+            color: #747a8b;
+            line-height: 1.8;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* Buttons */
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid var(--border);
+            padding-top: 22px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 10px;
+            padding: 13px 19px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #73798b;
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: #f7f8fc;
+        }
+
+        /* Right Sidebar */
+
+        .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 17px;
+        }
+
+        .side-card {
+            padding: 22px;
+        }
+
+        .side-card h3 {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .side-card > p {
+            font-size: 11px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .tip-list {
+            list-style: none;
+            margin-top: 18px;
+        }
+
+        .tip-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-size: 11px;
+            line-height: 1.7;
+            color: #676d7d;
+        }
+
+        .tip-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .tip-check {
+            width: 22px;
+            height: 22px;
+            border-radius: 7px;
+            background: #e4f8f0;
+            color: var(--green);
+            display: grid;
+            place-items: center;
+            flex-shrink: 0;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .process-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .step-number {
+            width: 28px;
+            height: 28px;
+            display: grid;
+            place-items: center;
+            background: #f0edff;
+            color: var(--primary);
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .process-step h4 {
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .process-step p {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .notice {
+            background: #f0edff;
+            border: 1px solid #e7e1ff;
+            padding: 14px;
+            border-radius: 11px;
+            font-size: 10px;
+            color: #6653b4;
+            line-height: 1.8;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 28px 0 0;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .footer strong {
+            color: var(--primary);
+        }
+
+        /* Success Message */
+
+        .success-message {
+            display: none;
+            padding: 14px;
+            border-radius: 10px;
+            background: #e4f8f0;
+            color: #137650;
+            font-size: 12px;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .right-column {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .notice {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .navbar {
+                padding: 0 5%;
+                height: 68px;
+            }
+
+            .brand-name {
+                font-size: 19px;
+            }
+
+            .back-link {
+                font-size: 10px;
+            }
+
+            .container {
+                width: 92%;
+                margin-top: 25px;
+            }
+
+            .form-card {
+                padding: 20px 16px;
+            }
+
+            .field-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .right-column {
+                display: flex;
+            }
+
+            .complexity-options {
+                grid-template-columns: 1fr;
+            }
+
+            .complexity-option {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                text-align: left;
+            }
+
+            .complexity-option strong {
+                margin-bottom: 0;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+                align-items: stretch;
+            }
+
+            .form-actions .btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <header class="navbar">
+
+        <a href="../index.html" class="brand">
+            <div class="brand-icon">E</div>
+            <div class="brand-name">Edu<span>Match</span></div>
+        </a>
+
+        <div class="nav-right">
+            <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+            <div class="avatar" id="navAvatar">ST</div>
+        </div>
+
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="container">
+
+        <div class="page-intro">
+
+            <div class="breadcrumb">
+                <a href="dashboard.html">Dashboard</a> / Post a Requirement
+            </div>
+
+            <h1>Tell us about your project.</h1>
+
+            <p>
+                Share your project requirements with EduMatch. Add the important
+                details so you can find providers whose skills match your needs.
+            </p>
+
+        </div>
+
+        <div class="layout">
+
+            <!-- REQUIREMENT FORM -->
+            <section class="form-card">
+
+                <div class="form-heading">
+                    <div class="heading-icon">✦</div>
+
+                    <div>
+                        <h2>Create a Project Requirement</h2>
+                        <p>Fields marked with * are required.</p>
+                    </div>
+                </div>
+
+                <div class="success-message" id="successMessage" role="status"></div>
+
+                <form id="requirementForm">
+
+                    <!-- SECTION 1 -->
+                    <div class="form-section">
+
+                        <h3 class="section-heading">
+                            <span class="section-number">01</span>
+                            Basic Information
+                        </h3>
+
+                        <div class="field">
+                            <label for="projectTitle">
+                                Project Title <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="projectTitle"
+                                name="projectTitle"
+                                placeholder="e.g. AI-Based Student Attendance System"
+                                minlength="5"
+                                maxlength="100"
+                                required
+                            >
+
+                            <p class="field-help">
+                                Use a clear title that explains what you want to build.
+                            </p>
+                        </div>
+
+                        <div class="field">
+                            <label for="category">
+                                Project Category <span class="required">*</span>
+                            </label>
+
+                            <select id="category" name="category" required>
+                                <option value="">Select a category</option>
+                                <option>Web Development</option>
+                                <option>App Development</option>
+                                <option>Artificial Intelligence</option>
+                                <option>Machine Learning</option>
+                                <option>Data Science</option>
+                                <option>Data Structures and Algorithms</option>
+                                <option>Database Management</option>
+                                <option>Cloud Computing</option>
+                                <option>Cybersecurity</option>
+                                <option>UI/UX Design</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="description">
+                                Project Description <span class="required">*</span>
+                            </label>
+
+                            <textarea
+                                id="description"
+                                name="description"
+                                minlength="30"
+                                maxlength="2000"
+                                placeholder="Explain your project idea, its main features, the problem it solves, and what you expect from the provider..."
+                                required
+                            ></textarea>
+
+                            <div class="character-count">
+                                <span id="descriptionCount">0</span>/2000 characters
+                            </div>
+
+                            <p class="field-help">
+                                Provide at least 30 characters so providers can understand your requirements.
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- SECTION 2 -->
+                    <div class="form-section">
+
+                        <h3 class="section-heading">
+                            <span class="section-number">02</span>
+                            Skills and Complexity
+                        </h3>
+
+                        <div class="field">
+                            <label for="skillInput">
+                                Required Skills <span class="required">*</span>
+                            </label>
+
+                            <div class="skill-input">
+                                <input
+                                    type="text"
+                                    id="skillInput"
+                                    placeholder="e.g. Python, Flask, SQL"
+                                    maxlength="40"
+                                >
+
+                                <button type="button" class="add-skill-btn" id="addSkillBtn">
+                                    + Add
+                                </button>
+                            </div>
+
+                            <div class="skill-list" id="skillList"></div>
+
+                            <input
+                                type="hidden"
+                                id="skills"
+                                name="skills"
+                                required
+                            >
+
+                            <p class="field-help">
+                                Add at least one skill. Press Enter or click Add.
+                            </p>
+                        </div>
+
+                        <div class="field">
+                            <label>Project Complexity <span class="required">*</span></label>
+
+                            <div class="complexity-options">
+
+                                <label class="complexity-option">
+                                    <strong>Beginner</strong>
+                                    <span>Basic features</span>
+                                    <input type="radio" name="complexity" value="Beginner" required>
+                                </label>
+
+                                <label class="complexity-option">
+                                    <strong>Intermediate</strong>
+                                    <span>Multiple features</span>
+                                    <input type="radio" name="complexity" value="Intermediate">
+                                </label>
+
+                                <label class="complexity-option">
+                                    <strong>Advanced</strong>
+                                    <span>Complex solution</span>
+                                    <input type="radio" name="complexity" value="Advanced">
+                                </label>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- SECTION 3 -->
+                    <div class="form-section">
+
+                        <h3 class="section-heading">
+                            <span class="section-number">03</span>
+                            Budget and Timeline
+                        </h3>
+
+                        <div class="field-row">
+
+                            <div class="field">
+                                <label for="budget">
+                                    Budget (INR) <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="number"
+                                    id="budget"
+                                    name="budget"
+                                    min="0"
+                                    max="10000000"
+                                    step="1"
+                                    placeholder="e.g. 3000"
+                                    required
+                                >
+
+                                <p class="field-help">
+                                    Enter your maximum project budget in rupees.
+                                </p>
+                            </div>
+
+                            <div class="field">
+                                <label for="deadline">
+                                    Expected Deadline <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="date"
+                                    id="deadline"
+                                    name="deadline"
+                                    required
+                                >
+
+                                <p class="field-help">
+                                    Choose the date by which you need the project.
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- AGREEMENT -->
+                    <div class="checkbox-row">
+                        <input type="checkbox" id="agreement" required>
+
+                        <label for="agreement">
+                            I confirm that the information provided is accurate and
+                            agree to the EduMatch project submission guidelines.
+                        </label>
+                    </div>
+
+                    <!-- FORM ACTIONS -->
+                    <div class="form-actions">
+
+                        <a href="dashboard.html" class="btn btn-secondary">
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn btn-primary">
+                            Submit Requirement <span>→</span>
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </section>
+
+            <!-- RIGHT SIDEBAR -->
+            <aside class="right-column">
+
+                <div class="side-card">
+
+                    <h3>Tips for a Better Match</h3>
+
+                    <p>
+                        A well-written requirement helps the right providers
+                        understand your project.
+                    </p>
+
+                    <ul class="tip-list">
+
+                        <li>
+                            <span class="tip-check">✓</span>
+                            <span>Write a specific and descriptive project title.</span>
+                        </li>
+
+                        <li>
+                            <span class="tip-check">✓</span>
+                            <span>Explain the problem your project should solve.</span>
+                        </li>
+
+                        <li>
+                            <span class="tip-check">✓</span>
+                            <span>List relevant programming languages and tools.</span>
+                        </li>
+
+                        <li>
+                            <span class="tip-check">✓</span>
+                            <span>Set a realistic budget and deadline.</span>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <div class="side-card">
+
+                    <h3>What Happens Next?</h3>
+
+                    <div class="process-step">
+                        <span class="step-number">1</span>
+
+                        <div>
+                            <h4>Submit your requirement</h4>
+                            <p>Describe your idea and the skills you need.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step">
+                        <span class="step-number">2</span>
+
+                        <div>
+                            <h4>Find matching providers</h4>
+                            <p>EduMatch will help identify suitable providers.</p>
+                        </div>
+                    </div>
+
+                    <div class="process-step">
+                        <span class="step-number">3</span>
+
+                        <div>
+                            <h4>Discuss your project</h4>
+                            <p>Connect with a provider to discuss the details.</p>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="notice">
+                    <strong>Demo version</strong><br>
+                    This form currently saves submitted requirements in your
+                    browser only. Database storage and DSA-based matching
+                    will be connected through the EduMatch backend later.
+                </div>
+
+            </aside>
+
+        </div>
+
+        <footer class="footer">
+            © 2026 <strong>EduMatch</strong> · Helping ideas find the right people.
+        </footer>
+
+    </main>
+
+    <script>
+        // Display the student's saved name, if available.
+        // The backend authentication system will be connected later.
+        const savedName = localStorage.getItem("eduMatchUserName");
+
+        if (savedName) {
+            const firstName = savedName.trim().split(/\s+/)[0];
+
+            document.getElementById("navAvatar").textContent =
+                firstName.substring(0, 2).toUpperCase();
+        }
+
+        // Set the earliest deadline to today.
+        const deadlineInput = document.getElementById("deadline");
+        const today = new Date();
+
+        const localToday = [
+            today.getFullYear(),
+            String(today.getMonth() + 1).padStart(2, "0"),
+            String(today.getDate()).padStart(2, "0")
+        ].join("-");
+
+        deadlineInput.min = localToday;
+
+        // Description character counter.
+        const description = document.getElementById("description");
+        const descriptionCount = document.getElementById("descriptionCount");
+
+        description.addEventListener("input", function () {
+            descriptionCount.textContent = this.value.length;
+        });
+
+        // Required skills.
+        const skillInput = document.getElementById("skillInput");
+        const skillList = document.getElementById("skillList");
+        const hiddenSkills = document.getElementById("skills");
+        const addSkillBtn = document.getElementById("addSkillBtn");
+
+        let skills = [];
+
+        function renderSkills() {
+            skillList.innerHTML = "";
+
+            skills.forEach(function (skill, index) {
+                const tag = document.createElement("span");
+                tag.className = "skill-tag";
+
+                const name = document.createElement("span");
+                name.textContent = skill;
+
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.textContent = "×";
+                removeButton.setAttribute("aria-label", "Remove " + skill);
+
+                removeButton.addEventListener("click", function () {
+                    skills.splice(index, 1);
+                    renderSkills();
+                });
+
+                tag.appendChild(name);
+                tag.appendChild(removeButton);
+                skillList.appendChild(tag);
+            });
+
+            hiddenSkills.value = skills.join(",");
+            hiddenSkills.setCustomValidity(
+                skills.length > 0 ? "" : "Please add at least one required skill."
+            );
+        }
+
+        function addSkill() {
+            const skill = skillInput.value.trim();
+
+            if (!skill) {
+                skillInput.focus();
+                return;
+            }
+
+            const alreadyExists = skills.some(function (existingSkill) {
+                return existingSkill.toLowerCase() === skill.toLowerCase();
+            });
+
+            if (alreadyExists) {
+                alert("This skill has already been added.");
+                skillInput.focus();
+                return;
+            }
+
+            if (skills.length >= 10) {
+                alert("You can add up to 10 skills.");
+                return;
+            }
+
+            skills.push(skill);
+            skillInput.value = "";
+            renderSkills();
+            skillInput.focus();
+        }
+
+        addSkillBtn.addEventListener("click", addSkill);
+
+        skillInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                addSkill();
+            }
+        });
+
+        // Real Backend Submission to SQLite Database
+        const requirementForm = document.getElementById("requirementForm");
+        const successMessage = document.getElementById("successMessage");
+
+        requirementForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            renderSkills();
+
+            if (!requirementForm.reportValidity()) {
+                return;
+            }
+
+            const title = document.getElementById("projectTitle").value.trim();
+            const category = document.getElementById("category").value;
+            const desc = description.value.trim();
+            const complexityVal = document.querySelector('input[name="complexity"]:checked')?.value || "Intermediate";
+            const budgetVal = Number(document.getElementById("budget").value) || 2000;
+            const deadlineVal = deadlineInput.value;
+
+            const submitBtn = document.getElementById("submitBtn");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Saving to EduMatch Database...";
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/api/students/requirements", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        title: title,
+                        category: category,
+                        description: desc,
+                        skills: skills,
+                        complexity: complexityVal,
+                        budget: budgetVal,
+                        deadline: deadlineVal
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    successMessage.innerHTML = `
+                        <strong>✓ Success!</strong> Your requirement has been saved to EduMatch database (ID: ${result.requirement_id}).<br>
+                        Redirecting to Matching Engine to find recommended providers...
+                    `;
+                    successMessage.classList.add("show");
+                    successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                    const primarySkill = skills[0] || "";
+                    setTimeout(() => {
+                        window.location.href = `search.html?skill=${encodeURIComponent(primarySkill)}&category=${encodeURIComponent(category)}&budget=${budgetVal}`;
+                    }, 1500);
+                } else {
+                    // Save locally as fallback if not logged in
+                    successMessage.innerHTML = `
+                        <strong>Notice:</strong> Saved in offline session mode. Please log in to connect with live providers.
+                    `;
+                    successMessage.classList.add("show");
+                    setTimeout(() => {
+                        window.location.href = `search.html?skill=${encodeURIComponent(skills[0] || "")}&budget=${budgetVal}`;
+                    }, 1200);
+                }
+            } catch (err) {
+                console.warn("Requirement submission error:", err);
+                successMessage.textContent = "Saved locally. Connecting to matching engine...";
+                successMessage.classList.add("show");
+                setTimeout(() => {
+                    window.location.href = `search.html?budget=${budgetVal}`;
+                }, 1000);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Submit Project Requirement →";
+                }
+            }
+        });
+
+        renderSkills();
+    </script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Certifications | EduMatch</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-light: #eff6ff;
+            --background: #f5f8ff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #dbe5f3;
+            --danger: #dc2626;
+            --white: #ffffff;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 250px;
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            padding: 25px 15px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: transform 0.25s;
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 0 10px 30px;
+        }
+
+        .logo span {
+            color: #7c3aed;
+        }
+
+        .account {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 5px 25px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        .account strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .account small {
+            color: var(--muted);
+        }
+
+        .nav a {
+            display: block;
+            padding: 12px 13px;
+            margin-bottom: 5px;
+            text-decoration: none;
+            color: #334e78;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            background: #e7efff;
+            color: var(--primary);
+        }
+
+        .logout {
+            margin-top: auto;
+            padding: 12px;
+            color: var(--danger);
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        /* Main section */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 65px;
+            padding: 0 25px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-button {
+            border: none;
+            background: none;
+            font-size: 25px;
+            color: var(--text);
+        }
+
+        .topbar small {
+            color: var(--muted);
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 29px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: minmax(300px, 0.9fr) minmax(350px, 1.1fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 3px 12px rgba(30, 64, 175, 0.03);
+        }
+
+        .card-heading {
+            font-size: 19px;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+        /* Form */
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd9ed;
+            border-radius: 8px;
+            outline: none;
+            background: white;
+            color: var(--text);
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px #2563eb18;
+        }
+
+        .primary-button {
+            width: 100%;
+            border: none;
+            padding: 13px;
+            background: var(--primary);
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .primary-button:hover {
+            background: #1d4ed8;
+        }
+
+        .message {
+            margin-top: 13px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .message.success {
+            color: #15803d;
+        }
+
+        .message.error {
+            color: var(--danger);
+        }
+
+        .info-box {
+            background: #f5f9ff;
+            border: 1px solid #cbdfff;
+            border-radius: 8px;
+            padding: 14px;
+            color: #49658c;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 18px;
+        }
+
+        /* Certification list */
+
+        .list-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .list-heading h2 {
+            font-size: 19px;
+        }
+
+        .clear-button {
+            background: white;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+            padding: 9px 12px;
+            border-radius: 7px;
+            font-size: 12px;
+        }
+
+        .clear-button:hover {
+            background: #f1f5f9;
+        }
+
+        .list-description {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .certification {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 16px;
+            margin-bottom: 13px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .certification-details {
+            min-width: 0;
+        }
+
+        .certification h3 {
+            font-size: 15px;
+            margin-bottom: 7px;
+            overflow-wrap: anywhere;
+        }
+
+        .certification p {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 7px;
+            overflow-wrap: anywhere;
+        }
+
+        .certification a {
+            display: inline-block;
+            margin-top: 4px;
+            color: var(--primary);
+            font-size: 13px;
+            text-decoration: none;
+            overflow-wrap: anywhere;
+        }
+
+        .certification a:hover {
+            text-decoration: underline;
+        }
+
+        .remove-button {
+            align-self: flex-start;
+            flex-shrink: 0;
+            padding: 8px 10px;
+            color: var(--danger);
+            background: #fff5f5;
+            border: 1px solid #fecaca;
+            border-radius: 7px;
+            font-size: 12px;
+        }
+
+        .remove-button:hover {
+            background: #fee2e2;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--muted);
+            padding: 40px 15px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 9px;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive design */
+
+        @media (max-width: 1000px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 10;
+                transform: translateX(-100%);
+                box-shadow: none;
+                overflow-y: auto;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 5px 0 25px #00000020;
+            }
+
+            .content {
+                padding: 20px 14px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .certification {
+                flex-direction: column;
+            }
+
+            .remove-button {
+                align-self: flex-start;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">Edu<span>Match</span></div>
+
+        <div class="account">
+            <div class="avatar" id="sidebarAvatar">P</div>
+
+            <div>
+                <strong id="sidebarName">Provider Account</strong>
+                <small>Project Provider</small>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <a href="dashboard.html">⌂ &nbsp; Dashboard</a>
+            <a href="profile.html">◎ &nbsp; My Profile</a>
+            <a href="skills.html">✿ &nbsp; My Skills</a>
+            <a href="certifications.html" class="active">♙ &nbsp; Certifications</a>
+            <a href="portfolio.html">▣ &nbsp; Portfolio</a>
+            <a href="services.html">⚙ &nbsp; My Services</a>
+            <a href="requests.html">♧ &nbsp; Project Requests</a>
+            <a href="orders.html">▤ &nbsp; My Orders</a>
+            <a href="earnings.html">▣ &nbsp; Earnings</a>
+            <a href="chat.html">✉ &nbsp; Messages</a>
+        </nav>
+
+        <a href="#" class="logout" id="logoutButton">⇥ &nbsp; Log Out</a>
+
+    </aside>
+
+    <!-- Main content -->
+    <main class="main">
+
+        <header class="topbar">
+            <button class="menu-button" id="menuToggle" aria-label="Toggle navigation">
+                ☰
+            </button>
+
+            <small>Provider Account &nbsp; ●</small>
+        </header>
+
+        <div class="content">
+
+            <section class="page-heading">
+                <h1>🏅 My Certifications</h1>
+                <p>Show students the qualifications you've earned.</p>
+            </section>
+
+            <div class="grid">
+
+                <!-- Add certification form -->
+                <section class="card">
+
+                    <h2 class="card-heading">＋ Add a Certification</h2>
+
+                    <p class="card-description">
+                        Add relevant courses and certifications to help students
+                        understand your technical knowledge.
+                    </p>
+
+                    <form id="certificationForm">
+
+                        <div class="form-group">
+                            <label for="certificationName">
+                                Certification Name <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="certificationName"
+                                placeholder="e.g. Python Programming"
+                                maxlength="120"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="issuingOrganization">
+                                Issuing Organization <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="issuingOrganization"
+                                placeholder="e.g. Coursera or Microsoft"
+                                maxlength="120"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="completionDate">Completion Date</label>
+
+                            <input
+                                type="date"
+                                id="completionDate"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="credentialId">
+                                Credential ID (Optional)
+                            </label>
+
+                            <input
+                                type="text"
+                                id="credentialId"
+                                placeholder="Enter your certificate ID"
+                                maxlength="100"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="credentialUrl">
+                                Verification URL (Optional)
+                            </label>
+
+                            <input
+                                type="url"
+                                id="credentialUrl"
+                                placeholder="https://example.com/certificate"
+                            >
+                        </div>
+
+                        <button type="submit" class="primary-button">
+                            🏅 &nbsp; Add Certification
+                        </button>
+
+                        <p class="message" id="certificationMessage" role="status"></p>
+
+                    </form>
+
+                    <div class="info-box">
+                        <strong>ⓘ Demo mode:</strong>
+                        Certifications are saved in this browser.
+                        Database integration will be added when the backend is connected.
+                    </div>
+
+                </section>
+
+                <!-- Certification list -->
+                <section class="card">
+
+                    <div class="list-heading">
+                        <h2>🏅 My Achievements</h2>
+
+                        <button
+                            type="button"
+                            class="clear-button"
+                            id="clearCertificationsButton"
+                        >
+                            🗑 Clear All
+                        </button>
+                    </div>
+
+                    <p class="list-description">
+                        Your added certifications will appear here.
+                    </p>
+
+                    <div id="certificationsList"></div>
+
+                    <div class="empty-state" id="certificationsEmpty">
+                        <div style="font-size: 35px; margin-bottom: 10px;">🏅</div>
+                        <strong>No certifications added yet</strong>
+                        <p>Add your first certification using the form.</p>
+                    </div>
+
+                    <div class="info-box">
+                        ⓘ Certifications are currently stored locally in your browser.
+                        They are not yet saved to a shared database.
+                    </div>
+
+                </section>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+    // ==========================================
+    // EduMatch Certifications Page
+    // HTML, CSS and JavaScript in one file
+    // ==========================================
+
+    const STORAGE_KEY = "edumatch_provider_certifications";
+
+    const form = document.getElementById("certificationForm");
+    const nameInput = document.getElementById("certificationName");
+    const organizationInput = document.getElementById("issuingOrganization");
+    const dateInput = document.getElementById("completionDate");
+    const idInput = document.getElementById("credentialId");
+    const urlInput = document.getElementById("credentialUrl");
+
+    const list = document.getElementById("certificationsList");
+    const emptyState = document.getElementById("certificationsEmpty");
+    const message = document.getElementById("certificationMessage");
+
+    let certifications = loadCertifications();
+
+    // Read saved certifications from browser storage.
+    function loadCertifications() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+
+            if (!saved) {
+                return [];
+            }
+
+            const parsed = JSON.parse(saved);
+
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (error) {
+            console.error("Could not load certifications:", error);
+            return [];
+        }
+    }
+
+    // Save certifications in browser storage.
+    function saveCertifications() {
+        try {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(certifications)
+            );
+
+            return true;
+        } catch (error) {
+            console.error("Could not save certifications:", error);
+
+            showMessage(
+                "Unable to save. Your browser storage may be full or disabled.",
+                "error"
+            );
+
+            return false;
+        }
+    }
+
+    // Display a status message.
+    function showMessage(text, type) {
+        message.textContent = text;
+        message.className = "message " + type;
+    }
+
+    // Format a date for display.
+    function formatDate(dateString) {
+        if (!dateString) {
+            return "Not provided";
+        }
+
+        const date = new Date(dateString + "T00:00:00");
+
+        if (Number.isNaN(date.getTime())) {
+            return "Not provided";
+        }
+
+        return date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    // Create a link only for a valid HTTP/HTTPS URL.
+    function getSafeUrl(value) {
+        if (!value) {
+            return "";
+        }
+
+        try {
+            const parsed = new URL(value);
+
+            if (parsed.protocol === "https:" || parsed.protocol === "http:") {
+                return parsed.href;
+            }
+        } catch (error) {
+            return "";
+        }
+
+        return "";
+    }
+
+    // Display all certifications.
+    function renderCertifications() {
+        list.replaceChildren();
+
+        emptyState.classList.toggle(
+            "hidden",
+            certifications.length > 0
+        );
+
+        certifications.forEach(function(certification) {
+            const item = document.createElement("article");
+            item.className = "certification";
+
+            const details = document.createElement("div");
+            details.className = "certification-details";
+
+            const title = document.createElement("h3");
+            title.textContent = certification.name;
+
+            const organization = document.createElement("p");
+            organization.textContent =
+                "Issued by: " + certification.organization;
+
+            const completed = document.createElement("p");
+            completed.textContent =
+                "📅 Completed: " + formatDate(certification.date);
+
+            details.append(title, organization, completed);
+
+            if (certification.credentialId) {
+                const credential = document.createElement("p");
+
+                credential.textContent =
+                    "▣ ID: " + certification.credentialId;
+
+                details.appendChild(credential);
+            }
+
+            const safeUrl = getSafeUrl(certification.url);
+
+            if (safeUrl) {
+                const link = document.createElement("a");
+
+                link.href = safeUrl;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = "↗ View Certificate";
+
+                details.appendChild(link);
+            }
+
+            const removeButton = document.createElement("button");
+
+            removeButton.type = "button";
+            removeButton.className = "remove-button";
+            removeButton.textContent = "🗑 Remove";
+
+            removeButton.addEventListener("click", function() {
+                removeCertification(certification.id);
+            });
+
+            item.append(details, removeButton);
+            list.appendChild(item);
+        });
+    }
+
+    // Add a new certification.
+    form.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const name = nameInput.value.trim();
+        const organization = organizationInput.value.trim();
+        const date = dateInput.value;
+        const credentialId = idInput.value.trim();
+        const rawUrl = urlInput.value.trim();
+
+        if (!name || !organization) {
+            showMessage(
+                "Please enter the certification name and issuing organization.",
+                "error"
+            );
+            return;
+        }
+
+        let safeUrl = "";
+
+        if (rawUrl) {
+            safeUrl = getSafeUrl(rawUrl);
+
+            if (!safeUrl) {
+                showMessage(
+                    "Please enter a valid HTTP or HTTPS verification URL.",
+                    "error"
+                );
+                return;
+            }
+        }
+
+        if (date && date > new Date().toISOString().slice(0, 10)) {
+            showMessage(
+                "Completion date cannot be in the future.",
+                "error"
+            );
+            return;
+        }
+
+        const duplicate = certifications.some(function(certification) {
+            return (
+                certification.name.toLowerCase() === name.toLowerCase() &&
+                certification.organization.toLowerCase() ===
+                    organization.toLowerCase()
+            );
+        });
+
+        if (duplicate) {
+            showMessage(
+                "This certification has already been added.",
+                "error"
+            );
+            return;
+        }
+
+        const newCertification = {
+            id: Date.now().toString() + Math.random().toString(16).slice(2),
+            name: name,
+            organization: organization,
+            date: date,
+            credentialId: credentialId,
+            url: safeUrl
+        };
+
+        certifications.unshift(newCertification);
+
+        if (!saveCertifications()) {
+            certifications.shift();
+            return;
+        }
+
+        renderCertifications();
+        form.reset();
+
+        showMessage(
+            "Certification added successfully!",
+            "success"
+        );
+    });
+
+    // Remove one certification.
+    function removeCertification(id) {
+        const confirmed = confirm(
+            "Are you sure you want to remove this certification?"
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        const previous = certifications;
+
+        certifications = certifications.filter(function(certification) {
+            return certification.id !== id;
+        });
+
+        if (!saveCertifications()) {
+            certifications = previous;
+            return;
+        }
+
+        renderCertifications();
+
+        showMessage(
+            "Certification removed successfully.",
+            "success"
+        );
+    }
+
+    // Remove all certifications.
+    document
+        .getElementById("clearCertificationsButton")
+        .addEventListener("click", function() {
+            if (certifications.length === 0) {
+                showMessage(
+                    "There are no certifications to clear.",
+                    "error"
+                );
+                return;
+            }
+
+            const confirmed = confirm(
+                "Are you sure you want to remove all certifications?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            const previous = certifications;
+            certifications = [];
+
+            if (!saveCertifications()) {
+                certifications = previous;
+                return;
+            }
+
+            renderCertifications();
+
+            showMessage(
+                "All certifications have been removed.",
+                "success"
+            );
+        });
+
+    // Mobile sidebar toggle.
+    document
+        .getElementById("menuToggle")
+        .addEventListener("click", function() {
+            document.getElementById("sidebar").classList.toggle("open");
+        });
+
+    // Display the saved provider name, if available.
+    function loadProviderName() {
+        const savedName = localStorage.getItem("providerName");
+
+        if (savedName && savedName.trim()) {
+            document.getElementById("sidebarName").textContent = savedName;
+            document.getElementById("sidebarAvatar").textContent =
+                savedName.trim().charAt(0).toUpperCase();
+        }
+    }
+
+    // Demo logout.
+    document
+        .getElementById("logoutButton")
+        .addEventListener("click", function(event) {
+            event.preventDefault();
+
+            if (confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem("providerName");
+                window.location.href = "login.html";
+            }
+        });
+
+    // Initial page setup.
+    loadProviderName();
+    renderCertifications();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

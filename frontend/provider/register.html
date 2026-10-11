@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Create Provider Account | EduMatch</title>
+
+    <style>
+        :root {
+            --primary: #6c4df6;
+            --primary-dark: #5535df;
+            --background: #f7f7fc;
+            --white: #ffffff;
+            --text: #24213b;
+            --muted: #77758e;
+            --border: #e7e4f0;
+            --danger: #dc2626;
+            --success: #15803d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            height: 78px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 850;
+            letter-spacing: -1px;
+            color: var(--text);
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .login-nav {
+            padding: 11px 17px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            color: var(--primary);
+            font-weight: 750;
+            transition: .2s;
+        }
+
+        .login-nav:hover {
+            background: #f2eeff;
+        }
+
+        /* PAGE */
+
+        .page {
+            max-width: 1100px;
+            margin: 45px auto;
+            padding: 0 22px;
+        }
+
+        .page-heading {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            color: var(--primary);
+            background: #eee9ff;
+            border-radius: 20px;
+            padding: 8px 13px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: .5px;
+            margin-bottom: 15px;
+        }
+
+        .page-heading h1 {
+            font-size: clamp(27px, 4vw, 37px);
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .page-heading p {
+            max-width: 550px;
+            margin: auto;
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        /* REGISTRATION CARD */
+
+        .register-card {
+            max-width: 920px;
+            margin: auto;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 15px 45px rgba(42, 30, 90, .06);
+        }
+
+        .card-header {
+            padding: 26px 35px;
+            background: linear-gradient(120deg, #f5f1ff, #ffffff);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-header h2 {
+            font-size: 19px;
+            margin-bottom: 7px;
+        }
+
+        .card-header p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .card-body {
+            padding: 32px 35px;
+        }
+
+        /* SECTION TITLES */
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 22px;
+        }
+
+        .section-number {
+            height: 34px;
+            width: 34px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: #eee9ff;
+            color: var(--primary);
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .section-heading h3 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        /* FORM */
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 21px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .field input,
+        .field select,
+        .field textarea {
+            width: 100%;
+            border: 1px solid #e0ddeb;
+            background: white;
+            padding: 13px 14px;
+            border-radius: 9px;
+            color: var(--text);
+            font-size: 13px;
+            outline: none;
+            transition: .2s;
+        }
+
+        .field input::placeholder,
+        .field textarea::placeholder {
+            color: #aaa7ba;
+        }
+
+        .field input:focus,
+        .field select:focus,
+        .field textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px #eee8ff;
+        }
+
+        .field textarea {
+            min-height: 105px;
+            resize: vertical;
+            line-height: 1.7;
+        }
+
+        .field-help {
+            font-size: 10px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        /* PASSWORD */
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 65px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: transparent;
+            color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .password-strength {
+            display: none;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .password-strength.visible {
+            display: block;
+        }
+
+        .strength-weak {
+            color: #dc2626;
+        }
+
+        .strength-medium {
+            color: #b45309;
+        }
+
+        .strength-strong {
+            color: #15803d;
+        }
+
+        /* TERMS */
+
+        .terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            padding: 17px;
+            background: #faf9ff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 22px;
+        }
+
+        .terms input {
+            margin-top: 3px;
+            accent-color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .terms label {
+            font-size: 11px;
+            line-height: 1.8;
+            color: var(--muted);
+        }
+
+        .terms a {
+            color: var(--primary);
+            font-weight: 750;
+        }
+
+        /* MESSAGE */
+
+        .message {
+            display: none;
+            padding: 13px 15px;
+            border-radius: 9px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .message.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .message.success {
+            display: block;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .message.info {
+            display: block;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        /* SUBMIT */
+
+        .submit-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-size: 13px;
+            font-weight: 800;
+            transition: .2s;
+        }
+
+        .submit-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .submit-button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-text {
+            text-align: center;
+            margin-top: 23px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .login-text a {
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        /* FOOTER */
+
+        .footer {
+            text-align: center;
+            padding: 25px 15px;
+            color: #9692aa;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 650px) {
+            .navbar {
+                height: 68px;
+                padding: 0 18px;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .nav-right {
+                gap: 10px;
+                font-size: 11px;
+            }
+
+            .nav-right > span {
+                display: none;
+            }
+
+            .login-nav {
+                padding: 9px 12px;
+            }
+
+            .page {
+                margin: 28px auto;
+                padding: 0 13px;
+            }
+
+            .card-header {
+                padding: 22px 19px;
+            }
+
+            .card-body {
+                padding: 23px 18px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 17px;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .section-heading {
+                align-items: flex-start;
+            }
+
+            .form-section {
+                margin-bottom: 27px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+
+    <header class="navbar">
+
+        <a href="../index.html" class="logo">
+            Edu<span>Match</span>
+        </a>
+
+        <div class="nav-right">
+            <span>Already part of EduMatch?</span>
+            <a href="login.html" class="login-nav">Log In</a>
+        </div>
+
+    </header>
+
+    <!-- PAGE CONTENT -->
+
+    <main class="page">
+
+        <div class="page-heading">
+
+            <div class="eyebrow">
+                PROVIDER REGISTRATION
+            </div>
+
+            <h1>Create your professional account</h1>
+
+            <p>
+                Join EduMatch to showcase your expertise and connect
+                with students looking for project-related services.
+            </p>
+
+        </div>
+
+        <!-- FORM CARD -->
+
+        <section class="register-card">
+
+            <div class="card-header">
+
+                <h2>Let's get you started</h2>
+
+                <p>
+                    Enter your details below. Fields marked with
+                    <span class="required">*</span> are required.
+                </p>
+
+            </div>
+
+            <div class="card-body">
+
+                <div id="messageBox"
+                     class="message"
+                     role="status"
+                     aria-live="polite"></div>
+
+                <form id="registerForm">
+
+                    <!-- SECTION 1 -->
+
+                    <section class="form-section">
+
+                        <div class="section-heading">
+
+                            <div class="section-number">01</div>
+
+                            <div>
+                                <h3>Personal Information</h3>
+                                <p>Tell us who you are.</p>
+                            </div>
+
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field full">
+
+                                <label for="fullName">
+                                    Full Name <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="fullName"
+                                    name="full_name"
+                                    required
+                                    minlength="2"
+                                    maxlength="100"
+                                    autocomplete="name"
+                                    placeholder="Enter your full name"
+                                >
+
+                            </div>
+
+                            <div class="field">
+
+                                <label for="email">
+                                    Email Address <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    required
+                                    maxlength="254"
+                                    autocomplete="email"
+                                    placeholder="you@example.com"
+                                >
+
+                            </div>
+
+                            <div class="field">
+
+                                <label for="phone">
+                                    Phone Number
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    maxlength="20"
+                                    autocomplete="tel"
+                                    placeholder="Enter phone number"
+                                >
+
+                                <span class="field-help">
+                                    Use a number where you can be contacted.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- SECTION 2 -->
+
+                    <section class="form-section">
+
+                        <div class="section-heading">
+
+                            <div class="section-number">02</div>
+
+                            <div>
+                                <h3>Professional Information</h3>
+                                <p>Introduce your skills and expertise.</p>
+                            </div>
+
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field full">
+
+                                <label for="professionalTitle">
+                                    Professional Title
+                                    <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="professionalTitle"
+                                    name="professional_title"
+                                    required
+                                    maxlength="120"
+                                    placeholder="e.g. Web Developer, Data Analyst"
+                                >
+
+                            </div>
+
+                            <div class="field full">
+
+                                <label for="skills">
+                                    Your Skills <span class="required">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="skills"
+                                    name="skills"
+                                    required
+                                    maxlength="500"
+                                    placeholder="Python, SQL, HTML, CSS"
+                                >
+
+                                <span class="field-help">
+                                    Separate each skill with a comma.
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- SECTION 3 -->
+
+                    <section class="form-section">
+
+                        <div class="section-heading">
+
+                            <div class="section-number">03</div>
+
+                            <div>
+                                <h3>Secure Your Account</h3>
+                                <p>Create a password to protect your account.</p>
+                            </div>
+
+                        </div>
+
+                        <div class="form-grid">
+
+                            <div class="field">
+
+                                <label for="password">
+                                    Password <span class="required">*</span>
+                                </label>
+
+                                <div class="password-wrapper">
+
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        required
+                                        minlength="8"
+                                        maxlength="128"
+                                        autocomplete="new-password"
+                                        placeholder="Create a password"
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="password-toggle"
+                                        data-target="password"
+                                    >
+                                        Show
+                                    </button>
+
+                                </div>
+
+                                <span class="field-help">
+                                    Use at least 8 characters and a unique password.
+                                </span>
+
+                                <span
+                                    id="passwordStrength"
+                                    class="password-strength"
+                                    aria-live="polite"
+                                ></span>
+
+                            </div>
+
+                            <div class="field">
+
+                                <label for="confirmPassword">
+                                    Confirm Password
+                                    <span class="required">*</span>
+                                </label>
+
+                                <div class="password-wrapper">
+
+                                    <input
+                                        type="password"
+                                        id="confirmPassword"
+                                        name="confirm_password"
+                                        required
+                                        minlength="8"
+                                        maxlength="128"
+                                        autocomplete="new-password"
+                                        placeholder="Enter password again"
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="password-toggle"
+                                        data-target="confirmPassword"
+                                    >
+                                        Show
+                                    </button>
+
+                                </div>
+
+                                <span
+                                    id="passwordMatch"
+                                    class="field-help"
+                                    aria-live="polite"
+                                ></span>
+
+                            </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- TERMS -->
+
+                    <div class="terms">
+
+                        <input
+                            type="checkbox"
+                            id="terms"
+                            required
+                        >
+
+                        <label for="terms">
+                            I agree to the applicable
+                            <a href="../terms.html">Terms and Conditions</a>
+                            and
+                            <a href="../privacy.html">Privacy Policy</a>.
+                            I confirm that the information I have entered
+                            is accurate.
+                        </label>
+
+                    </div>
+
+                    <!-- FEEDBACK -->
+
+                    <div id="submitMessage"
+                         class="message"
+                         role="status"
+                         aria-live="polite"></div>
+
+                    <!-- SUBMIT -->
+
+                    <button
+                        type="submit"
+                        class="submit-button"
+                        id="registerButton"
+                    >
+                        Create Provider Account →
+                    </button>
+
+                </form>
+
+                <p class="login-text">
+                    Already have an account?
+                    <a href="login.html">Log in here</a>
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        © EduMatch. Connecting students with project expertise.
+        <br>
+        Create an account to get started.
+    </footer>
+
+    <script>
+        /*
+          EduMatch Provider Registration
+
+          Expected Flask endpoint:
+          POST /api/provider/register
+
+          This frontend sends real registration requests.
+          It does not create accounts locally or generate fake users.
+        */
+
+        const API_BASE_URL = "http://127.0.0.1:5000/api";
+
+        const registerForm = document.getElementById("registerForm");
+        const registerButton = document.getElementById("registerButton");
+
+        const messageBox = document.getElementById("messageBox");
+        const submitMessage = document.getElementById("submitMessage");
+
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordInput =
+            document.getElementById("confirmPassword");
+
+        const passwordStrength =
+            document.getElementById("passwordStrength");
+
+        const passwordMatch =
+            document.getElementById("passwordMatch");
+
+
+        /* DISPLAY MESSAGE */
+
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+        }
+
+        function clearMessage(element) {
+            element.textContent = "";
+            element.className = "message";
+        }
+
+
+        /* SHOW OR HIDE PASSWORD */
+
+        document.querySelectorAll(".password-toggle").forEach(button => {
+
+            button.addEventListener("click", () => {
+
+                const input = document.getElementById(
+                    button.dataset.target
+                );
+
+                const showPassword = input.type === "password";
+
+                input.type = showPassword ? "text" : "password";
+
+                button.textContent = showPassword ? "Hide" : "Show";
+
+            });
+
+        });
+
+
+        /* PASSWORD STRENGTH INDICATOR */
+
+        passwordInput.addEventListener("input", () => {
+
+            const password = passwordInput.value;
+
+            passwordStrength.className = "password-strength";
+
+            if (!password) {
+                passwordStrength.textContent = "";
+                return;
+            }
+
+            let score = 0;
+
+            if (password.length >= 8) score++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) {
+                score++;
+            }
+            if (/\d/.test(password)) score++;
+            if (/[^A-Za-z0-9]/.test(password)) score++;
+
+            passwordStrength.classList.add("visible");
+
+            if (password.length < 8 || score <= 1) {
+
+                passwordStrength.textContent =
+                    "Password strength: Weak";
+
+                passwordStrength.classList.add("strength-weak");
+
+            } else if (score <= 2) {
+
+                passwordStrength.textContent =
+                    "Password strength: Moderate";
+
+                passwordStrength.classList.add("strength-medium");
+
+            } else {
+
+                passwordStrength.textContent =
+                    "Password strength: Stronger password pattern";
+
+                passwordStrength.classList.add("strength-strong");
+
+            }
+
+            checkPasswordMatch();
+
+        });
+
+
+        /* CHECK PASSWORD MATCH */
+
+        function checkPasswordMatch() {
+
+            passwordMatch.className = "field-help";
+
+            if (!confirmPasswordInput.value) {
+                passwordMatch.textContent = "";
+                return true;
+            }
+
+            if (passwordInput.value === confirmPasswordInput.value) {
+
+                passwordMatch.textContent = "Passwords match.";
+
+                passwordMatch.style.color = "#15803d";
+
+                return true;
+
+            }
+
+            passwordMatch.textContent = "Passwords do not match.";
+
+            passwordMatch.style.color = "#dc2626";
+
+            return false;
+
+        }
+
+        confirmPasswordInput.addEventListener(
+            "input",
+            checkPasswordMatch
+        );
+
+
+        /* REGISTER PROVIDER */
+
+        registerForm.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            clearMessage(messageBox);
+            clearMessage(submitMessage);
+
+            const fullName = document.getElementById("fullName")
+                .value.trim();
+
+            const email = document.getElementById("email")
+                .value.trim();
+
+            const phone = document.getElementById("phone")
+                .value.trim();
+
+            const professionalTitle =
+                document.getElementById("professionalTitle")
+                    .value.trim();
+
+            const skills = document.getElementById("skills")
+                .value
+                .split(",")
+                .map(skill => skill.trim())
+                .filter(Boolean);
+
+            const password = passwordInput.value;
+
+            const confirmPassword = confirmPasswordInput.value;
+
+
+            /* CLIENT-SIDE VALIDATION */
+
+            if (fullName.length < 2) {
+
+                showMessage(
+                    messageBox,
+                    "Please enter your full name.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+            if (!professionalTitle) {
+
+                showMessage(
+                    messageBox,
+                    "Please enter your professional title.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+            if (skills.length === 0) {
+
+                showMessage(
+                    messageBox,
+                    "Please enter at least one professional skill.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+            if (password.length < 8 || password.length > 128) {
+
+                showMessage(
+                    messageBox,
+                    "Your password must be between 8 and 128 characters.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+            if (password !== confirmPassword) {
+
+                showMessage(
+                    messageBox,
+                    "Your passwords do not match.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+            if (!document.getElementById("terms").checked) {
+
+                showMessage(
+                    messageBox,
+                    "Please agree to the applicable terms.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            /*
+              The confirmation password is used only for browser validation.
+              The backend receives only the actual password.
+            */
+
+            const payload = {
+                full_name: fullName,
+                email: email,
+                phone: phone,
+                professional_title: professionalTitle,
+                skills: skills,
+                password: password
+            };
+
+
+            registerButton.disabled = true;
+
+            registerButton.textContent = "Creating Your Account...";
+
+            showMessage(
+                submitMessage,
+                "Connecting to the EduMatch server...",
+                "info"
+            );
+
+
+            try {
+
+                const response = await fetch(
+                    `${API_BASE_URL}/provider/register`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        credentials: "include",
+
+                        body: JSON.stringify(payload)
+                    }
+                );
+
+
+                const data = await response.json().catch(() => ({}));
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        data.error ||
+                        `Registration failed (HTTP ${response.status}).`
+                    );
+
+                }
+
+
+                /*
+                  Do not save passwords or invent a login session.
+                  Registration succeeds only when the backend confirms it.
+                */
+
+                registerForm.reset();
+
+                passwordStrength.textContent = "";
+                passwordStrength.className = "password-strength";
+
+                passwordMatch.textContent = "";
+
+                showMessage(
+                    submitMessage,
+                    data.message ||
+                    "Your account has been created. You can now log in.",
+                    "success"
+                );
+
+                registerButton.textContent = "Registration Successful";
+
+
+                setTimeout(() => {
+
+                    window.location.href = "login.html";
+
+                }, 1500);
+
+
+            } catch (error) {
+
+                showMessage(
+                    submitMessage,
+                    error.message ||
+                    "Unable to connect to the EduMatch server.",
+                    "error"
+                );
+
+                registerButton.disabled = false;
+
+                registerButton.textContent =
+                    "Create Provider Account →";
+
+            }
+
+        });
+
+    </script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

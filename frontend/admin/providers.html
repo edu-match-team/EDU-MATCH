@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Providers | EduMatch Admin</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f5f7fc;color:#1f2937}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:245px;background:#111827;color:white;padding:25px 15px;flex-shrink:0}
+.logo{font-size:25px;font-weight:bold;padding:5px 12px 30px}
+.logo span{color:#818cf8}
+.sidebar h4{font-size:11px;color:#9ca3af;padding:12px;text-transform:uppercase;letter-spacing:1px}
+.nav-link{display:block;padding:13px 12px;margin:4px 0;color:#d1d5db;text-decoration:none;border-radius:8px;font-size:14px}
+.nav-link:hover,.nav-link.active{background:#312e81;color:white}
+.main{flex:1;min-width:0}
+.topbar{background:white;padding:22px 30px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.topbar h1{font-size:23px}
+.topbar p{font-size:13px;color:#6b7280;margin-top:5px}
+.admin-label{background:#eef2ff;color:#4338ca;padding:10px 14px;border-radius:20px;font-size:13px;font-weight:bold}
+.content{padding:28px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin-bottom:25px}
+.card,.panel{background:white;border:1px solid #e5e7eb;border-radius:12px}
+.card{padding:22px}
+.card p{font-size:13px;color:#6b7280;margin-bottom:12px}
+.card h2{font-size:28px}
+.panel{overflow:hidden}
+.panel-head{padding:22px;border-bottom:1px solid #e5e7eb}
+.panel-head h2{font-size:19px}
+.panel-head p{font-size:13px;color:#6b7280;margin-top:6px}
+.filters{padding:18px 22px;display:flex;gap:12px;flex-wrap:wrap}
+input,select{padding:11px 12px;border:1px solid #d1d5db;border-radius:7px;font-size:13px;background:white}
+input{flex:1;min-width:220px}
+button{cursor:pointer;border:0;border-radius:7px;padding:10px 13px;font-size:12px;font-weight:bold}
+.primary{background:#4f46e5;color:white}
+.secondary{background:#e5e7eb;color:#111827}
+.activate{background:#dcfce7;color:#166534}
+.suspend{background:#fee2e2;color:#991b1b}
+.view{background:#eef2ff;color:#4338ca}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:15px 17px;text-align:left;border-bottom:1px solid #f0f1f5;font-size:13px}
+th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
+.name{font-weight:bold}
+.sub{display:block;margin-top:5px;color:#6b7280;font-size:12px}
+.badge{display:inline-block;padding:6px 9px;border-radius:20px;font-size:11px;text-transform:capitalize;font-weight:bold}
+.badge.active,.badge.approved,.badge.verified{background:#dcfce7;color:#166534}
+.badge.pending,.badge.pending_verification{background:#fef3c7;color:#92400e}
+.badge.suspended,.badge.inactive,.badge.rejected,.badge.blocked{background:#fee2e2;color:#991b1b}
+.message{padding:28px;text-align:center;color:#6b7280;font-size:14px}
+.error{color:#b91c1c}
+.footer{padding:15px 22px;color:#6b7280;font-size:12px}
+.modal{display:none;position:fixed;inset:0;background:#0009;z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal-box{background:white;padding:25px;border-radius:14px;width:100%;max-width:600px;max-height:85vh;overflow-y:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.close{font-size:20px;background:#f3f4f6}
+.details{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.detail{padding:12px 0;border-bottom:1px solid #eee;overflow-wrap:anywhere}
+.detail small{display:block;color:#6b7280;margin-bottom:7px}
+.detail p{font-size:14px;font-weight:bold}
+.description{margin-top:18px;line-height:1.6;overflow-wrap:anywhere}
+.menu-toggle{display:none;background:#eef2ff;color:#4338ca}
+@media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:750px){
+.sidebar{display:none;position:fixed;inset:0 auto 0 0;z-index:900;overflow:auto}
+.sidebar.open{display:block}.menu-toggle{display:block}
+.topbar{padding:18px}.content{padding:16px}.admin-label{display:none}
+.details{grid-template-columns:1fr}
+}
+</style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+<div class="layout">
+
+<aside class="sidebar" id="sidebar">
+    <div class="logo">Edu<span>Match</span></div>
+    <h4>Administration</h4>
+    <a class="nav-link" href="dashboard.html">Dashboard</a>
+    <a class="nav-link" href="users.html">All Users</a>
+    <a class="nav-link" href="students.html">Students</a>
+    <a class="nav-link active" href="providers.html">Providers</a>
+    <a class="nav-link" href="services.html">Services</a>
+    <a class="nav-link" href="orders.html">Orders</a>
+    <a class="nav-link" href="disputes.html">Disputes</a>
+    <a class="nav-link" href="reports.html">Reports</a>
+    <a class="nav-link" href="settings.html">Settings</a>
+    <h4>Account</h4>
+    <a class="nav-link" href="#" id="logoutButton">Logout</a>
+</aside>
+
+<main class="main">
+<header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        <div>
+            <h1>Manage Providers</h1>
+            <p>Review and manage registered service providers.</p>
+        </div>
+    </div>
+    <span class="admin-label">Administrator</span>
+</header>
+
+<section class="content">
+
+<div class="stats">
+    <div class="card"><p>Total Providers</p><h2 id="total">—</h2></div>
+    <div class="card"><p>Active</p><h2 id="active">—</h2></div>
+    <div class="card"><p>Pending Review</p><h2 id="pending">—</h2></div>
+    <div class="card"><p>Suspended</p><h2 id="suspended">—</h2></div>
+</div>
+
+<section class="panel">
+    <div class="panel-head">
+        <h2>Registered Providers</h2>
+        <p>Provider information is retrieved from the EduMatch API.</p>
+    </div>
+
+    <div class="filters">
+        <input id="search" type="search" placeholder="Search name, email, title...">
+        <select id="status">
+            <option value="">All statuses</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="suspended">Suspended</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+        </select>
+        <button class="primary" id="refresh">Refresh</button>
+    </div>
+
+    <div id="message" class="message">Loading providers...</div>
+
+    <div class="table-wrap">
+    <table>
+        <thead>
+        <tr>
+            <th>Provider</th>
+            <th>Professional Title</th>
+            <th>Skills</th>
+            <th>Joined</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody id="providerRows"></tbody>
+    </table>
+    </div>
+
+    <div class="footer" id="footer">Loading...</div>
+</section>
+</section>
+</main>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h2 id="modalTitle">Provider Details</h2>
+            <button class="close" id="closeModal" aria-label="Close">&times;</button>
+        </div>
+        <div id="details"></div>
+    </div>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000/api";
+const rows = document.getElementById("providerRows");
+const message = document.getElementById("message");
+let providers = [];
+
+function token(){
+    return localStorage.getItem("edumatch_token");
+}
+
+function esc(value){
+    return String(value ?? "").replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    })[c]);
+}
+
+function statusOf(provider){
+    return String(provider.status || "unknown").toLowerCase();
+}
+
+function personName(provider){
+    return provider.full_name || provider.name || "Name unavailable";
+}
+
+function skillsText(provider){
+    const skills = provider.skills;
+    if(Array.isArray(skills)) return skills.join(", ") || "Not provided";
+    if(typeof skills === "string") return skills || "Not provided";
+    return "Not provided";
+}
+
+function dateText(value){
+    if(!value) return "Not available";
+    const date = new Date(value);
+    return Number.isNaN(date.getTime())
+        ? "Not available"
+        : date.toLocaleDateString("en-IN");
+}
+
+function showMessage(text, error=false){
+    message.hidden = false;
+    message.className = error ? "message error" : "message";
+    message.textContent = text;
+}
+
+function setStats(){
+    document.getElementById("total").textContent = providers.length;
+    document.getElementById("active").textContent =
+        providers.filter(p => statusOf(p) === "active" || statusOf(p) === "approved").length;
+    document.getElementById("pending").textContent =
+        providers.filter(p => statusOf(p) === "pending" || statusOf(p) === "pending_verification").length;
+    document.getElementById("suspended").textContent =
+        providers.filter(p => statusOf(p) === "suspended" || statusOf(p) === "blocked").length;
+}
+
+async function request(path, options={}){
+    const auth = token();
+    if(!auth) throw new Error("Please log in using the admin login page.");
+
+    const response = await fetch(API + path, {
+        ...options,
+        headers:{
+            "Accept":"application/json",
+            ...(options.body ? {"Content-Type":"application/json"} : {}),
+            "Authorization":"Bearer " + auth,
+            ...options.headers
+        }
+    });
+
+    const raw = await response.text();
+    let data = {};
+    if(raw){
+        try { data = JSON.parse(raw); }
+        catch { throw new Error("The server returned an invalid response."); }
+    }
+
+    if(!response.ok){
+        throw new Error(data.message || data.error || `Request failed (${response.status}).`);
+    }
+
+    return data;
+}
+
+async function loadProviders(){
+    rows.innerHTML = "";
+    providers = [];
+    setStats();
+    showMessage("Loading providers from the server...");
+    document.getElementById("footer").textContent = "Loading...";
+
+    try{
+        // Required endpoint: GET /api/admin/providers
+        const data = await request("/admin/providers");
+
+        if(!Array.isArray(data.providers)){
+            throw new Error("API response must contain a providers array.");
+        }
+
+        providers = data.providers;
+        setStats();
+        render();
+
+    }catch(error){
+        showMessage(error.message, true);
+        document.getElementById("footer").textContent = "Providers could not be loaded.";
+        console.error(error);
+    }
+}
+
+function render(){
+    const query = document.getElementById("search").value.trim().toLowerCase();
+    const selected = document.getElementById("status").value.toLowerCase();
+
+    const filtered = providers.filter(p => {
+        const text = [
+            p.id, personName(p), p.email, p.professional_title,
+            p.title, skillsText(p)
+        ].join(" ").toLowerCase();
+
+        const s = statusOf(p);
+        const statusMatch = !selected ||
+            s === selected ||
+            (selected === "pending" && s === "pending_verification");
+
+        return text.includes(query) && statusMatch;
+    });
+
+    rows.innerHTML = "";
+
+    if(!filtered.length){
+        showMessage(providers.length
+            ? "No providers match your search or filter."
+            : "No providers have been returned by the server.");
+        document.getElementById("footer").textContent = "0 matching providers";
+        return;
+    }
+
+    message.hidden = true;
+
+    filtered.forEach(p => {
+        const id = p.id ?? p.provider_id;
+        const status = statusOf(p);
+        const canActivate = ["suspended","inactive","rejected"].includes(status);
+        const canSuspend = ["active","approved"].includes(status);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>
+                <span class="name">${esc(personName(p))}</span>
+                <span class="sub">${esc(p.email || "Email unavailable")}</span>
+            </td>
+            <td>${esc(p.professional_title || p.title || "Not provided")}</td>
+            <td>${esc(skillsText(p))}</td>
+            <td>${esc(dateText(p.created_at || p.joined_at))}</td>
+            <td><span class="badge ${esc(status)}">${esc(status.replaceAll("_"," "))}</span></td>
+            <td>
+                <button class="view" data-action="view" data-id="${esc(id)}">View</button>
+                ${canSuspend ? `<button class="suspend" data-action="suspend" data-id="${esc(id)}">Suspend</button>` : ""}
+                ${canActivate ? `<button class="activate" data-action="activate" data-id="${esc(id)}">Activate</button>` : ""}
+            </td>`;
+        rows.appendChild(tr);
+    });
+
+    document.getElementById("footer").textContent =
+        `Showing ${filtered.length} of ${providers.length} providers`;
+}
+
+async function viewProvider(id){
+    const box = document.getElementById("details");
+    document.getElementById("modal").classList.add("open");
+    box.textContent = "Loading provider details...";
+
+    try{
+        // Required endpoint: GET /api/admin/providers/<id>
+        const data = await request("/admin/providers/" + encodeURIComponent(id));
+        const p = data.provider;
+
+        if(!p) throw new Error("The server did not return provider details.");
+
+        box.innerHTML = `
+        <div class="details">
+            <div class="detail"><small>Provider ID</small><p>${esc(p.id ?? p.provider_id ?? id)}</p></div>
+            <div class="detail"><small>Status</small><p>${esc(p.status || "Unknown")}</p></div>
+            <div class="detail"><small>Name</small><p>${esc(personName(p))}</p></div>
+            <div class="detail"><small>Email</small><p>${esc(p.email || "Not available")}</p></div>
+            <div class="detail"><small>Phone</small><p>${esc(p.phone || "Not available")}</p></div>
+            <div class="detail"><small>Professional Title</small><p>${esc(p.professional_title || p.title || "Not provided")}</p></div>
+            <div class="detail"><small>Experience (years)</small><p>${esc(p.experience_years ?? "Not provided")}</p></div>
+            <div class="detail"><small>Joined</small><p>${esc(dateText(p.created_at))}</p></div>
+        </div>
+        <div class="description"><strong>Skills</strong><p>${esc(skillsText(p))}</p></div>
+        <div class="description"><strong>Biography</strong><p>${esc(p.bio || "No biography provided.")}</p></div>`;
+    }catch(error){
+        box.textContent = error.message;
+    }
+}
+
+async function changeStatus(id, action){
+    const label = action === "suspend" ? "suspend" : "activate";
+
+    if(!confirm(`Are you sure you want to ${label} this provider?`)) return;
+
+    try{
+        /*
+          Required endpoint:
+          PATCH /api/admin/providers/<id>/status
+          Body: {"status":"active"} or {"status":"suspended"}
+
+          The server must verify admin permissions, validate the requested
+          transition, persist the change, and record an audit event.
+        */
+        await request("/admin/providers/" + encodeURIComponent(id) + "/status", {
+            method:"PATCH",
+            body:JSON.stringify({
+                status: action === "suspend" ? "suspended" : "active"
+            })
+        });
+
+        alert("Provider status updated.");
+        await loadProviders();
+    }catch(error){
+        alert("Could not update provider: " + error.message);
+    }
+}
+
+rows.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if(!button) return;
+
+    const {action, id} = button.dataset;
+
+    if(action === "view") viewProvider(id);
+    if(action === "suspend" || action === "activate") changeStatus(id, action);
+});
+
+document.getElementById("search").addEventListener("input", render);
+document.getElementById("status").addEventListener("change", render);
+document.getElementById("refresh").addEventListener("click", loadProviders);
+document.getElementById("closeModal").addEventListener("click", () => {
+    document.getElementById("modal").classList.remove("open");
+});
+document.getElementById("modal").addEventListener("click", event => {
+    if(event.target.id === "modal") event.currentTarget.classList.remove("open");
+});
+document.getElementById("menuToggle").addEventListener("click", () => {
+    document.getElementById("sidebar").classList.toggle("open");
+});
+document.getElementById("logoutButton").addEventListener("click", event => {
+    event.preventDefault();
+    localStorage.removeItem("edumatch_token");
+    location.href = "login.html";
+});
+
+loadProviders();
+</script>
+    <script src="../theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages | EduMatch</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --background: #f5f8ff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #dbe5f3;
+            --white: #ffffff;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text);
+        }
+
+        button, input {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            padding: 25px 15px;
+            background: white;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s;
+        }
+
+        .logo {
+            margin: 0 10px 30px;
+            font-size: 27px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .logo span {
+            color: #7c3aed;
+        }
+
+        .account {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 5px 25px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .account strong {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .account small {
+            color: var(--muted);
+        }
+
+        .nav a {
+            display: block;
+            padding: 12px 13px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            color: #334e78;
+            font-size: 14px;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            background: #e7efff;
+            color: var(--primary);
+        }
+
+        .logout {
+            margin-top: auto;
+            padding: 12px;
+            color: #dc2626;
+            font-size: 14px;
+        }
+
+        /* Main */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 65px;
+            padding: 0 25px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-button {
+            border: none;
+            background: none;
+            font-size: 25px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .small-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 25px;
+        }
+
+        .page-heading {
+            margin-bottom: 22px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* Chat layout */
+
+        .chat-container {
+            height: 690px;
+            max-height: calc(100vh - 160px);
+            min-height: 480px;
+            display: grid;
+            grid-template-columns: 310px minmax(0, 1fr);
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Conversation list */
+
+        .conversations {
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .conversation-heading {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .conversation-heading h2 {
+            font-size: 19px;
+            margin-bottom: 15px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary);
+        }
+
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .conversation {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border: none;
+            border-bottom: 1px solid #edf1f7;
+            background: white;
+            text-align: left;
+        }
+
+        .conversation:hover {
+            background: #f8faff;
+        }
+
+        .conversation.active {
+            background: #eff6ff;
+            border-left: 3px solid var(--primary);
+        }
+
+        .conversation-avatar {
+            width: 43px;
+            height: 43px;
+            border-radius: 50%;
+            background: #dbeafe;
+            color: #1d4ed8;
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .conversation-details {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .conversation-name {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .conversation-preview {
+            color: var(--muted);
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .conversation-time {
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        /* Message window */
+
+        .chat-window {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            min-height: 76px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .chat-header h2 {
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .online-status {
+            font-size: 12px;
+            color: #15803d;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 22px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background: #fbfdff;
+        }
+
+        .message-row {
+            display: flex;
+            flex-direction: column;
+            max-width: 78%;
+            align-self: flex-start;
+        }
+
+        .message-row.mine {
+            align-self: flex-end;
+        }
+
+        .message-bubble {
+            padding: 12px 15px;
+            border-radius: 12px 12px 12px 3px;
+            background: #eaf1ff;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .message-row.mine .message-bubble {
+            background: var(--primary);
+            color: white;
+            border-radius: 12px 12px 3px 12px;
+        }
+
+        .message-time {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .message-row.mine .message-time {
+            text-align: right;
+        }
+
+        .message-form {
+            display: flex;
+            gap: 10px;
+            padding: 16px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .message-input {
+            flex: 1;
+            min-width: 0;
+            padding: 13px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .message-input:focus {
+            border-color: var(--primary);
+        }
+
+        .send-button {
+            padding: 0 20px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+        }
+
+        .send-button:hover {
+            background: #1d4ed8;
+        }
+
+        .empty-state {
+            padding: 30px 15px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .notice {
+            margin-top: 16px;
+            padding: 13px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+
+        @media (max-width: 1000px) {
+            .chat-container {
+                grid-template-columns: 260px minmax(0, 1fr);
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 10;
+                transform: translateX(-100%);
+                overflow-y: auto;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 5px 0 25px #00000020;
+            }
+
+            .content {
+                padding: 18px 12px;
+            }
+
+            .topbar {
+                padding: 0 15px;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .chat-container {
+                height: 72vh;
+                max-height: none;
+                min-height: 460px;
+                grid-template-columns: 1fr;
+            }
+
+            .conversations {
+                display: none;
+            }
+
+            .conversations.show-mobile {
+                display: flex;
+                border-right: none;
+            }
+
+            .chat-container.show-conversations .chat-window {
+                display: none;
+            }
+
+            .chat-container.show-conversations .conversations {
+                display: flex;
+            }
+
+            .message-row {
+                max-width: 90%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">Edu<span>Match</span></div>
+
+        <div class="account">
+            <div class="avatar" id="providerAvatar">P</div>
+
+            <div>
+                <strong id="providerName">Provider Account</strong>
+                <small>Project Provider</small>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <a href="dashboard.html">⌂ &nbsp; Dashboard</a>
+            <a href="profile.html">◎ &nbsp; My Profile</a>
+            <a href="skills.html">✿ &nbsp; My Skills</a>
+            <a href="requests.html">♧ &nbsp; Project Requests</a>
+            <a href="orders.html">▤ &nbsp; My Orders</a>
+            <a href="chat.html" class="active">✉ &nbsp; Messages</a>
+            <a href="../index.html">← &nbsp; Back to Website</a>
+        </nav>
+
+        <a href="#" class="logout" id="logoutButton">⇥ &nbsp; Log Out</a>
+
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <header class="topbar">
+            <button
+                class="menu-button"
+                id="menuToggle"
+                aria-label="Toggle navigation"
+            >☰</button>
+
+            <div class="topbar-right">
+                <span id="headerProviderName">My Account</span>
+                <div class="small-avatar" id="headerAvatar">P</div>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <section class="page-heading">
+                <h1>💬 Messages</h1>
+                <p>Communicate with students about their projects.</p>
+            </section>
+
+            <section class="chat-container" id="chatContainer">
+
+                <!-- Conversation list -->
+                <aside class="conversations" id="conversationsPanel">
+
+                    <div class="conversation-heading">
+                        <h2>Conversations</h2>
+
+                        <input
+                            type="search"
+                            class="search-box"
+                            id="searchConversations"
+                            placeholder="Search conversations..."
+                            aria-label="Search conversations"
+                        >
+                    </div>
+
+                    <div class="conversation-list" id="conversationList"></div>
+
+                </aside>
+
+                <!-- Chat window -->
+                <section class="chat-window">
+
+                    <header class="chat-header">
+                        <button
+                            type="button"
+                            class="send-button"
+                            id="backToChats"
+                            style="display:none; padding:8px 10px;"
+                        >←</button>
+
+                        <div class="conversation-avatar" id="chatAvatar">?</div>
+
+                        <div>
+                            <h2 id="chatName">Select a conversation</h2>
+                            <div class="online-status" id="chatStatus">
+                                Demo messaging
+                            </div>
+                        </div>
+                    </header>
+
+                    <div class="messages" id="messages">
+                        <div class="empty-state">
+                            <div style="font-size:35px;">💬</div>
+                            <strong>Welcome to EduMatch Messages</strong>
+                            <p>Select a conversation to view messages.</p>
+                        </div>
+                    </div>
+
+                    <form class="message-form" id="messageForm">
+                        <input
+                            type="text"
+                            class="message-input"
+                            id="messageInput"
+                            placeholder="Type your message..."
+                            maxlength="2000"
+                            autocomplete="off"
+                            aria-label="Message"
+                            required
+                        >
+
+                        <button type="submit" class="send-button">
+                            Send ➤
+                        </button>
+                    </form>
+
+                </section>
+
+            </section>
+
+            <div class="notice">
+                <strong>Demo mode:</strong>
+                Messages are stored in this browser only. Real-time messaging,
+                student accounts, message delivery, and notifications require
+                the EduMatch backend.
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    // ======================================
+    // EduMatch Provider Chat
+    // Browser-based demonstration
+    // ======================================
+
+    const CHAT_STORAGE_KEY = "edumatch_provider_chats";
+
+    const conversationList = document.getElementById("conversationList");
+    const messagesContainer = document.getElementById("messages");
+    const messageInput = document.getElementById("messageInput");
+    const messageForm = document.getElementById("messageForm");
+    const searchInput = document.getElementById("searchConversations");
+    const chatContainer = document.getElementById("chatContainer");
+
+    let activeConversationId = null;
+
+    const API_BASE = "http://127.0.0.1:5000/api";
+    let conversations = [];
+    let currentUserId = null;
+
+    function getAuthHeaders() {
+        const token = localStorage.getItem("edumatch_token");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = `Bearer ${token}`;
+        return headers;
+    }
+
+    async function fetchServerConversations() {
+        try {
+            const res = await fetch(`${API_BASE}/provider/conversations`, {
+                headers: getAuthHeaders(),
+                credentials: "include"
+            });
+            const data = await res.json();
+            if (data.success && Array.isArray(data.conversations) && data.conversations.length > 0) {
+                if (data.current_user) currentUserId = data.current_user.id;
+                conversations = data.conversations.map(c => ({
+                    id: c.id,
+                    name: c.participant ? c.participant.name : "Student",
+                    messages: [],
+                    lastMessageText: c.last_message || "",
+                    updatedAt: c.updated_at
+                }));
+            } else {
+                // Fallback to local saved or demo if no server conversations yet
+                conversations = loadFallbackChats();
+            }
+        } catch (e) {
+            console.warn("Using offline/local conversation state:", e);
+            conversations = loadFallbackChats();
+        }
+        renderConversations();
+        if (conversations.length > 0 && !activeConversationId) {
+            openConversation(conversations[0].id);
+        }
+    }
+
+    function loadFallbackChats() {
+        try {
+            const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+            if (saved !== null) {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            }
+        } catch (e) {}
+        return [
+            {
+                id: "demo-1",
+                name: "Aarav Sharma (BCA Student)",
+                messages: [
+                    { sender: "student", text: "Hello! I need help with my machine learning project.", time: new Date().toISOString() },
+                    { sender: "provider", text: "Hello Aarav! I would be glad to help. What is the scope?", time: new Date().toISOString() }
+                ]
+            }
+        ];
+    }
+
+    // Persist chats fallback.
+    function saveChats() {
+        try {
+            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(conversations));
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    // Format message time.
+    function formatTime(dateString) {
+        if (!dateString) return "Just now";
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) {
+            return dateString;
+        }
+        return date.toLocaleTimeString("en-IN", {
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    }
+
+    // Get the latest message in a conversation.
+    function getLastMessage(conversation) {
+        if (conversation.lastMessageText) return { text: conversation.lastMessageText, sender: "other", time: conversation.updatedAt };
+        const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
+        return messages.length ? messages[messages.length - 1] : null;
+    }
+
+    // Render conversation buttons.
+    function renderConversations() {
+        conversationList.replaceChildren();
+        const search = searchInput.value.trim().toLowerCase();
+        const filtered = conversations.filter(function(conversation) {
+            return conversation.name.toLowerCase().includes(search);
+        });
+
+        if (filtered.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty-state";
+            empty.textContent = "No matching conversations found.";
+            conversationList.appendChild(empty);
+            return;
+        }
+
+        filtered.forEach(function(conversation) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "conversation";
+
+            if (conversation.id === activeConversationId) {
+                button.classList.add("active");
+            }
+
+            const avatar = document.createElement("div");
+            avatar.className = "conversation-avatar";
+            avatar.textContent = conversation.name.charAt(0).toUpperCase();
+
+            const details = document.createElement("div");
+            details.className = "conversation-details";
+
+            const name = document.createElement("div");
+            name.className = "conversation-name";
+            name.textContent = conversation.name;
+
+            const preview = document.createElement("div");
+            preview.className = "conversation-preview";
+
+            const lastMessage = getLastMessage(conversation);
+            preview.textContent = lastMessage
+                ? (lastMessage.sender === "provider" ? "You: " : "") + lastMessage.text
+                : "No messages yet";
+
+            const time = document.createElement("div");
+            time.className = "conversation-time";
+            time.textContent = lastMessage ? formatTime(lastMessage.time) : "";
+
+            details.append(name, preview, time);
+            button.append(avatar, details);
+
+            button.addEventListener("click", function() {
+                openConversation(conversation.id);
+            });
+
+            conversationList.appendChild(button);
+        });
+    }
+
+    // Open one conversation.
+    async function openConversation(id) {
+        const conversation = conversations.find(function(item) {
+            return item.id === id;
+        });
+
+        if (!conversation) return;
+        activeConversationId = id;
+
+        document.getElementById("chatName").textContent = conversation.name;
+        document.getElementById("chatAvatar").textContent = conversation.name.charAt(0).toUpperCase();
+        document.getElementById("chatStatus").textContent = typeof id === "number" ? "Active Student Connection" : "Demo conversation";
+
+        document.getElementById("backToChats").style.display =
+            window.innerWidth <= 700 ? "inline-block" : "none";
+
+        if (window.innerWidth <= 700) {
+            chatContainer.classList.remove("show-conversations");
+        }
+
+        renderConversations();
+
+        // If numeric ID, fetch messages from server
+        if (typeof id === "number") {
+            try {
+                const res = await fetch(`${API_BASE}/provider/conversations/${id}/messages`, {
+                    headers: getAuthHeaders(),
+                    credentials: "include"
+                });
+                const d = await res.json();
+                if (d.success && Array.isArray(d.messages)) {
+                    if (d.current_user) currentUserId = d.current_user.id;
+                    conversation.messages = d.messages.map(m => ({
+                        sender: m.sender_id === currentUserId ? "provider" : "student",
+                        text: m.message,
+                        time: m.created_at
+                    }));
+                }
+            } catch (err) {
+                console.warn("Failed fetching live messages:", err);
+            }
+        }
+
+        renderMessages(conversation);
+        messageInput.focus();
+    }
+
+    // Render messages safely using textContent.
+    function renderMessages(conversation) {
+        messagesContainer.replaceChildren();
+
+        const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
+
+        if (messages.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty-state";
+            empty.textContent = "No messages yet. Start the conversation!";
+            messagesContainer.appendChild(empty);
+            return;
+        }
+
+        messages.forEach(function(message) {
+            const row = document.createElement("div");
+            row.className = "message-row";
+
+            if (message.sender === "provider") {
+                row.classList.add("mine");
+            }
+
+            const bubble = document.createElement("div");
+            bubble.className = "message-bubble";
+            bubble.textContent = message.text;
+
+            const time = document.createElement("div");
+            time.className = "message-time";
+            time.textContent = formatTime(message.time);
+
+            row.append(bubble, time);
+            messagesContainer.appendChild(row);
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Send a message.
+    messageForm.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const text = messageInput.value.trim();
+        if (!text) return;
+
+        const conversation = conversations.find(function(item) {
+            return item.id === activeConversationId;
+        });
+
+        if (!conversation) {
+            alert("Please select a conversation first.");
+            return;
+        }
+
+        const messageObj = {
+            sender: "provider",
+            text: text,
+            time: new Date().toISOString()
+        };
+
+        if (!Array.isArray(conversation.messages)) {
+            conversation.messages = [];
+        }
+
+        // If numeric server conversation, post to backend
+        if (typeof conversation.id === "number") {
+            try {
+                const res = await fetch(`${API_BASE}/provider/conversations/${conversation.id}/messages`, {
+                    method: "POST",
+                    headers: getAuthHeaders(),
+                    credentials: "include",
+                    body: JSON.stringify({ message: text })
+                });
+                const d = await res.json();
+                if (d.success) {
+                    conversation.messages.push(messageObj);
+                } else {
+                    alert(d.message || "Failed to send message.");
+                    return;
+                }
+            } catch (err) {
+                console.warn("Offline message append:", err);
+                conversation.messages.push(messageObj);
+            }
+        } else {
+            conversation.messages.push(messageObj);
+            saveChats();
+        }
+
+        conversation.lastMessageText = text;
+        messageInput.value = "";
+        renderMessages(conversation);
+        renderConversations();
+        messageInput.focus();
+    });
+
+    // Search conversations.
+    searchInput.addEventListener("input", renderConversations);
+
+    // Mobile sidebar toggle.
+    document.getElementById("menuToggle")
+        .addEventListener("click", function() {
+            document.getElementById("sidebar").classList.toggle("open");
+        });
+
+    // Back button for mobile conversation list.
+    document.getElementById("backToChats")
+        .addEventListener("click", function() {
+            chatContainer.classList.add("show-conversations");
+        });
+
+    window.addEventListener("resize", function() {
+        document.getElementById("backToChats").style.display =
+            window.innerWidth <= 700 && activeConversationId
+                ? "inline-block"
+                : "none";
+
+        if (window.innerWidth > 700) {
+            chatContainer.classList.remove("show-conversations");
+        }
+    });
+
+    // Load provider name.
+    function loadProviderName() {
+        const profile = (() => {
+            try {
+                return JSON.parse(
+                    localStorage.getItem("edumatch_provider_profile") || "{}"
+                );
+            } catch (error) {
+                return {};
+            }
+        })();
+
+        const name =
+            profile.fullName ||
+            localStorage.getItem("providerName") ||
+            "Provider Account";
+
+        const initial = name.trim().charAt(0).toUpperCase() || "P";
+
+        document.getElementById("providerName").textContent = name;
+        document.getElementById("headerProviderName").textContent = name;
+        document.getElementById("providerAvatar").textContent = initial;
+        document.getElementById("headerAvatar").textContent = initial;
+    }
+
+    // Demo logout.
+    document.getElementById("logoutButton")
+        .addEventListener("click", function(event) {
+            event.preventDefault();
+
+            if (confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem("providerName");
+                window.location.href = "login.html";
+            }
+        });
+
+    // Initialize page.
+    loadProviderName();
+    fetchServerConversations();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

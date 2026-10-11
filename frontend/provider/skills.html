@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Skills | EduMatch</title>
+
+    <style>
+        :root {
+            --primary: #6c4df6;
+            --primary-dark: #5535df;
+            --bg: #f7f7fc;
+            --white: #fff;
+            --text: #24213b;
+            --muted: #77758e;
+            --border: #e8e5f0;
+            --red: #dc2626;
+            --green: #15803d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 245px;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 27px 16px;
+            position: fixed;
+            inset: 0 auto 0 0;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform .25s;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 850;
+            letter-spacing: -1px;
+            padding: 0 13px;
+            margin-bottom: 38px;
+            display: block;
+        }
+
+        .logo span {
+            color: var(--primary);
+        }
+
+        .nav-label {
+            color: #a09caf;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.3px;
+            padding: 0 13px;
+            margin-bottom: 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 650;
+            color: var(--muted);
+            margin-bottom: 5px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #f0ecff;
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            width: 22px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .main {
+            margin-left: 245px;
+            width: calc(100% - 245px);
+        }
+
+        .topbar {
+            height: 76px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 34px;
+        }
+
+        .topbar h2 {
+            font-size: 19px;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .badge {
+            background: #eee9ff;
+            color: var(--primary);
+            padding: 10px 15px;
+            border-radius: 9px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .content {
+            max-width: 1500px;
+            margin: auto;
+            padding: 32px;
+        }
+
+        .heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .heading h1 {
+            font-size: 27px;
+            margin-bottom: 8px;
+        }
+
+        .heading p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .primary-btn {
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 9px;
+            padding: 13px 18px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .primary-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .info-card {
+            background: linear-gradient(120deg, #6c4df6, #8b75fa);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .info-card h2 {
+            font-size: 18px;
+            margin-bottom: 9px;
+        }
+
+        .info-card p {
+            max-width: 650px;
+            font-size: 12px;
+            line-height: 1.8;
+            color: #f0edff;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 17px;
+        }
+
+        .section-header h2 {
+            font-size: 17px;
+        }
+
+        .skill-count {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .skill-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 21px;
+            min-width: 0;
+        }
+
+        .skill-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .skill-name {
+            font-size: 15px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .skill-level {
+            font-size: 10px;
+            font-weight: 800;
+            background: #eee9ff;
+            color: var(--primary);
+            padding: 7px 9px;
+            border-radius: 7px;
+            white-space: nowrap;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 7px;
+            background: #efedf6;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #6c4df6, #9c8bff);
+        }
+
+        .skill-level-label {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .skill-actions {
+            display: flex;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        .secondary-btn,
+        .delete-btn {
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .secondary-btn {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+        }
+
+        .delete-btn {
+            border: none;
+            background: #fef2f2;
+            color: var(--red);
+        }
+
+        .notice {
+            display: none;
+            padding: 13px 15px;
+            border-radius: 9px;
+            margin-bottom: 18px;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .notice.error {
+            display: block;
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .notice.success {
+            display: block;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .notice.info {
+            display: block;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .empty-state {
+            background: white;
+            border: 1px dashed #d9d4e8;
+            border-radius: 14px;
+            padding: 55px 20px;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state h3 {
+            font-size: 16px;
+            margin-bottom: 9px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        /* MODAL */
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(25, 20, 50, .5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 200;
+        }
+
+        .modal.open {
+            display: flex;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 460px;
+            background: white;
+            border-radius: 15px;
+            padding: 27px;
+        }
+
+        .modal-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 23px;
+        }
+
+        .modal-heading h2 {
+            font-size: 19px;
+        }
+
+        .close-btn {
+            border: none;
+            background: #f1eff7;
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            font-size: 20px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 13px;
+            font-size: 12px;
+            outline: none;
+            background: white;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 23px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+        }
+
+        .cancel-btn {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 13px;
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .mobile-menu {
+            display: none;
+            border: none;
+            background: transparent;
+            font-size: 23px;
+            margin-right: 12px;
+        }
+
+        @media (max-width: 1100px) {
+            .skill-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 40px #00000012;
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .mobile-menu {
+                display: inline-block;
+            }
+
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .content {
+                padding: 25px 18px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .skill-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .badge {
+                display: none;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="dashboard.html" class="logo">
+            Edu<span>Match</span>
+        </a>
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <a href="dashboard.html" class="nav-link">
+            <span class="nav-icon">⌂</span> Dashboard
+        </a>
+
+        <a href="profile.html" class="nav-link">
+            <span class="nav-icon">◎</span> My Profile
+        </a>
+
+        <a href="skills.html" class="nav-link active">
+            <span class="nav-icon">✿</span> My Skills
+        </a>
+
+        <a href="requests.html" class="nav-link">
+            <span class="nav-icon">♧</span> Project Requests
+        </a>
+
+        <a href="orders.html" class="nav-link">
+            <span class="nav-icon">▤</span> My Orders
+        </a>
+
+        <a href="chat.html" class="nav-link">
+            <span class="nav-icon">✉</span> Messages
+        </a>
+
+        <a href="../index.html" class="nav-link">
+            <span class="nav-icon">←</span> Back to Website
+        </a>
+
+        <a href="login.html" class="nav-link" id="logoutLink" style="color:#dc2626; margin-top:25px;">
+            <span class="nav-icon">⇥</span> Log Out
+        </a>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:center;">
+                <button class="mobile-menu" id="menuToggle"
+                        aria-label="Toggle navigation">☰</button>
+
+                <div>
+                    <h2>My Skills</h2>
+                    <p>Manage your professional expertise.</p>
+                </div>
+            </div>
+
+            <div class="badge">PROVIDER WORKSPACE</div>
+
+        </header>
+
+        <div class="content">
+
+            <div class="heading">
+
+                <div>
+                    <h1>Professional Skills</h1>
+                    <p>
+                        Keep your expertise updated so students can
+                        understand your capabilities.
+                    </p>
+                </div>
+
+                <button class="primary-btn" id="addSkillButton">
+                    + Add Skill
+                </button>
+
+            </div>
+
+            <section class="info-card">
+                <h2>Show what you can do.</h2>
+                <p>
+                    Add skills that accurately represent your abilities.
+                    Your skills can help students understand your expertise
+                    and may be used by EduMatch's matching system when it
+                    compares student requirements with provider capabilities.
+                </p>
+            </section>
+
+            <div id="notice" class="notice"></div>
+
+            <div class="section-header">
+                <h2>Your Skills</h2>
+                <span class="skill-count" id="skillCount">Loading...</span>
+            </div>
+
+            <div class="skill-grid" id="skillGrid"></div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<!-- ADD / EDIT SKILL -->
+
+<div class="modal" id="skillModal"
+     role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+
+    <div class="modal-card">
+
+        <div class="modal-heading">
+            <h2 id="modalTitle">Add a Skill</h2>
+
+            <button class="close-btn" id="closeModal"
+                    aria-label="Close form">&times;</button>
+        </div>
+
+        <div id="formNotice" class="notice"></div>
+
+        <form id="skillForm">
+
+            <input type="hidden" id="skillId">
+
+            <div class="field">
+                <label for="skillName">Skill Name *</label>
+
+                <input
+                    type="text"
+                    id="skillName"
+                    maxlength="100"
+                    required
+                    placeholder="Enter a skill you actually have"
+                >
+            </div>
+
+            <div class="field">
+                <label for="skillLevel">Proficiency Level *</label>
+
+                <select id="skillLevel" required>
+                    <option value="">Select proficiency</option>
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                    <option value="Expert">Expert</option>
+                </select>
+            </div>
+
+            <div class="modal-actions">
+
+                <button type="button" class="cancel-btn" id="cancelModal">
+                    Cancel
+                </button>
+
+                <button type="submit" class="primary-btn" id="saveSkillButton">
+                    Save Skill
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+    const API_BASE_URL = "http://127.0.0.1:5000/api";
+
+    const skillGrid = document.getElementById("skillGrid");
+    const skillCount = document.getElementById("skillCount");
+
+    const notice = document.getElementById("notice");
+    const formNotice = document.getElementById("formNotice");
+
+    const skillModal = document.getElementById("skillModal");
+    const skillForm = document.getElementById("skillForm");
+
+    const saveSkillButton = document.getElementById("saveSkillButton");
+
+    let skills = [];
+
+    const levelPercentages = {
+        Beginner: 25,
+        Intermediate: 50,
+        Advanced: 75,
+        Expert: 100
+    };
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    function getToken() {
+        return localStorage.getItem("edumatch_token");
+    }
+
+    function showNotice(element, message, type = "info") {
+        element.textContent = message;
+        element.className = "notice " + type;
+    }
+
+    function clearNotice(element) {
+        element.textContent = "";
+        element.className = "notice";
+    }
+
+    async function apiRequest(path, options = {}) {
+        const token = getToken();
+
+        const headers = {
+            "Content-Type": "application/json",
+            ...(options.headers || {})
+        };
+
+        if (token) {
+            headers.Authorization = `Bearer ${token}`;
+        }
+
+        const response = await fetch(API_BASE_URL + path, {
+            ...options,
+            headers,
+            credentials: "include"
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(
+                data.message ||
+                data.error ||
+                `Request failed (HTTP ${response.status}).`
+            );
+        }
+
+        return data;
+    }
+
+    function renderSkills() {
+        skillCount.textContent =
+            `${skills.length} skill${skills.length === 1 ? "" : "s"}`;
+
+        if (skills.length === 0) {
+            skillGrid.innerHTML = `
+                <div class="empty-state">
+                    <h3>No skills added yet</h3>
+                    <p>
+                        Add your professional skills to build your provider
+                        profile. Skills will appear here after they are
+                        saved successfully to the EduMatch database.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        skillGrid.innerHTML = skills.map(skill => {
+            const level = String(skill.level || "Beginner");
+
+            /*
+              The bar is a visual representation of the selected label.
+              It is not a measured test of skill or a verified assessment.
+            */
+
+            const percentage = levelPercentages[level] || 25;
+
+            return `
+                <article class="skill-card">
+
+                    <div class="skill-top">
+
+                        <div class="skill-name">
+                            ${escapeHTML(skill.name)}
+                        </div>
+
+                        <span class="skill-level">
+                            ${escapeHTML(level)}
+                        </span>
+
+                    </div>
+
+                    <div class="progress-track"
+                         aria-label="${escapeHTML(level)} proficiency">
+
+                        <div class="progress-fill"
+                             style="width:${percentage}%"></div>
+
+                    </div>
+
+                    <div class="skill-level-label">
+                        Self-reported proficiency
+                    </div>
+
+                    <div class="skill-actions">
+
+                        <button class="secondary-btn"
+                            data-action="edit"
+                            data-id="${escapeHTML(skill.id)}">
+                            Edit
+                        </button>
+
+                        <button class="delete-btn"
+                            data-action="delete"
+                            data-id="${escapeHTML(skill.id)}">
+                            Delete
+                        </button>
+
+                    </div>
+
+                </article>
+            `;
+        }).join("");
+    }
+
+    async function loadSkills() {
+        clearNotice(notice);
+
+        skillGrid.innerHTML = `
+            <div class="empty-state">
+                <h3>Loading skills...</h3>
+                <p>Retrieving your skills from the server.</p>
+            </div>
+        `;
+
+        skillCount.textContent = "Loading...";
+
+        try {
+            /*
+              Required backend endpoint:
+              GET /api/provider/skills
+
+              Expected response:
+              { "skills": [{ "id": 1, "name": "Python", "level": "Intermediate" }] }
+
+              The example above describes the API structure only.
+              This page does not insert those example records.
+            */
+
+            const data = await apiRequest("/provider/skills");
+
+            if (!Array.isArray(data.skills)) {
+                throw new Error(
+                    "The server response does not contain a skills array."
+                );
+            }
+
+            skills = data.skills;
+
+            renderSkills();
+
+        } catch (error) {
+            skills = [];
+
+            skillCount.textContent = "Unavailable";
+
+            skillGrid.innerHTML = `
+                <div class="empty-state">
+                    <h3>Skills could not be loaded</h3>
+                    <p>${escapeHTML(error.message)}</p>
+                    <br>
+                    <p>
+                        Check that the Flask backend is running and
+                        GET /api/provider/skills is implemented.
+                    </p>
+                </div>
+            `;
+
+            showNotice(
+                notice,
+                "Skills have not been loaded from the database. " +
+                "No example skills have been inserted.",
+                "error"
+            );
+        }
+    }
+
+    function openModal(skill = null) {
+        clearNotice(formNotice);
+        skillForm.reset();
+
+        document.getElementById("skillId").value =
+            skill ? skill.id : "";
+
+        document.getElementById("modalTitle").textContent =
+            skill ? "Edit Skill" : "Add a Skill";
+
+        document.getElementById("skillName").value =
+            skill?.name || "";
+
+        document.getElementById("skillLevel").value =
+            skill?.level || "";
+
+        skillModal.classList.add("open");
+
+        document.getElementById("skillName").focus();
+    }
+
+    function closeModal() {
+        skillModal.classList.remove("open");
+    }
+
+    document.getElementById("addSkillButton").addEventListener(
+        "click",
+        () => openModal()
+    );
+
+    document.getElementById("closeModal").addEventListener(
+        "click",
+        closeModal
+    );
+
+    document.getElementById("cancelModal").addEventListener(
+        "click",
+        closeModal
+    );
+
+    skillModal.addEventListener("click", event => {
+        if (event.target === skillModal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+
+    skillGrid.addEventListener("click", async event => {
+        const button = event.target.closest("button[data-action]");
+
+        if (!button) return;
+
+        const id = button.dataset.id;
+        const action = button.dataset.action;
+
+        const skill = skills.find(
+            item => String(item.id) === String(id)
+        );
+
+        if (!skill) {
+            showNotice(notice, "This skill is no longer available.", "error");
+            return;
+        }
+
+        if (action === "edit") {
+            openModal(skill);
+            return;
+        }
+
+        if (action === "delete") {
+            if (!confirm(`Delete the skill "${skill.name}"?`)) {
+                return;
+            }
+
+            button.disabled = true;
+
+            try {
+                /*
+                  Required endpoint:
+                  DELETE /api/provider/skills/<id>
+
+                  Backend must verify that this skill belongs
+                  to the authenticated provider.
+                */
+
+                await apiRequest(
+                    `/provider/skills/${encodeURIComponent(id)}`,
+                    { method: "DELETE" }
+                );
+
+                showNotice(notice, "Skill deleted successfully.", "success");
+
+                await loadSkills();
+
+            } catch (error) {
+                showNotice(notice, error.message, "error");
+                button.disabled = false;
+            }
+        }
+    });
+
+    skillForm.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        clearNotice(formNotice);
+
+        const id = document.getElementById("skillId").value;
+
+        const payload = {
+            name: document.getElementById("skillName").value.trim(),
+            level: document.getElementById("skillLevel").value
+        };
+
+        if (!payload.name || !payload.level) {
+            showNotice(
+                formNotice,
+                "Please enter a skill name and proficiency level.",
+                "error"
+            );
+            return;
+        }
+
+        saveSkillButton.disabled = true;
+        saveSkillButton.textContent = "Saving...";
+
+        try {
+            /*
+              Create:
+              POST /api/provider/skills
+
+              Update:
+              PUT /api/provider/skills/<id>
+            */
+
+            if (id) {
+                await apiRequest(
+                    `/provider/skills/${encodeURIComponent(id)}`,
+                    {
+                        method: "PUT",
+                        body: JSON.stringify(payload)
+                    }
+                );
+            } else {
+                await apiRequest(
+                    "/provider/skills",
+                    {
+                        method: "POST",
+                        body: JSON.stringify(payload)
+                    }
+                );
+            }
+
+            closeModal();
+
+            showNotice(
+                notice,
+                id ? "Skill updated successfully." : "Skill added successfully.",
+                "success"
+            );
+
+            await loadSkills();
+
+        } catch (error) {
+            showNotice(formNotice, error.message, "error");
+
+        } finally {
+            saveSkillButton.disabled = false;
+            saveSkillButton.textContent = "Save Skill";
+        }
+    });
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+        document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    document.getElementById("logoutLink").addEventListener("click", event => {
+        event.preventDefault();
+
+        localStorage.removeItem("edumatch_token");
+
+        window.location.href = "login.html";
+    });
+
+    loadSkills();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

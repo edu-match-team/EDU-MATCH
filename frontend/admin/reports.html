@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduMatch | Reports</title>
+
+<style>
+:root {
+    --primary: #5b4bdb;
+    --background: #f5f6fc;
+    --surface: #ffffff;
+    --text: #20233a;
+    --muted: #73778e;
+    --border: #e7e8f1;
+    --success: #16875d;
+    --danger: #c83e4d;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+.layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 245px;
+    background: #17172d;
+    color: white;
+    padding: 26px 16px;
+    flex-shrink: 0;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: 800;
+    margin: 0 10px 35px;
+}
+
+.brand span {
+    color: #a79aff;
+}
+
+.nav-title {
+    color: #9999b5;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 24px 10px 10px;
+}
+
+.nav-link {
+    display: block;
+    padding: 12px;
+    color: #d3d3e6;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #343052;
+    color: white;
+}
+
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 28px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+h1 {
+    font-size: 28px;
+    margin-bottom: 7px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+}
+
+button,
+select,
+input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.btn {
+    border: none;
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-secondary {
+    background: white;
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.toolbar {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    gap: 12px;
+    align-items: end;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1;
+    min-width: 160px;
+}
+
+.field label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.field input,
+.field select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: white;
+    color: var(--text);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 24px;
+}
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px;
+    min-width: 0;
+}
+
+.card-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 15px;
+}
+
+.card-value {
+    font-size: 27px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.card-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+}
+
+.section {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 22px;
+}
+
+.section-head {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.section-head h2 {
+    font-size: 17px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 650px;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+th {
+    background: #fafaff;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.status {
+    display: inline-block;
+    border-radius: 20px;
+    padding: 6px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #e5f7ee;
+    color: var(--success);
+}
+
+.status.failed {
+    background: #ffebed;
+    color: var(--danger);
+}
+
+.message {
+    padding: 25px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+}
+
+.notice {
+    padding: 13px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+    font-size: 14px;
+}
+
+.notice.error {
+    display: block;
+    background: #ffebed;
+    color: #a52b39;
+}
+
+.notice.success {
+    display: block;
+    background: #e5f7ee;
+    color: #126b49;
+}
+
+.footer-note {
+    color: var(--muted);
+    font-size: 12px;
+    margin: 15px 0;
+}
+
+@media (max-width: 1100px) {
+    .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .layout {
+        display: block;
+    }
+
+    .sidebar {
+        width: 100%;
+    }
+
+    .main {
+        padding: 18px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+}
+</style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">Edu<span>Match</span></div>
+
+        <div class="nav-title">Administration</div>
+        <a class="nav-link" href="dashboard.html">Dashboard</a>
+        <a class="nav-link" href="users.html">All Users</a>
+        <a class="nav-link" href="students.html">Students</a>
+        <a class="nav-link" href="providers.html">Providers</a>
+        <a class="nav-link" href="services.html">Services</a>
+        <a class="nav-link" href="orders.html">Orders</a>
+        <a class="nav-link" href="disputes.html">Disputes</a>
+        <a class="nav-link active" href="reports.html">Reports</a>
+        <a class="nav-link" href="settings.html">Settings</a>
+
+        <div class="nav-title">Account</div>
+        <a class="nav-link" href="#" id="logoutButton">Logout</a>
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+            <div>
+                <h1>Reports & Analytics</h1>
+                <p class="subtitle">
+                    Review platform performance using recorded EduMatch data.
+                </p>
+            </div>
+
+            <button class="btn btn-primary" id="refreshButton">
+                Refresh Reports
+            </button>
+        </header>
+
+        <div id="notice" class="notice" role="status"></div>
+
+        <section class="toolbar">
+            <div class="field">
+                <label for="startDate">Start date</label>
+                <input type="date" id="startDate">
+            </div>
+
+            <div class="field">
+                <label for="endDate">End date</label>
+                <input type="date" id="endDate">
+            </div>
+
+            <div class="field">
+                <label for="reportType">Report type</label>
+                <select id="reportType">
+                    <option value="overview">Platform overview</option>
+                    <option value="users">User report</option>
+                    <option value="services">Service report</option>
+                    <option value="orders">Order report</option>
+                    <option value="payments">Payment report</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" id="generateButton">
+                Generate
+            </button>
+
+            <button class="btn btn-secondary" id="exportButton">
+                Export CSV
+            </button>
+        </section>
+
+        <section class="grid" id="statsGrid">
+            <div class="card">
+                <div class="card-label">Total Students</div>
+                <div class="card-value">—</div>
+                <div class="card-note">Waiting for backend data</div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Total Providers</div>
+                <div class="card-value">—</div>
+                <div class="card-note">Waiting for backend data</div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Total Services</div>
+                <div class="card-value">—</div>
+                <div class="card-note">Waiting for backend data</div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Total Orders</div>
+                <div class="card-value">—</div>
+                <div class="card-note">Waiting for backend data</div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <h2 id="reportHeading">Platform Overview</h2>
+                <span class="subtitle" id="reportPeriod">No report generated</span>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reportBody">
+                        <tr>
+                            <td colspan="3" class="message">
+                                Generate a report to load actual platform data.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="section-head">
+                <h2>Report Status</h2>
+            </div>
+
+            <div id="reportStatus" class="message">
+                No report has been generated yet.
+            </div>
+        </section>
+
+        <p class="footer-note">
+            Reports must be calculated by the backend from stored database
+            records. Payment totals should come from verified payment records,
+            not merely from order prices.
+        </p>
+
+    </main>
+</div>
+
+<script>
+const API = "http://127.0.0.1:5000/api";
+
+const token = localStorage.getItem("edumatch_token");
+
+const notice = document.getElementById("notice");
+const reportBody = document.getElementById("reportBody");
+const reportStatus = document.getElementById("reportStatus");
+
+let currentReport = null;
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+function showNotice(message, type = "error") {
+    notice.className = "notice " + type;
+    notice.textContent = message;
+}
+
+function clearNotice() {
+    notice.className = "notice";
+    notice.textContent = "";
+}
+
+async function apiRequest(path) {
+    if (!token) {
+        throw new Error("Admin session not found. Please log in first.");
+    }
+
+    const response = await fetch(API + path, {
+        headers: {
+            "Authorization": "Bearer " + token,
+            "Accept": "application/json"
+        }
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.message || data.error ||
+            `Request failed (${response.status}).`);
+    }
+
+    return data;
+}
+
+function getDateFilters() {
+    const start = document.getElementById("startDate").value;
+    const end = document.getElementById("endDate").value;
+
+    if (start && end && start > end) {
+        throw new Error("Start date cannot be later than end date.");
+    }
+
+    const params = new URLSearchParams();
+
+    if (start) params.set("start_date", start);
+    if (end) params.set("end_date", end);
+
+    return params.toString();
+}
+
+function formatValue(value) {
+    if (value === null || value === undefined || value === "") {
+        return "—";
+    }
+
+    if (typeof value === "number") {
+        return value.toLocaleString();
+    }
+
+    return String(value);
+}
+
+function renderStats(data) {
+    const stats = data.stats || {};
+
+    const cards = [
+        {
+            label: "Total Students",
+            value: stats.total_students
+        },
+        {
+            label: "Total Providers",
+            value: stats.total_providers
+        },
+        {
+            label: "Total Services",
+            value: stats.total_services
+        },
+        {
+            label: "Total Orders",
+            value: stats.total_orders
+        }
+    ];
+
+    document.getElementById("statsGrid").innerHTML = cards.map(card => `
+        <div class="card">
+            <div class="card-label">${escapeHTML(card.label)}</div>
+            <div class="card-value">${escapeHTML(formatValue(card.value))}</div>
+            <div class="card-note">From the backend report</div>
+        </div>
+    `).join("");
+}
+
+function renderReport(data, type) {
+    currentReport = data;
+
+    const labels = {
+        overview: "Platform Overview",
+        users: "User Report",
+        services: "Service Report",
+        orders: "Order Report",
+        payments: "Payment Report"
+    };
+
+    document.getElementById("reportHeading").textContent =
+        labels[type] || "Platform Report";
+
+    const start = document.getElementById("startDate").value;
+    const end = document.getElementById("endDate").value;
+
+    document.getElementById("reportPeriod").textContent =
+        start || end
+            ? `${start || "Beginning"} to ${end || "Today"}`
+            : "All available dates";
+
+    const metrics = data.metrics;
+
+    if (!metrics || typeof metrics !== "object" ||
+        Array.isArray(metrics)) {
+        reportBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="message">
+                    The backend response does not contain a valid metrics object.
+                </td>
+            </tr>
+        `;
+
+        reportStatus.textContent =
+            "The report format needs to be checked against the backend API.";
+        return;
+    }
+
+    const entries = Object.entries(metrics);
+
+    if (!entries.length) {
+        reportBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="message">
+                    No recorded metrics are available for this report.
+                </td>
+            </tr>
+        `;
+    } else {
+        reportBody.innerHTML = entries.map(([key, value]) => `
+            <tr>
+                <td>${escapeHTML(key.replaceAll("_", " "))}</td>
+                <td>${escapeHTML(formatValue(
+                    typeof value === "object"
+                        ? JSON.stringify(value)
+                        : value
+                ))}</td>
+                <td>Calculated from the selected report data.</td>
+            </tr>
+        `).join("");
+    }
+
+    reportStatus.textContent =
+        `Report received successfully. ${entries.length} metric(s) returned.`;
+}
+
+async function generateReport() {
+    clearNotice();
+
+    const button = document.getElementById("generateButton");
+    button.disabled = true;
+    button.textContent = "Generating...";
+
+    try {
+        const type = document.getElementById("reportType").value;
+        const dateQuery = getDateFilters();
+
+        const params = new URLSearchParams(dateQuery);
+        params.set("type", type);
+
+        const data = await apiRequest(
+            "/admin/reports?" + params.toString()
+        );
+
+        renderStats(data);
+        renderReport(data, type);
+
+    } catch (error) {
+        showNotice(error.message);
+        reportStatus.textContent =
+            "Report could not be loaded. Check the backend connection and API route.";
+    } finally {
+        button.disabled = false;
+        button.textContent = "Generate";
+    }
+}
+
+function exportCSV() {
+    if (!currentReport ||
+        !currentReport.metrics ||
+        typeof currentReport.metrics !== "object") {
+        showNotice("Generate a report before exporting it.");
+        return;
+    }
+
+    const rows = [
+        ["Metric", "Value"],
+        ...Object.entries(currentReport.metrics).map(([key, value]) => [
+            key,
+            typeof value === "object"
+                ? JSON.stringify(value)
+                : String(value ?? "")
+        ])
+    ];
+
+    const csv = rows.map(row => row.map(value => {
+        const safeValue = String(value).replace(/"/g, '""');
+        return `"${safeValue}"`;
+    }).join(",")).join("\r\n");
+
+    const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download =
+        "edumatch-" +
+        document.getElementById("reportType").value +
+        "-report.csv";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
+    showNotice("CSV exported from the report currently loaded.", "success");
+}
+
+document.getElementById("generateButton")
+    .addEventListener("click", generateReport);
+
+document.getElementById("refreshButton")
+    .addEventListener("click", generateReport);
+
+document.getElementById("exportButton")
+    .addEventListener("click", exportCSV);
+
+document.getElementById("logoutButton")
+    .addEventListener("click", event => {
+        event.preventDefault();
+        localStorage.removeItem("edumatch_token");
+        window.location.href = "login.html";
+    });
+
+if (!token) {
+    showNotice("Please log in through the admin login page.");
+    reportStatus.textContent = "Admin authentication is required.";
+}
+</script>
+    <script src="../theme.js"></script>
+</body>
+</html>

@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders | EduMatch</title>
+
+    <style>
+        :root {
+            --primary: #5b4bdb;
+            --primary-light: #efedff;
+            --background: #f6f7fb;
+            --white: #ffffff;
+            --text: #20243a;
+            --muted: #777d91;
+            --border: #e8eaf1;
+            --green: #16865c;
+            --red: #c03939;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+
+        .sidebar {
+            width: 240px;
+            flex-shrink: 0;
+            background: var(--white);
+            border-right: 1px solid var(--border);
+            padding: 25px 17px;
+        }
+
+        .logo {
+            display: block;
+            font-size: 25px;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 10px 35px;
+        }
+
+        .logo span {
+            color: var(--text);
+        }
+
+        .nav-title {
+            margin: 20px 10px 12px;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 13px 12px;
+            margin: 5px 0;
+            border-radius: 9px;
+            color: #62677a;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            font-weight: bold;
+        }
+
+        /* Main */
+
+        .main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            min-height: 75px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar h2 {
+            font-size: 20px;
+        }
+
+        .provider-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .content {
+            max-width: 1500px;
+            padding: 30px;
+            margin: auto;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .refresh-btn {
+            padding: 11px 17px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--white);
+            color: var(--text);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .refresh-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Summary */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            padding: 22px;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            background: var(--white);
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        /* Filters */
+
+        .orders-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .filters {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-height: 43px;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            background: var(--white);
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: var(--primary);
+        }
+
+        .status-filter {
+            width: 180px;
+        }
+
+        /* Table */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 17px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        th {
+            background: #fafbfe;
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .service-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            overflow-wrap: anywhere;
+        }
+
+        .secondary-text {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: capitalize;
+            white-space: nowrap;
+            background: #eeeeee;
+            color: #444444;
+        }
+
+        .status.pending {
+            background: #fff4d9;
+            color: #956b08;
+        }
+
+        .status.accepted,
+        .status.in_progress {
+            background: #e9efff;
+            color: #3156a5;
+        }
+
+        .status.completed {
+            background: #e5f7ee;
+            color: var(--green);
+        }
+
+        .status.cancelled,
+        .status.rejected {
+            background: #fdeaea;
+            color: var(--red);
+        }
+
+        .view-btn {
+            display: inline-block;
+            padding: 9px 12px;
+            border-radius: 7px;
+            background: var(--primary-light);
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .view-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* States */
+
+        .message {
+            display: none;
+            padding: 13px 15px;
+            margin-bottom: 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .message.visible {
+            display: block;
+        }
+
+        .message.error {
+            background: #fff0f0;
+            color: #9d2525;
+            border: 1px solid #f3cccc;
+        }
+
+        .message.info {
+            background: #edf3ff;
+            color: #244e91;
+            border: 1px solid #d5e2ff;
+        }
+
+        .empty-state {
+            padding: 55px 20px;
+            text-align: center;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            max-width: 440px;
+            margin: auto;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+        }
+
+        .loading {
+            padding: 45px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1050px) {
+            .content {
+                padding: 22px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: -260px;
+                z-index: 10;
+                width: 240px;
+                transition: left 0.25s;
+                box-shadow: 3px 0 15px #00000010;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .menu-toggle {
+                display: inline-block;
+            }
+
+            .topbar {
+                padding: 14px;
+            }
+
+            .topbar h2 {
+                font-size: 16px;
+            }
+
+            .content {
+                padding: 18px 12px;
+            }
+
+            .page-heading h1 {
+                font-size: 24px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .filters {
+                padding: 14px;
+            }
+
+            .status-filter {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <aside class="sidebar" id="sidebar">
+
+        <a href="../index.html" class="logo">
+            Edu<span>Match</span>
+        </a>
+
+        <p class="nav-title">WORKSPACE</p>
+
+        <a href="dashboard.html" class="nav-link">⌂ &nbsp; Dashboard</a>
+        <a href="profile.html" class="nav-link">◎ &nbsp; My Profile</a>
+        <a href="skills.html" class="nav-link">✿ &nbsp; My Skills</a>
+        <a href="requests.html" class="nav-link">♧ &nbsp; Project Requests</a>
+        <a href="orders.html" class="nav-link active">▤ &nbsp; My Orders</a>
+        <a href="chat.html" class="nav-link">✉ &nbsp; Messages</a>
+        <a href="../index.html" class="nav-link">← &nbsp; Back to Website</a>
+        <a href="login.html" class="nav-link" id="logoutButton" style="color:#dc2626; margin-top:25px;">⇥ &nbsp; Logout</a>
+
+    </aside>
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="menu-toggle" id="menuToggle"
+                        aria-label="Toggle navigation">☰</button>
+                <h2>My Orders</h2>
+            </div>
+
+            <div class="provider-info">
+                <div class="avatar" id="providerAvatar">P</div>
+                <span id="providerName">Provider Account</span>
+            </div>
+
+        </header>
+
+        <div class="content">
+
+            <div class="page-heading">
+                <div>
+                    <h1>My Orders</h1>
+                    <p>
+                        Manage student orders assigned to your provider account.
+                    </p>
+                </div>
+
+                <button class="refresh-btn" id="refreshButton">
+                    ↻ Refresh
+                </button>
+            </div>
+
+            <div class="message error" id="errorMessage" role="alert"></div>
+            <div class="message info" id="infoMessage" role="status"></div>
+
+            <section class="stats-grid">
+
+                <article class="stat-card">
+                    <p class="stat-label">Total Orders</p>
+                    <h2 class="stat-value" id="totalOrders">—</h2>
+                </article>
+
+                <article class="stat-card">
+                    <p class="stat-label">Active Orders</p>
+                    <h2 class="stat-value" id="activeOrders">—</h2>
+                </article>
+
+                <article class="stat-card">
+                    <p class="stat-label">Completed Orders</p>
+                    <h2 class="stat-value" id="completedOrders">—</h2>
+                </article>
+
+            </section>
+
+            <section class="orders-card">
+
+                <div class="filters">
+
+                    <div class="search-box">
+                        <input
+                            type="search"
+                            id="searchInput"
+                            placeholder="Search order, service or student..."
+                            aria-label="Search orders"
+                        >
+                    </div>
+
+                    <div class="status-filter">
+                        <select id="statusFilter" aria-label="Filter by status">
+                            <option value="all">All Orders</option>
+                            <option value="pending">Pending</option>
+                            <option value="accepted">Accepted</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                            <option value="cancelled">Cancelled</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div id="loadingState" class="loading">
+                    Loading orders from the EduMatch server...
+                </div>
+
+                <div id="emptyState" class="empty-state" hidden>
+                    <h3 id="emptyTitle">No orders found</h3>
+                    <p id="emptyDescription">
+                        Orders assigned to your provider account will appear here.
+                    </p>
+                </div>
+
+                <div class="table-wrapper" id="tableWrapper" hidden>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>Student</th>
+                                <th>Order Date</th>
+                                <th>Delivery Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="ordersTable"></tbody>
+                    </table>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script>
+    "use strict";
+
+    /*
+     * Required Flask endpoint:
+     *
+     * GET /api/provider/orders
+     *
+     * Expected response structure:
+     *
+     * {
+     *   "orders": [
+     *     {
+     *       "id": 123,
+     *       "service_title": "Service title",
+     *       "student": {
+     *         "id": 456,
+     *         "name": "Student name"
+     *       },
+     *       "created_at": "2026-10-10T10:00:00",
+     *       "delivery_date": "2026-10-20T10:00:00",
+     *       "amount": 1500,
+     *       "status": "pending"
+     *     }
+     *   ]
+     * }
+     *
+     * The structure above documents the API contract only.
+     * No example orders are created or displayed.
+     */
+
+    const API_BASE_URL = "http://127.0.0.1:5000/api";
+
+    const el = {
+        sidebar: document.getElementById("sidebar"),
+        menuToggle: document.getElementById("menuToggle"),
+        providerName: document.getElementById("providerName"),
+        providerAvatar: document.getElementById("providerAvatar"),
+
+        totalOrders: document.getElementById("totalOrders"),
+        activeOrders: document.getElementById("activeOrders"),
+        completedOrders: document.getElementById("completedOrders"),
+
+        errorMessage: document.getElementById("errorMessage"),
+        infoMessage: document.getElementById("infoMessage"),
+
+        loadingState: document.getElementById("loadingState"),
+        emptyState: document.getElementById("emptyState"),
+        emptyTitle: document.getElementById("emptyTitle"),
+        emptyDescription: document.getElementById("emptyDescription"),
+
+        tableWrapper: document.getElementById("tableWrapper"),
+        ordersTable: document.getElementById("ordersTable"),
+
+        searchInput: document.getElementById("searchInput"),
+        statusFilter: document.getElementById("statusFilter"),
+        refreshButton: document.getElementById("refreshButton")
+    };
+
+    let orders = [];
+
+    function showError(message) {
+        el.errorMessage.textContent = message;
+        el.errorMessage.classList.add("visible");
+
+        el.infoMessage.textContent = "";
+        el.infoMessage.classList.remove("visible");
+    }
+
+    function clearMessages() {
+        el.errorMessage.textContent = "";
+        el.errorMessage.classList.remove("visible");
+
+        el.infoMessage.textContent = "";
+        el.infoMessage.classList.remove("visible");
+    }
+
+    function formatCurrency(value) {
+        const amount = Number(value);
+
+        if (!Number.isFinite(amount)) {
+            return "—";
+        }
+
+        return new Intl.NumberFormat("en-IN", {
+            style: "currency",
+            currency: "INR",
+            maximumFractionDigits: 2
+        }).format(amount);
+    }
+
+    function formatDate(value) {
+        if (!value) {
+            return "—";
+        }
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    async function apiRequest(endpoint) {
+        const token = localStorage.getItem("edumatch_token");
+
+        const headers = {
+            "Accept": "application/json"
+        };
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        const response = await fetch(API_BASE_URL + endpoint, {
+            method: "GET",
+            headers: headers,
+            credentials: "include"
+        });
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch {
+            if (response.ok) {
+                throw new Error("The server returned invalid JSON.");
+            }
+        }
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                throw new Error(
+                    "Provider authentication failed. Please log in again."
+                );
+            }
+
+            throw new Error(
+                data.message ||
+                data.error ||
+                "Unable to retrieve orders. HTTP " + response.status + "."
+            );
+        }
+
+        return data;
+    }
+
+    async function loadOrders() {
+        clearMessages();
+
+        el.loadingState.hidden = false;
+        el.tableWrapper.hidden = true;
+        el.emptyState.hidden = true;
+
+        try {
+            const data = await apiRequest("/provider/orders");
+
+            if (!Array.isArray(data.orders)) {
+                throw new Error(
+                    "Invalid API response: expected an orders array."
+                );
+            }
+
+            orders = data.orders;
+
+            /*
+             * Summary values are calculated from the server's order records.
+             * They are not generated or stored as fake statistics.
+             */
+            el.totalOrders.textContent = orders.length;
+
+            el.activeOrders.textContent = orders.filter(function (order) {
+                return ["accepted", "in_progress"].includes(
+                    String(order.status || "").toLowerCase()
+                );
+            }).length;
+
+            el.completedOrders.textContent = orders.filter(function (order) {
+                return String(order.status || "").toLowerCase() === "completed";
+            }).length;
+
+            renderOrders();
+
+        } catch (error) {
+            el.loadingState.hidden = true;
+
+            el.totalOrders.textContent = "—";
+            el.activeOrders.textContent = "—";
+            el.completedOrders.textContent = "—";
+
+            el.emptyState.hidden = false;
+            el.emptyTitle.textContent = "Unable to load orders";
+            el.emptyDescription.textContent =
+                "Check that the Flask server is running and the provider orders API exists.";
+
+            showError(error.message);
+
+            console.error("Orders loading error:", error);
+        }
+    }
+
+    function renderOrders() {
+        el.ordersTable.replaceChildren();
+
+        const search = el.searchInput.value.trim().toLowerCase();
+        const selectedStatus = el.statusFilter.value;
+
+        const filteredOrders = orders.filter(function (order) {
+            const status = String(order.status || "").toLowerCase();
+            const student = order.student || {};
+
+            const searchableText = [
+                order.id,
+                order.service_title,
+                student.name
+            ].map(function (value) {
+                return String(value || "").toLowerCase();
+            }).join(" ");
+
+            const matchesSearch = searchableText.includes(search);
+
+            const matchesStatus =
+                selectedStatus === "all" || status === selectedStatus;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        el.loadingState.hidden = true;
+        el.tableWrapper.hidden = true;
+        el.emptyState.hidden = true;
+
+        if (filteredOrders.length === 0) {
+            el.emptyState.hidden = false;
+
+            el.emptyTitle.textContent =
+                orders.length === 0
+                    ? "No orders yet"
+                    : "No matching orders";
+
+            el.emptyDescription.textContent =
+                orders.length === 0
+                    ? "Orders assigned to your provider account will appear here when recorded by EduMatch."
+                    : "Try changing the search text or status filter.";
+
+            return;
+        }
+
+        filteredOrders.forEach(function (order) {
+            const student = order.student || {};
+            const status = String(order.status || "unknown").toLowerCase();
+
+            const row = document.createElement("tr");
+
+            const orderCell = document.createElement("td");
+            const title = document.createElement("div");
+
+            title.className = "service-name";
+            title.textContent = order.service_title || "Untitled service";
+
+            const orderNumber = document.createElement("div");
+            orderNumber.className = "secondary-text";
+            orderNumber.textContent = "Order #" + String(order.id);
+
+            orderCell.append(title, orderNumber);
+
+            const studentCell = document.createElement("td");
+            studentCell.textContent = student.name || "—";
+
+            const createdCell = document.createElement("td");
+            createdCell.textContent = formatDate(order.created_at);
+
+            const deliveryCell = document.createElement("td");
+            deliveryCell.textContent = formatDate(order.delivery_date);
+
+            const amountCell = document.createElement("td");
+            amountCell.textContent = formatCurrency(order.amount);
+
+            const statusCell = document.createElement("td");
+            const badge = document.createElement("span");
+
+            badge.className = "status";
+            badge.textContent = status.replaceAll("_", " ");
+
+            const validStatuses = [
+                "pending",
+                "accepted",
+                "in_progress",
+                "completed",
+                "cancelled",
+                "rejected"
+            ];
+
+            if (validStatuses.includes(status)) {
+                badge.classList.add(status);
+            }
+
+            statusCell.appendChild(badge);
+
+            const actionCell = document.createElement("td");
+            const viewLink = document.createElement("a");
+
+            viewLink.className = "view-btn";
+            viewLink.textContent = "View Details";
+
+            viewLink.href =
+                "order-details.html?id=" +
+                encodeURIComponent(String(order.id));
+
+            actionCell.appendChild(viewLink);
+
+            row.append(
+                orderCell,
+                studentCell,
+                createdCell,
+                deliveryCell,
+                amountCell,
+                statusCell,
+                actionCell
+            );
+
+            el.ordersTable.appendChild(row);
+        });
+
+        el.tableWrapper.hidden = false;
+    }
+
+    el.searchInput.addEventListener("input", renderOrders);
+
+    el.statusFilter.addEventListener("change", renderOrders);
+
+    el.refreshButton.addEventListener("click", loadOrders);
+
+    el.menuToggle.addEventListener("click", function () {
+        el.sidebar.classList.toggle("open");
+    });
+
+    const providerName =
+        localStorage.getItem("edumatch_provider_name");
+
+    if (providerName) {
+        el.providerName.textContent = providerName;
+
+        el.providerAvatar.textContent =
+            providerName.trim().charAt(0).toUpperCase() || "P";
+    }
+
+    document.getElementById("logoutButton")
+        .addEventListener("click", function (event) {
+            event.preventDefault();
+
+            localStorage.removeItem("edumatch_token");
+            localStorage.removeItem("edumatch_provider_id");
+            localStorage.removeItem("edumatch_provider_name");
+
+            window.location.href = "login.html";
+        });
+
+    loadOrders();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

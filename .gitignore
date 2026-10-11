@@ -1,0 +1,34 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+.venv_old/
+env/
+venv/
+ENV/
+
+# Database journal & temp files
+database/*.db-journal
+database/*.db-wal
+database/*.db-shm
+
+# Node / Vite dependencies & build outputs
+node_modules/
+dist/
+.DS_Store
+
+# Pytest & IDE cache
+.pytest_cache/
+.vscode/
+.idea/
+*.log
+backend/pyvenv.cfg
+backend/.env
+inject_theme.py
+migrate_payments.py
+configure_admin.py
+verify_e2e.py
+

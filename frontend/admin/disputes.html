@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduMatch | Dispute Management</title>
+
+    <style>
+        :root {
+            --primary: #635bff;
+            --primary-dark: #5046e5;
+            --background: #f5f6fb;
+            --white: #ffffff;
+            --text: #20243a;
+            --muted: #858ba3;
+            --border: #e7e9f2;
+            --danger: #d94343;
+            --success: #168257;
+            --warning: #ad710c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--background);
+            color: var(--text);
+        }
+
+        button, input, select, textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .sidebar {
+            width: 250px;
+            position: fixed;
+            inset: 0 auto 0 0;
+            height: 100vh;
+            background: white;
+            border-right: 1px solid var(--border);
+            padding: 25px 17px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+            transition: transform 0.25s;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 0 10px;
+            margin-bottom: 38px;
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #756cff, #5046e5);
+        }
+
+        .brand h2 {
+            font-size: 21px;
+        }
+
+        .brand h2 span {
+            color: var(--primary);
+        }
+
+        .section-label {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            padding: 0 12px;
+            margin-bottom: 12px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px;
+            border-radius: 10px;
+            color: #69708a;
+            font-size: 14px;
+        }
+
+        .nav-link:hover {
+            background: #f4f3ff;
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: #efedff;
+            font-weight: bold;
+        }
+
+        .nav-icon {
+            width: 21px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .logout-button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #fff0f0;
+            color: var(--danger);
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .main {
+            margin-left: 250px;
+            min-height: 100vh;
+        }
+
+        .topbar {
+            height: 82px;
+            padding: 0 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar h2 {
+            font-size: 19px;
+        }
+
+        .topbar p {
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .avatar {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #efedff;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .menu-toggle {
+            display: none;
+            border: none;
+            background: none;
+            font-size: 25px;
+        }
+
+        .content {
+            max-width: 1500px;
+            padding: 32px 34px;
+            margin: auto;
+        }
+
+        .page-heading {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 26px;
+        }
+
+        .page-heading h1 {
+            font-size: 27px;
+            letter-spacing: -0.8px;
+            margin-bottom: 8px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .refresh-button {
+            padding: 11px 16px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: white;
+            font-weight: bold;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .refresh-button:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .alert {
+            display: none;
+            padding: 14px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .alert.error {
+            display: block;
+            background: #fff0f0;
+            border: 1px solid #ffdada;
+            color: #a42b2b;
+        }
+
+        .alert.success {
+            display: block;
+            background: #eafaf2;
+            border: 1px solid #c8efdd;
+            color: #137750;
+        }
+
+        .alert.warning {
+            display: block;
+            background: #fff8e8;
+            border: 1px solid #f4e0b5;
+            color: #8b5a09;
+        }
+
+        /* STATS */
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 21px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: bold;
+            margin-bottom: 17px;
+        }
+
+        .stat-value {
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: -1px;
+        }
+
+        .stat-note {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+
+        /* DISPUTE TABLE */
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .panel-header {
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .panel-header h3 {
+            font-size: 16px;
+        }
+
+        .panel-header p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-input,
+        .filter-select {
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 11px 13px;
+            outline: none;
+            background: white;
+            font-size: 13px;
+        }
+
+        .search-input {
+            width: 240px;
+        }
+
+        .filter-select {
+            min-width: 150px;
+        }
+
+        .search-input:focus,
+        .filter-select:focus {
+            border-color: var(--primary);
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            white-space: nowrap;
+        }
+
+        th {
+            text-align: left;
+            padding: 15px 20px;
+            background: #fafaff;
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 17px 20px;
+            border-bottom: 1px solid #f0f1f6;
+            font-size: 13px;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .dispute-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .dispute-subtitle {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .badge-open {
+            background: #fff4dd;
+            color: #a56a0b;
+        }
+
+        .badge-review {
+            background: #efedff;
+            color: #635bff;
+        }
+
+        .badge-resolved {
+            background: #e7f8ef;
+            color: #168257;
+        }
+
+        .badge-rejected {
+            background: #ffecec;
+            color: #c13737;
+        }
+
+        .badge-unknown {
+            background: #f0f1f6;
+            color: #69708a;
+        }
+
+        .view-button {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .view-button:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .empty-state {
+            padding: 35px 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.8;
+            white-space: normal;
+        }
+
+        .empty-state strong {
+            display: block;
+            color: var(--text);
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .loading {
+            padding: 30px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .table-footer {
+            padding: 17px 22px;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* DETAIL MODAL */
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            padding: 20px;
+            background: rgba(24, 27, 48, 0.52);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-backdrop.open {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 25px 80px #0002;
+        }
+
+        .modal-header {
+            padding: 22px 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .modal-header h2 {
+            font-size: 19px;
+            margin-bottom: 7px;
+        }
+
+        .modal-header p {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .close-modal {
+            border: none;
+            background: #f2f3f8;
+            border-radius: 8px;
+            width: 34px;
+            height: 34px;
+            font-size: 19px;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .detail-label {
+            color: var(--muted);
+            font-size: 11px;
+            margin-bottom: 7px;
+        }
+
+        .detail-value {
+            font-size: 13px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .description-box {
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .description-box h4 {
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .description-box p {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #626982;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .resolution-label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+
+        .resolution-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            resize: vertical;
+            outline: none;
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        .resolution-input:focus {
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 11px 15px;
+            border: none;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .resolve-btn {
+            background: var(--success);
+            color: white;
+        }
+
+        .reject-btn {
+            background: #fff0f0;
+            color: var(--danger);
+        }
+
+        .cancel-btn {
+            background: #f0f1f6;
+            color: #535a70;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            color: var(--muted);
+            font-size: 11px;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 850px) {
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: none;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+                box-shadow: 10px 0 35px #15172a20;
+            }
+
+            .main {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .content {
+                padding: 25px 20px;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-heading {
+                flex-direction: column;
+            }
+
+            .panel-header {
+                padding: 18px;
+            }
+
+            .filters {
+                width: 100%;
+            }
+
+            .search-input,
+            .filter-select {
+                width: 100%;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .modal-body {
+                padding: 18px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<aside class="sidebar" id="sidebar">
+
+    <a href="dashboard.html" class="brand">
+        <div class="brand-icon">E</div>
+        <h2>Edu<span>Match</span></h2>
+    </a>
+
+    <div class="section-label">ADMINISTRATION</div>
+
+    <nav class="nav-links">
+
+        <a href="dashboard.html" class="nav-link">
+            <span class="nav-icon">▦</span> Dashboard
+        </a>
+
+        <a href="users.html" class="nav-link">
+            <span class="nav-icon">♙</span> Manage Users
+        </a>
+
+        <a href="students.html" class="nav-link">
+            <span class="nav-icon">♧</span> Students
+        </a>
+
+        <a href="providers.html" class="nav-link">
+            <span class="nav-icon">♙</span> Providers
+        </a>
+
+        <a href="services.html" class="nav-link">
+            <span class="nav-icon">▤</span> Services
+        </a>
+
+        <a href="orders.html" class="nav-link">
+            <span class="nav-icon">▣</span> Orders
+        </a>
+
+        <a href="disputes.html" class="nav-link active">
+            <span class="nav-icon">⚖</span> Disputes
+        </a>
+
+        <a href="reports.html" class="nav-link">
+            <span class="nav-icon">▥</span> Reports
+        </a>
+
+        <a href="settings.html" class="nav-link">
+            <span class="nav-icon">⚙</span> Settings
+        </a>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+        <button class="logout-button" id="logoutButton">
+            ↪ &nbsp; Sign out
+        </button>
+    </div>
+
+</aside>
+
+<main class="main">
+
+    <header class="topbar">
+
+        <div style="display:flex;align-items:center;gap:15px;">
+            <button class="menu-toggle" id="menuToggle"
+                    aria-label="Open navigation">☰</button>
+
+            <div>
+                <h2>Dispute Management</h2>
+                <p>Review and manage student-provider disputes</p>
+            </div>
+        </div>
+
+        <div class="topbar-right">
+            <div class="avatar">A</div>
+        </div>
+
+    </header>
+
+    <section class="content">
+
+        <div class="page-heading">
+
+            <div>
+                <h1>Disputes</h1>
+                <p>
+                    Review actual disputes reported on EduMatch.
+                    Investigate each case before recording a decision.
+                </p>
+            </div>
+
+            <button class="refresh-button" id="refreshButton">
+                ↻ &nbsp; Refresh
+            </button>
+
+        </div>
+
+        <div id="globalAlert" class="alert" role="alert"></div>
+
+        <!-- STATISTICS -->
+
+        <div class="stats-grid">
+
+            <article class="stat-card">
+                <div class="stat-label">TOTAL DISPUTES</div>
+                <div class="stat-value" id="totalDisputes">—</div>
+                <div class="stat-note">Records returned by the server</div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-label">OPEN DISPUTES</div>
+                <div class="stat-value" id="openDisputes">—</div>
+                <div class="stat-note">Cases awaiting review or resolution</div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-label">UNDER REVIEW</div>
+                <div class="stat-value" id="reviewDisputes">—</div>
+                <div class="stat-note">Cases being investigated</div>
+            </article>
+
+            <article class="stat-card">
+                <div class="stat-label">RESOLVED</div>
+                <div class="stat-value" id="resolvedDisputes">—</div>
+                <div class="stat-note">Cases marked resolved by the backend</div>
+            </article>
+
+        </div>
+
+        <!-- DISPUTE TABLE -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h3>All Disputes</h3>
+                    <p>Search, filter and inspect dispute records.</p>
+                </div>
+
+                <div class="filters">
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        class="search-input"
+                        placeholder="Search dispute or participant..."
+                        aria-label="Search disputes"
+                    >
+
+                    <select id="statusFilter" class="filter-select"
+                            aria-label="Filter disputes by status">
+
+                        <option value="">All statuses</option>
+                        <option value="open">Open</option>
+                        <option value="under_review">Under review</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="rejected">Rejected</option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Dispute</th>
+                            <th>Order ID</th>
+                            <th>Raised By</th>
+                            <th>Against</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="disputesTableBody">
+
+                        <tr>
+                            <td colspan="7">
+                                <div class="loading">
+                                    Loading dispute records from the server...
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="table-footer" id="tableFooter">
+                Waiting for server response...
+            </div>
+
+        </section>
+
+        <div class="footer">
+            EduMatch Admin Panel · Dispute actions require server authorization
+        </div>
+
+    </section>
+
+</main>
+
+<!-- DISPUTE DETAILS MODAL -->
+
+<div class="modal-backdrop" id="modalBackdrop">
+
+    <section class="modal" role="dialog"
+             aria-modal="true" aria-labelledby="modalTitle">
+
+        <div class="modal-header">
+
+            <div>
+                <h2 id="modalTitle">Dispute details</h2>
+                <p id="modalSubtitle">Review the case information.</p>
+            </div>
+
+            <button class="close-modal" id="closeModal"
+                    aria-label="Close details">×</button>
+
+        </div>
+
+        <div class="modal-body">
+
+            <div class="detail-grid">
+
+                <div>
+                    <div class="detail-label">Dispute ID</div>
+                    <div class="detail-value" id="detailId">—</div>
+                </div>
+
+                <div>
+                    <div class="detail-label">Related order</div>
+                    <div class="detail-value" id="detailOrder">—</div>
+                </div>
+
+                <div>
+                    <div class="detail-label">Raised by</div>
+                    <div class="detail-value" id="detailRaisedBy">—</div>
+                </div>
+
+                <div>
+                    <div class="detail-label">Against</div>
+                    <div class="detail-value" id="detailAgainst">—</div>
+                </div>
+
+                <div>
+                    <div class="detail-label">Status</div>
+                    <div class="detail-value" id="detailStatus">—</div>
+                </div>
+
+                <div>
+                    <div class="detail-label">Created on</div>
+                    <div class="detail-value" id="detailDate">—</div>
+                </div>
+
+            </div>
+
+            <div class="description-box">
+                <h4>Dispute description</h4>
+                <p id="detailDescription">No description available.</p>
+            </div>
+
+            <div class="description-box" id="resolutionBox">
+                <h4>Previous resolution</h4>
+                <p id="detailResolution">No resolution recorded.</p>
+            </div>
+
+            <div id="resolutionForm" hidden>
+
+                <label for="resolutionText" class="resolution-label">
+                    Resolution notes
+                </label>
+
+                <textarea
+                    id="resolutionText"
+                    class="resolution-input"
+                    maxlength="5000"
+                    placeholder="Explain the investigation outcome and decision..."
+                ></textarea>
+
+                <div class="modal-actions">
+
+                    <button class="action-btn resolve-btn"
+                            id="resolveButton">
+                        Mark Resolved
+                    </button>
+
+                    <button class="action-btn reject-btn"
+                            id="rejectButton">
+                        Reject Dispute
+                    </button>
+
+                    <button class="action-btn cancel-btn"
+                            id="cancelResolution">
+                        Cancel
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div id="detailActions" class="modal-actions">
+                <button class="action-btn resolve-btn" id="startResolution">
+                    Review / Resolve
+                </button>
+
+                <button class="action-btn cancel-btn" id="closeDetails">
+                    Close
+                </button>
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+    /*
+     * REQUIRED BACKEND ENDPOINTS
+     *
+     * GET   /api/admin/disputes
+     * GET   /api/admin/disputes/<id>
+     * PATCH /api/admin/disputes/<id>
+     *
+     * The backend must:
+     * 1. Verify the user's admin role for every request.
+     * 2. Return real database records.
+     * 3. Validate permitted status transitions.
+     * 4. Store resolution notes and decision timestamps.
+     * 5. Keep an audit trail of administrative decisions.
+     */
+
+    const API_BASE = "http://127.0.0.1:5000/api";
+
+    const token = localStorage.getItem("edumatch_token");
+
+    const tableBody = document.getElementById("disputesTableBody");
+    const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
+    const globalAlert = document.getElementById("globalAlert");
+    const modalBackdrop = document.getElementById("modalBackdrop");
+
+    let disputes = [];
+    let selectedDispute = null;
+
+    function escapeHTML(value) {
+        return String(value ?? "").replace(/[&<>"']/g, character => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[character]);
+    }
+
+    function showAlert(message, type = "error") {
+        globalAlert.textContent = message;
+        globalAlert.className = "alert " + type;
+    }
+
+    function clearAlert() {
+        globalAlert.textContent = "";
+        globalAlert.className = "alert";
+    }
+
+    function formatDate(value) {
+        if (!value) return "—";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return "—";
+
+        return date.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+
+    function normalizeStatus(status) {
+        return String(status || "unknown")
+            .toLowerCase()
+            .replaceAll("-", "_")
+            .replaceAll(" ", "_");
+    }
+
+    function statusClass(status) {
+        const normalized = normalizeStatus(status);
+
+        if (normalized === "open") return "badge-open";
+
+        if (normalized === "under_review" || normalized === "in_review") {
+            return "badge-review";
+        }
+
+        if (normalized === "resolved") return "badge-resolved";
+
+        if (normalized === "rejected") return "badge-rejected";
+
+        return "badge-unknown";
+    }
+
+    function statusLabel(status) {
+        return normalizeStatus(status).replaceAll("_", " ");
+    }
+
+    async function apiRequest(path, options = {}) {
+        if (!token) {
+            throw new Error(
+                "No authentication token found. Sign in through the admin login page."
+            );
+        }
+
+        const response = await fetch(API_BASE + path, {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + token,
+                ...(options.headers || {})
+            }
+        });
+
+        let data = {};
+
+        try {
+            data = await response.json();
+        } catch {
+            data = {};
+        }
+
+        if (response.status === 401 || response.status === 403) {
+            throw new Error(
+                data.message ||
+                "You are not authorized to access admin dispute records."
+            );
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data.message || "Request failed with HTTP " + response.status
+            );
+        }
+
+        return data;
+    }
+
+    function showTableMessage(title, detail) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="empty-state">
+                        <strong>${escapeHTML(title)}</strong>
+                        ${escapeHTML(detail)}
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        document.getElementById("tableFooter").textContent =
+            "Dispute records unavailable.";
+    }
+
+    function renderStats() {
+        document.getElementById("totalDisputes").textContent =
+            disputes.length.toLocaleString("en-IN");
+
+        document.getElementById("openDisputes").textContent =
+            disputes.filter(dispute =>
+                normalizeStatus(dispute.status) === "open"
+            ).length.toLocaleString("en-IN");
+
+        document.getElementById("reviewDisputes").textContent =
+            disputes.filter(dispute =>
+                ["under_review", "in_review"].includes(
+                    normalizeStatus(dispute.status)
+                )
+            ).length.toLocaleString("en-IN");
+
+        document.getElementById("resolvedDisputes").textContent =
+            disputes.filter(dispute =>
+                normalizeStatus(dispute.status) === "resolved"
+            ).length.toLocaleString("en-IN");
+    }
+
+    function renderDisputes() {
+        const search = searchInput.value.trim().toLowerCase();
+        const status = statusFilter.value;
+
+        const filtered = disputes.filter(dispute => {
+            const raisedBy = dispute.raised_by || {};
+            const against = dispute.against || {};
+
+            const searchable = [
+                dispute.id,
+                dispute.title,
+                dispute.reason,
+                dispute.description,
+                dispute.order_id,
+                raisedBy.name,
+                raisedBy.email,
+                against.name,
+                against.email
+            ].map(value => String(value || "").toLowerCase());
+
+            const matchesSearch = searchable.some(value =>
+                value.includes(search)
+            );
+
+            const matchesStatus =
+                !status || normalizeStatus(dispute.status) === status;
+
+            return matchesSearch && matchesStatus;
+        });
+
+        if (!filtered.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <strong>
+                                ${disputes.length
+                                    ? "No matching disputes"
+                                    : "No dispute records"}
+                            </strong>
+                            ${disputes.length
+                                ? "Try another search term or status filter."
+                                : "No disputes were returned by the backend."}
+                        </div>
+                    </td>
+                </tr>
+            `;
+        } else {
+            tableBody.innerHTML = filtered.map(dispute => {
+                const raisedBy = dispute.raised_by || {};
+                const against = dispute.against || {};
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="dispute-title">
+                                ${escapeHTML(dispute.title || dispute.reason || "Dispute")}
+                            </div>
+                            <div class="dispute-subtitle">
+                                ID: ${escapeHTML(dispute.id)}
+                            </div>
+                        </td>
+
+                        <td>${escapeHTML(dispute.order_id ?? "—")}</td>
+
+                        <td>
+                            ${escapeHTML(raisedBy.name || raisedBy.email || "—")}
+                        </td>
+
+                        <td>
+                            ${escapeHTML(against.name || against.email || "—")}
+                        </td>
+
+                        <td>${escapeHTML(formatDate(dispute.created_at))}</td>
+
+                        <td>
+                            <span class="badge ${statusClass(dispute.status)}">
+                                ${escapeHTML(statusLabel(dispute.status))}
+                            </span>
+                        </td>
+
+                        <td>
+                            <button
+                                class="view-button"
+                                data-dispute-id="${escapeHTML(dispute.id)}"
+                            >
+                                View details
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        document.getElementById("tableFooter").textContent =
+            `Showing ${filtered.length} of ${disputes.length} dispute records.`;
+    }
+
+    async function loadDisputes() {
+        clearAlert();
+
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="7">
+                    <div class="loading">Loading dispute records...</div>
+                </td>
+            </tr>
+        `;
+
+        try {
+            const data = await apiRequest("/admin/disputes");
+
+            if (!Array.isArray(data.disputes)) {
+                throw new Error(
+                    "Invalid response format. The API must return a disputes array."
+                );
+            }
+
+            disputes = data.disputes;
+
+            renderStats();
+            renderDisputes();
+
+        } catch (error) {
+            disputes = [];
+
+            document.getElementById("totalDisputes").textContent = "—";
+            document.getElementById("openDisputes").textContent = "—";
+            document.getElementById("reviewDisputes").textContent = "—";
+            document.getElementById("resolvedDisputes").textContent = "—";
+
+            showTableMessage("Could not load disputes", error.message);
+
+            showAlert(
+                error.message +
+                " Confirm that GET /api/admin/disputes is implemented."
+            );
+        }
+    }
+
+    async function openDispute(disputeId) {
+        clearAlert();
+
+        try {
+            /*
+             * Fetch the individual record rather than trusting the table
+             * for the full description or resolution information.
+             */
+
+            const data = await apiRequest(
+                "/admin/disputes/" + encodeURIComponent(disputeId)
+            );
+
+            const dispute = data.dispute;
+
+            if (!dispute) {
+                throw new Error(
+                    "The server did not return a dispute record."
+                );
+            }
+
+            selectedDispute = dispute;
+
+            const raisedBy = dispute.raised_by || {};
+            const against = dispute.against || {};
+
+            document.getElementById("modalTitle").textContent =
+                dispute.title || dispute.reason || "Dispute details";
+
+            document.getElementById("modalSubtitle").textContent =
+                "Dispute ID: " + dispute.id;
+
+            document.getElementById("detailId").textContent =
+                dispute.id ?? "—";
+
+            document.getElementById("detailOrder").textContent =
+                dispute.order_id ?? "—";
+
+            document.getElementById("detailRaisedBy").textContent =
+                raisedBy.name || raisedBy.email || "—";
+
+            document.getElementById("detailAgainst").textContent =
+                against.name || against.email || "—";
+
+            document.getElementById("detailStatus").textContent =
+                statusLabel(dispute.status);
+
+            document.getElementById("detailDate").textContent =
+                formatDate(dispute.created_at);
+
+            document.getElementById("detailDescription").textContent =
+                dispute.description || "No description was provided.";
+
+            document.getElementById("detailResolution").textContent =
+                dispute.resolution_notes || "No resolution recorded.";
+
+            document.getElementById("resolutionText").value = "";
+
+            document.getElementById("resolutionForm").hidden = true;
+            document.getElementById("detailActions").hidden = false;
+
+            const normalizedStatus = normalizeStatus(dispute.status);
+
+            const isOpen = ["open", "under_review", "in_review"]
+                .includes(normalizedStatus);
+
+            document.getElementById("startResolution").hidden = !isOpen;
+
+            modalBackdrop.classList.add("open");
+
+        } catch (error) {
+            showAlert(
+                "Unable to open dispute details. " + error.message
+            );
+        }
+    }
+
+    function closeModal() {
+        modalBackdrop.classList.remove("open");
+        selectedDispute = null;
+    }
+
+    document.getElementById("startResolution").addEventListener("click", () => {
+        if (!selectedDispute) return;
+
+        document.getElementById("resolutionForm").hidden = false;
+        document.getElementById("detailActions").hidden = true;
+    });
+
+    document.getElementById("cancelResolution").addEventListener("click", () => {
+        document.getElementById("resolutionForm").hidden = true;
+        document.getElementById("detailActions").hidden = false;
+    });
+
+    async function updateDisputeStatus(status) {
+        if (!selectedDispute) return;
+
+        const notes = document.getElementById("resolutionText")
+            .value.trim();
+
+        if (!notes) {
+            showAlert(
+                "Enter resolution notes before submitting your decision.",
+                "warning"
+            );
+            return;
+        }
+
+        const confirmed = window.confirm(
+            `Are you sure you want to mark this dispute as "${statusLabel(status)}"?`
+        );
+
+        if (!confirmed) return;
+
+        const resolveButton = document.getElementById("resolveButton");
+        const rejectButton = document.getElementById("rejectButton");
+
+        resolveButton.disabled = true;
+        rejectButton.disabled = true;
+
+        try {
+            const disputeId = selectedDispute.id;
+
+            await apiRequest(
+                "/admin/disputes/" + encodeURIComponent(disputeId),
+                {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                        status,
+                        resolution_notes: notes
+                    })
+                }
+            );
+
+            closeModal();
+
+            showAlert(
+                "The server accepted the dispute update.",
+                "success"
+            );
+
+            await loadDisputes();
+
+        } catch (error) {
+            showAlert(
+                "The dispute was not confirmed as updated. " + error.message
+            );
+
+        } finally {
+            resolveButton.disabled = false;
+            rejectButton.disabled = false;
+        }
+    }
+
+    document.getElementById("resolveButton").addEventListener("click", () => {
+        updateDisputeStatus("resolved");
+    });
+
+    document.getElementById("rejectButton").addEventListener("click", () => {
+        updateDisputeStatus("rejected");
+    });
+
+    document.getElementById("closeModal").addEventListener("click", closeModal);
+    document.getElementById("closeDetails").addEventListener("click", closeModal);
+
+    modalBackdrop.addEventListener("click", event => {
+        if (event.target === modalBackdrop) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            closeModal();
+        }
+    });
+
+    searchInput.addEventListener("input", renderDisputes);
+    statusFilter.addEventListener("change", renderDisputes);
+
+    document.getElementById("refreshButton").addEventListener(
+        "click",
+        loadDisputes
+    );
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+        document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    document.addEventListener("click", event => {
+        if (
+            window.innerWidth <= 850 &&
+            !event.target.closest("#sidebar") &&
+            !event.target.closest("#menuToggle")
+        ) {
+            document.getElementById("sidebar").classList.remove("open");
+        }
+    });
+
+    document.getElementById("logoutButton").addEventListener("click", () => {
+        localStorage.removeItem("edumatch_token");
+        window.location.replace("login.html");
+    });
+
+    loadDisputes();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

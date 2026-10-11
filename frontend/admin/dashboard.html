@@ -1,0 +1,1704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>EduMatch | Admin Dashboard</title>
+
+<style>
+:root {
+    --primary: #635bdb;
+    --primary-light: #eeedff;
+    --sidebar: #19182f;
+    --background: #f6f7fb;
+    --surface: #ffffff;
+    --text: #22233a;
+    --muted: #777b91;
+    --border: #e8e9f1;
+    --green: #14845e;
+    --red: #c83e4d;
+    --orange: #bd7614;
+    --radius: 14px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--text);
+}
+
+button, input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 250px;
+    background: var(--sidebar);
+    color: white;
+    padding: 25px 16px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand {
+    font-size: 25px;
+    font-weight: 800;
+    padding: 0 10px;
+    margin-bottom: 35px;
+}
+
+.brand span {
+    color: #a69aff;
+}
+
+.nav-label {
+    color: #9695b0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.3px;
+    padding: 0 12px;
+    margin: 20px 0 10px;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 5px;
+    border-radius: 9px;
+    font-size: 13px;
+    color: #d3d2e7;
+    transition: .2s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: #363252;
+    color: white;
+}
+
+.nav-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 17px;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+    padding-top: 25px;
+}
+
+/* MAIN CONTENT */
+
+.main {
+    flex: 1;
+    min-width: 0;
+    padding: 28px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.page-title {
+    font-size: 27px;
+    margin-bottom: 7px;
+}
+
+.page-subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+}
+
+.admin-name {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.admin-role {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+/* BUTTONS */
+
+.btn {
+    border: 0;
+    border-radius: 8px;
+    padding: 11px 15px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #4d45c3;
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+    background: #f7f7fc;
+}
+
+.btn:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+/* NOTICES */
+
+.notice {
+    display: none;
+    padding: 14px 16px;
+    border-radius: 9px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.notice.error {
+    display: block;
+    color: #a52b39;
+    background: #ffebed;
+    border: 1px solid #ffd3d8;
+}
+
+.notice.success {
+    display: block;
+    color: #126b49;
+    background: #e5f7ee;
+    border: 1px solid #c9eedc;
+}
+
+/* WELCOME PANEL */
+
+.welcome {
+    padding: 25px;
+    border-radius: var(--radius);
+    background: linear-gradient(115deg, #5e55d8, #8175ec);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.welcome h2 {
+    font-size: 21px;
+    margin-bottom: 9px;
+}
+
+.welcome p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #eeedff;
+    max-width: 560px;
+}
+
+.welcome-badge {
+    background: rgba(255,255,255,.15);
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* STATISTICS */
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 17px;
+}
+
+.section-heading h2 {
+    font-size: 17px;
+}
+
+.section-heading p {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 17px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    background: var(--surface);
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    min-width: 0;
+}
+
+.stat-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.stat-icon {
+    width: 39px;
+    height: 39px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 19px;
+}
+
+.icon-purple {
+    background: #eeedff;
+    color: #635bdb;
+}
+
+.icon-green {
+    background: #e2f7ed;
+    color: #14845e;
+}
+
+.icon-orange {
+    background: #fff2dc;
+    color: #bd7614;
+}
+
+.icon-blue {
+    background: #e5f1ff;
+    color: #3175ca;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.stat-note {
+    margin-top: 9px;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+/* TWO-COLUMN LAYOUT */
+
+.content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+    gap: 22px;
+    margin-bottom: 25px;
+}
+
+.panel {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    min-width: 0;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.panel-header h2 {
+    font-size: 15px;
+}
+
+.panel-header p {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 6px;
+}
+
+.text-link {
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.text-link:hover {
+    text-decoration: underline;
+}
+
+/* TABLES */
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 480px;
+}
+
+th {
+    background: #fafaff;
+    color: var(--muted);
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    white-space: nowrap;
+}
+
+td {
+    padding: 15px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+td.secondary {
+    color: var(--muted);
+}
+
+.status {
+    display: inline-block;
+    padding: 6px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    background: #edf0f7;
+    color: #565b70;
+}
+
+.status.completed,
+.status.active,
+.status.resolved {
+    background: #e2f7ed;
+    color: #14845e;
+}
+
+.status.pending,
+.status.open,
+.status.in_progress {
+    background: #fff2dc;
+    color: #9b650c;
+}
+
+.status.cancelled,
+.status.rejected,
+.status.suspended {
+    background: #ffebed;
+    color: #c83e4d;
+}
+
+.empty-state {
+    padding: 28px 20px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+/* QUICK LINKS */
+
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.quick-card {
+    display: block;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 19px;
+    transition: .2s;
+}
+
+.quick-card:hover {
+    border-color: #c8c3ff;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(35,30,90,.05);
+}
+
+.quick-icon {
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.quick-card h3 {
+    font-size: 13px;
+    margin-bottom: 7px;
+}
+
+.quick-card p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* PLATFORM HEALTH */
+
+.health-list {
+    padding: 5px 20px 15px;
+}
+
+.health-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.health-item:last-child {
+    border-bottom: none;
+}
+
+.health-item strong {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.health-item p {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.health-value {
+    font-size: 12px;
+    font-weight: 700;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+/* FOOTER */
+
+.footer {
+    padding: 18px 0;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.7;
+}
+
+/* MOBILE MENU */
+
+.mobile-menu {
+    display: none;
+    border: 1px solid var(--border);
+    background: white;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 18px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 950px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .main {
+        padding: 20px;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .app {
+        display: block;
+    }
+
+    .sidebar {
+        display: none;
+        width: 100%;
+    }
+
+    .sidebar.open {
+        display: flex;
+    }
+
+    .mobile-menu {
+        display: block;
+    }
+
+    .main {
+        padding: 16px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+    }
+
+    .top-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .admin-details {
+        display: none;
+    }
+
+    .page-title {
+        font-size: 23px;
+    }
+
+    .welcome {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .welcome h2 {
+        font-size: 19px;
+    }
+
+    .stats-grid {
+        gap: 12px;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-value {
+        font-size: 23px;
+    }
+
+    .quick-grid {
+        gap: 12px;
+    }
+
+    .quick-card {
+        padding: 15px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 400px) {
+    .stats-grid,
+    .quick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+    <link rel="stylesheet" href="../theme.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="brand">Edu<span>Match</span></div>
+
+        <div class="nav-label">Main Menu</div>
+
+        <a href="dashboard.html" class="nav-link active">
+            <span class="nav-icon">▦</span>
+            Dashboard
+        </a>
+
+        <a href="users.html" class="nav-link">
+            <span class="nav-icon">♙</span>
+            All Users
+        </a>
+
+        <a href="students.html" class="nav-link">
+            <span class="nav-icon">🎓</span>
+            Students
+        </a>
+
+        <a href="providers.html" class="nav-link">
+            <span class="nav-icon">♧</span>
+            Providers
+        </a>
+
+        <div class="nav-label">Marketplace</div>
+
+        <a href="services.html" class="nav-link">
+            <span class="nav-icon">▤</span>
+            Services
+        </a>
+
+        <a href="orders.html" class="nav-link">
+            <span class="nav-icon">▣</span>
+            Orders
+        </a>
+
+        <a href="disputes.html" class="nav-link">
+            <span class="nav-icon">⚑</span>
+            Disputes
+        </a>
+
+        <div class="nav-label">Management</div>
+
+        <a href="reports.html" class="nav-link">
+            <span class="nav-icon">▥</span>
+            Reports & Analytics
+        </a>
+
+        <a href="settings.html" class="nav-link">
+            <span class="nav-icon">⚙</span>
+            Platform Settings
+        </a>
+
+        <div class="sidebar-bottom">
+            <div class="nav-label">Account</div>
+
+            <a href="#" class="nav-link" id="logoutButton">
+                <span class="nav-icon">↪</span>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- MAIN CONTENT -->
+
+    <main class="main">
+
+        <!-- HEADER -->
+
+        <header class="topbar">
+
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+
+                <button
+                    class="mobile-menu"
+                    id="menuToggle"
+                    aria-label="Toggle navigation"
+                    aria-expanded="false"
+                >☰</button>
+
+                <div>
+                    <h1 class="page-title">Admin Dashboard</h1>
+
+                    <p class="page-subtitle">
+                        Manage and monitor your EduMatch platform.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="top-actions">
+
+                <button
+                    class="btn btn-secondary"
+                    id="refreshButton"
+                >
+                    ↻ Refresh
+                </button>
+
+                <div class="admin-profile">
+
+                    <div class="avatar" id="adminAvatar">A</div>
+
+                    <div class="admin-details">
+                        <div class="admin-name" id="adminName">
+                            Administrator
+                        </div>
+
+                        <div class="admin-role">
+                            Platform Admin
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- NOTIFICATIONS -->
+
+        <div id="notice" class="notice" role="status"></div>
+
+        <!-- WELCOME -->
+
+        <section class="welcome">
+
+            <div>
+                <h2>Welcome to EduMatch Administration</h2>
+
+                <p>
+                    Monitor student activity, provider services, orders,
+                    disputes, and platform performance from one place.
+                    All statistics are loaded from your backend.
+                </p>
+            </div>
+
+            <div class="welcome-badge" id="connectionBadge">
+                Checking backend connection...
+            </div>
+
+        </section>
+
+        <!-- STATISTICS -->
+
+        <section>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Platform Overview</h2>
+                    <p>Current totals reported by the backend</p>
+                </div>
+            </div>
+
+            <div class="stats-grid" id="statsGrid">
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Total Students</span>
+                        <span class="stat-icon icon-purple">🎓</span>
+                    </div>
+                    <div class="stat-value">—</div>
+                    <div class="stat-note">Waiting for backend data</div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Total Providers</span>
+                        <span class="stat-icon icon-green">♧</span>
+                    </div>
+                    <div class="stat-value">—</div>
+                    <div class="stat-note">Waiting for backend data</div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Active Services</span>
+                        <span class="stat-icon icon-orange">▤</span>
+                    </div>
+                    <div class="stat-value">—</div>
+                    <div class="stat-note">Waiting for backend data</div>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-top">
+                        <span class="stat-label">Total Orders</span>
+                        <span class="stat-icon icon-blue">▣</span>
+                    </div>
+                    <div class="stat-value">—</div>
+                    <div class="stat-note">Waiting for backend data</div>
+                </article>
+
+            </div>
+
+        </section>
+
+        <!-- QUICK ACCESS -->
+
+        <section>
+
+            <div class="section-heading">
+                <div>
+                    <h2>Quick Management</h2>
+                    <p>Open any administration section</p>
+                </div>
+            </div>
+
+            <div class="quick-grid">
+
+                <a href="users.html" class="quick-card">
+                    <div class="quick-icon">♙</div>
+                    <h3>User Management</h3>
+                    <p>View registered accounts and manage user status.</p>
+                </a>
+
+                <a href="services.html" class="quick-card">
+                    <div class="quick-icon">▤</div>
+                    <h3>Service Management</h3>
+                    <p>Review marketplace services and their status.</p>
+                </a>
+
+                <a href="orders.html" class="quick-card">
+                    <div class="quick-icon">▣</div>
+                    <h3>Order Management</h3>
+                    <p>Monitor order records and their current status.</p>
+                </a>
+
+                <a href="disputes.html" class="quick-card">
+                    <div class="quick-icon">⚑</div>
+                    <h3>Dispute Center</h3>
+                    <p>Review and resolve reported order disputes.</p>
+                </a>
+
+                <a href="reports.html" class="quick-card">
+                    <div class="quick-icon">▥</div>
+                    <h3>Reports & Analytics</h3>
+                    <p>Generate reports using recorded platform data.</p>
+                </a>
+
+                <a href="settings.html" class="quick-card">
+                    <div class="quick-icon">⚙</div>
+                    <h3>Platform Settings</h3>
+                    <p>Manage configuration stored by the backend.</p>
+                </a>
+
+                <a href="students.html" class="quick-card">
+                    <div class="quick-icon">🎓</div>
+                    <h3>Students</h3>
+                    <p>Open the student management section.</p>
+                </a>
+
+                <a href="providers.html" class="quick-card">
+                    <div class="quick-icon">♧</div>
+                    <h3>Providers</h3>
+                    <p>Open provider management and account records.</p>
+                </a>
+
+            </div>
+
+        </section>
+
+        <!-- RECENT ACTIVITY AND ORDER STATUS -->
+
+        <section class="content-grid">
+
+            <!-- RECENT ACTIVITY -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Recent Platform Activity</h2>
+                        <p>Latest activity records returned by the backend</p>
+                    </div>
+
+                    <a href="reports.html" class="text-link">
+                        View Reports →
+                    </a>
+                </div>
+
+                <div class="table-wrap">
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Activity</th>
+                                <th>Details</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="activityBody">
+                            <tr>
+                                <td colspan="3" class="empty-state">
+                                    Activity will appear here when the backend
+                                    returns recorded activity.
+                                </td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- ORDER SUMMARY -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+                    <div>
+                        <h2>Order Summary</h2>
+                        <p>Order counts supplied by the backend</p>
+                    </div>
+
+                    <a href="orders.html" class="text-link">
+                        View Orders →
+                    </a>
+                </div>
+
+                <div class="health-list" id="orderSummary">
+
+                    <div class="empty-state">
+                        Waiting for order statistics.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- DISPUTES -->
+
+        <section class="panel" style="margin-bottom:25px;">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>Recent Disputes</h2>
+                    <p>Disputes that need administrative review</p>
+                </div>
+
+                <a href="disputes.html" class="text-link">
+                    Manage Disputes →
+                </a>
+
+            </div>
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>Dispute ID</th>
+                            <th>Order</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="disputesBody">
+
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                Disputes will appear when returned by
+                                the backend.
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+        <!-- PLATFORM HEALTH -->
+
+        <section class="panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>System Status</h2>
+                    <p>Connection and data loading information</p>
+                </div>
+
+            </div>
+
+            <div class="health-list">
+
+                <div class="health-item">
+                    <div>
+                        <strong>Backend API</strong>
+                        <p>Connection to the Flask application</p>
+                    </div>
+
+                    <div class="health-value" id="apiStatus">
+                        Checking...
+                    </div>
+                </div>
+
+                <div class="health-item">
+                    <div>
+                        <strong>Authentication</strong>
+                        <p>Admin session availability</p>
+                    </div>
+
+                    <div class="health-value" id="authStatus">
+                        Checking...
+                    </div>
+                </div>
+
+                <div class="health-item">
+                    <div>
+                        <strong>Dashboard data</strong>
+                        <p>Most recent successful data refresh</p>
+                    </div>
+
+                    <div class="health-value" id="lastUpdated">
+                        Not loaded
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <footer class="footer">
+            EduMatch Admin Dashboard<br>
+            Statistics and activity depend on the configured backend APIs.
+            This dashboard does not generate fake platform records.
+        </footer>
+
+    </main>
+
+</div>
+
+<script>
+"use strict";
+
+/*
+    EduMatch Admin Dashboard
+
+    Expected dashboard API:
+    GET http://127.0.0.1:5000/api/admin/dashboard
+
+    Expected response:
+    {
+        "admin": {
+            "name": "Administrator",
+            "role": "admin"
+        },
+        "stats": {
+            "total_students": 0,
+            "total_providers": 0,
+            "active_services": 0,
+            "total_orders": 0
+        },
+        "order_summary": {
+            "pending": 0,
+            "in_progress": 0,
+            "completed": 0,
+            "cancelled": 0
+        },
+        "recent_activity": [],
+        "recent_disputes": []
+    }
+
+    This is the API contract, not seeded data.
+    The backend must calculate and return actual database values.
+*/
+
+const API_BASE_URL = "http://127.0.0.1:5000/api";
+
+const token = localStorage.getItem("edumatch_token");
+
+const elements = {
+    notice: document.getElementById("notice"),
+    statsGrid: document.getElementById("statsGrid"),
+    activityBody: document.getElementById("activityBody"),
+    orderSummary: document.getElementById("orderSummary"),
+    disputesBody: document.getElementById("disputesBody"),
+    connectionBadge: document.getElementById("connectionBadge"),
+    apiStatus: document.getElementById("apiStatus"),
+    authStatus: document.getElementById("authStatus"),
+    lastUpdated: document.getElementById("lastUpdated"),
+    adminName: document.getElementById("adminName"),
+    adminAvatar: document.getElementById("adminAvatar"),
+    refreshButton: document.getElementById("refreshButton")
+};
+
+let refreshInProgress = false;
+
+
+/* SECURITY: Escape API-provided text before placing it in HTML. */
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
+
+
+/* DISPLAY NOTICES */
+
+function showNotice(message, type = "error") {
+    elements.notice.className = "notice " + type;
+    elements.notice.textContent = message;
+}
+
+function clearNotice() {
+    elements.notice.className = "notice";
+    elements.notice.textContent = "";
+}
+
+
+/* FORMATTING */
+
+function formatNumber(value) {
+    if (value === null || value === undefined ||
+        !Number.isFinite(Number(value))) {
+        return "—";
+    }
+
+    return Number(value).toLocaleString();
+}
+
+function formatDate(value) {
+    if (!value) {
+        return "—";
+    }
+
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return String(value);
+    }
+
+    return date.toLocaleString();
+}
+
+function formatStatus(value) {
+    return String(value || "unknown")
+        .toLowerCase()
+        .replace(/[^a-z0-9_-]/g, " ");
+}
+
+function statusBadge(value) {
+    const normalized = formatStatus(value);
+
+    return `
+        <span class="status ${escapeHTML(normalized)}">
+            ${escapeHTML(normalized.replaceAll("_", " "))}
+        </span>
+    `;
+}
+
+
+/* API REQUEST */
+
+async function apiRequest(path) {
+    if (!token) {
+        throw new Error(
+            "No admin session was found. Please log in first."
+        );
+    }
+
+    const response = await fetch(API_BASE_URL + path, {
+        method: "GET",
+        headers: {
+            "Authorization": "Bearer " + token,
+            "Accept": "application/json"
+        }
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (response.status === 401 || response.status === 403) {
+        throw new Error(
+            response.status === 401
+                ? "Your session is invalid or expired. Please log in again."
+                : "Your account is not authorized to access the admin dashboard."
+        );
+    }
+
+    if (!response.ok) {
+        throw new Error(
+            data.message ||
+            data.error ||
+            `Backend request failed (${response.status}).`
+        );
+    }
+
+    return data;
+}
+
+
+/* RENDER ADMIN INFORMATION */
+
+function renderAdmin(admin) {
+    if (!admin || typeof admin !== "object") {
+        return;
+    }
+
+    const name = admin.name || admin.full_name;
+
+    if (name) {
+        elements.adminName.textContent = name;
+
+        elements.adminAvatar.textContent =
+            name.trim().charAt(0).toUpperCase() || "A";
+    }
+}
+
+
+/* RENDER STATISTICS */
+
+function renderStats(stats) {
+    if (!stats || typeof stats !== "object") {
+        throw new Error("Dashboard response is missing its stats object.");
+    }
+
+    const cards = [
+        {
+            label: "Total Students",
+            value: stats.total_students,
+            icon: "🎓",
+            color: "icon-purple",
+            note: "Registered student accounts"
+        },
+        {
+            label: "Total Providers",
+            value: stats.total_providers,
+            icon: "♧",
+            color: "icon-green",
+            note: "Registered provider accounts"
+        },
+        {
+            label: "Active Services",
+            value: stats.active_services,
+            icon: "▤",
+            color: "icon-orange",
+            note: "Services currently marked active"
+        },
+        {
+            label: "Total Orders",
+            value: stats.total_orders,
+            icon: "▣",
+            color: "icon-blue",
+            note: "Orders recorded in the database"
+        }
+    ];
+
+    elements.statsGrid.innerHTML = cards.map(card => `
+        <article class="stat-card">
+
+            <div class="stat-top">
+                <span class="stat-label">
+                    ${escapeHTML(card.label)}
+                </span>
+
+                <span class="stat-icon ${card.color}">
+                    ${card.icon}
+                </span>
+            </div>
+
+            <div class="stat-value">
+                ${escapeHTML(formatNumber(card.value))}
+            </div>
+
+            <div class="stat-note">
+                ${escapeHTML(card.note)}
+            </div>
+
+        </article>
+    `).join("");
+}
+
+
+/* RENDER ACTIVITY */
+
+function renderActivity(activity) {
+    if (!Array.isArray(activity)) {
+        elements.activityBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="empty-state">
+                    The backend returned an invalid activity list.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    if (activity.length === 0) {
+        elements.activityBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="empty-state">
+                    No recorded activity is available.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    elements.activityBody.innerHTML = activity.map(item => `
+        <tr>
+            <td>
+                ${escapeHTML(
+                    item.type ||
+                    item.action ||
+                    item.event ||
+                    "Activity"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(
+                    item.description ||
+                    item.details ||
+                    item.message ||
+                    "—"
+                )}
+            </td>
+
+            <td class="secondary">
+                ${escapeHTML(
+                    formatDate(item.created_at || item.timestamp)
+                )}
+            </td>
+        </tr>
+    `).join("");
+}
+
+
+/* RENDER ORDER SUMMARY */
+
+function renderOrderSummary(summary) {
+    if (!summary || typeof summary !== "object") {
+        elements.orderSummary.innerHTML = `
+            <div class="empty-state">
+                Order summary is not available.
+            </div>
+        `;
+        return;
+    }
+
+    const statuses = [
+        {
+            key: "pending",
+            label: "Pending Orders"
+        },
+        {
+            key: "in_progress",
+            label: "In Progress"
+        },
+        {
+            key: "completed",
+            label: "Completed"
+        },
+        {
+            key: "cancelled",
+            label: "Cancelled"
+        }
+    ];
+
+    elements.orderSummary.innerHTML = statuses.map(item => `
+        <div class="health-item">
+
+            <div>
+                <strong>${escapeHTML(item.label)}</strong>
+                <p>Recorded order count</p>
+            </div>
+
+            <div class="health-value">
+                ${escapeHTML(formatNumber(summary[item.key]))}
+            </div>
+
+        </div>
+    `).join("");
+}
+
+
+/* RENDER DISPUTES */
+
+function renderDisputes(disputes) {
+    if (!Array.isArray(disputes)) {
+        elements.disputesBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state">
+                    The backend returned an invalid disputes list.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    if (disputes.length === 0) {
+        elements.disputesBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state">
+                    No recorded disputes are available.
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    elements.disputesBody.innerHTML = disputes.map(dispute => `
+        <tr>
+            <td>
+                ${escapeHTML(
+                    dispute.id ??
+                    dispute.dispute_id ??
+                    "—"
+                )}
+            </td>
+
+            <td>
+                ${escapeHTML(dispute.order_id ?? "—")}
+            </td>
+
+            <td>
+                ${escapeHTML(dispute.title ?? "Untitled dispute")}
+            </td>
+
+            <td>
+                ${statusBadge(dispute.status)}
+            </td>
+
+            <td class="secondary">
+                ${escapeHTML(formatDate(dispute.created_at))}
+            </td>
+        </tr>
+    `).join("");
+}
+
+
+/* LOAD DASHBOARD */
+
+async function loadDashboard() {
+    if (refreshInProgress) {
+        return;
+    }
+
+    refreshInProgress = true;
+    elements.refreshButton.disabled = true;
+    elements.refreshButton.textContent = "Loading...";
+
+    clearNotice();
+
+    if (!token) {
+        elements.connectionBadge.textContent = "Login required";
+        elements.apiStatus.textContent = "Not checked";
+        elements.authStatus.textContent = "No session";
+
+        showNotice(
+            "Admin authentication is required. " +
+            "Log in using the admin login page."
+        );
+
+        refreshInProgress = false;
+        elements.refreshButton.disabled = false;
+        elements.refreshButton.textContent = "↻ Refresh";
+        return;
+    }
+
+    elements.authStatus.textContent = "Token available";
+    elements.apiStatus.textContent = "Connecting...";
+    elements.connectionBadge.textContent = "Loading platform data...";
+
+    try {
+        const data = await apiRequest("/admin/dashboard");
+
+        if (!data || typeof data !== "object") {
+            throw new Error("The backend returned an invalid dashboard response.");
+        }
+
+        /*
+         * If the server provides an admin role, verify it before
+         * displaying the dashboard. Authorization must also be
+         * enforced by the backend on every admin endpoint.
+         */
+        if (
+            data.admin &&
+            data.admin.role &&
+            data.admin.role.toLowerCase() !== "admin"
+        ) {
+            throw new Error("This account is not an administrator.");
+        }
+
+        renderAdmin(data.admin);
+        renderStats(data.stats);
+        renderActivity(data.recent_activity);
+        renderOrderSummary(data.order_summary);
+        renderDisputes(data.recent_disputes);
+
+        elements.apiStatus.textContent = "Connected";
+        elements.authStatus.textContent = "Session accepted";
+        elements.connectionBadge.textContent = "Backend connected";
+
+        elements.lastUpdated.textContent =
+            new Date().toLocaleTimeString();
+
+    } catch (error) {
+        elements.apiStatus.textContent = "Unavailable";
+        elements.connectionBadge.textContent = "Data unavailable";
+
+        /*
+         * Do not replace unavailable data with zeroes or sample records.
+         * Keep a clear error message so backend issues can be diagnosed.
+         */
+        showNotice(error.message);
+
+        elements.activityBody.innerHTML = `
+            <tr>
+                <td colspan="3" class="empty-state">
+                    Activity could not be loaded. Check the API connection.
+                </td>
+            </tr>
+        `;
+
+        elements.orderSummary.innerHTML = `
+            <div class="empty-state">
+                Order statistics could not be loaded.
+            </div>
+        `;
+
+        elements.disputesBody.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state">
+                    Disputes could not be loaded.
+                </td>
+            </tr>
+        `;
+
+    } finally {
+        refreshInProgress = false;
+        elements.refreshButton.disabled = false;
+        elements.refreshButton.textContent = "↻ Refresh";
+    }
+}
+
+
+/* MOBILE NAVIGATION */
+
+document.getElementById("menuToggle").addEventListener("click", () => {
+    const sidebar = document.getElementById("sidebar");
+
+    const isOpen = sidebar.classList.toggle("open");
+
+    document.getElementById("menuToggle")
+        .setAttribute("aria-expanded", String(isOpen));
+});
+
+
+/* REFRESH */
+
+elements.refreshButton.addEventListener("click", loadDashboard);
+
+
+/* LOGOUT */
+
+document.getElementById("logoutButton").addEventListener("click", event => {
+    event.preventDefault();
+
+    /*
+     * This removes the locally stored token.
+     * If the backend supports token revocation, call its logout
+     * endpoint before clearing the token.
+     */
+    localStorage.removeItem("edumatch_token");
+
+    window.location.href = "login.html";
+});
+
+
+/* INITIAL LOAD */
+
+loadDashboard();
+</script>
+
+    <script src="../theme.js"></script>
+</body>
+</html>

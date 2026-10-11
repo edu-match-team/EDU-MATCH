@@ -1,0 +1,111 @@
+/* Universal Dark Mode & Theme Variables for EduMatch */
+:root {
+    --theme-transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+[data-theme="dark"] {
+    --background: #0f172a !important;
+    --white: #1e293b !important;
+    --card-bg: #1e293b !important;
+    --dark: #f8fafc !important;
+    --text: #e2e8f0 !important;
+    --muted: #94a3b8 !important;
+    --border: #334155 !important;
+    color-scheme: dark;
+}
+
+[data-theme="dark"] body {
+    background-color: #0f172a !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .navbar,
+[data-theme="dark"] nav,
+[data-theme="dark"] .topbar,
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .provider-card,
+[data-theme="dark"] .filter-panel,
+[data-theme="dark"] .results-toolbar,
+[data-theme="dark"] .empty-state,
+[data-theme="dark"] .chat-card,
+[data-theme="dark"] .chat-box,
+[data-theme="dark"] .conversation-list,
+[data-theme="dark"] .conversation-details,
+[data-theme="dark"] .login-wrapper,
+[data-theme="dark"] .reg-card,
+[data-theme="dark"] .panel,
+[data-theme="dark"] .table-card,
+[data-theme="dark"] table,
+[data-theme="dark"] .contact,
+[data-theme="dark"] .message-area,
+[data-theme="dark"] .chat-container {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+[data-theme="dark"] input:not([type="submit"]):not([type="button"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .search-box {
+    background-color: #1e293b !important;
+    border: 1px solid #475569 !important;
+}
+
+[data-theme="dark"] .search-box input {
+    background-color: transparent !important;
+    color: #f8fafc !important;
+}
+
+[data-theme="dark"] .nav-link,
+[data-theme="dark"] .breadcrumb,
+[data-theme="dark"] .filter-header h3,
+[data-theme="dark"] .provider-info h3,
+[data-theme="dark"] .provider-role,
+[data-theme="dark"] .heading h1 {
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .provider-card:hover {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+    border-color: #6366f1 !important;
+}
+
+/* Floating Theme Toggle Switch */
+.edumatch-theme-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 99999;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #6c4df6;
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 24px rgba(108, 77, 246, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s;
+    user-select: none;
+}
+
+.edumatch-theme-toggle:hover {
+    transform: scale(1.12);
+    background: #5535df;
+}
+
+[data-theme="dark"] .edumatch-theme-toggle {
+    background: #3b82f6;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.5);
+}
