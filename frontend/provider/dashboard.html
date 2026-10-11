@@ -592,10 +592,12 @@
         <nav class="nav">
             <a href="dashboard.html" class="active">⌂ &nbsp; Dashboard</a>
             <a href="profile.html">◎ &nbsp; My Profile</a>
+            <a href="portfolio.html">💼 &nbsp; My Portfolio</a>
+            <a href="services.html">🛠️ &nbsp; My Services & Pricing</a>
             <a href="skills.html">✿ &nbsp; My Skills</a>
             <a href="requests.html">♧ &nbsp; Project Requests</a>
             <a href="orders.html">▤ &nbsp; My Orders</a>
-            <a href="chat.html">✉ &nbsp; Messages</a>
+            <a href="chat.html">✉ &nbsp; Messages & Share</a>
             <a href="../index.html">← &nbsp; Back to Website</a>
         </nav>
 
@@ -1180,10 +1182,40 @@
             }
         });
 
-    // Start the dashboard.
-    function initializeDashboard() {
+    // Start the dashboard with live backend synchronization
+    async function initializeDashboard() {
         displayCurrentDate();
         loadProviderDetails();
+
+        const token = localStorage.getItem("edumatch_token");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+
+        try {
+            // 1. Fetch real requests from backend
+            const reqRes = await fetch("http://127.0.0.1:5000/api/provider/requests", { headers, credentials: "include" });
+            const reqData = await reqRes.json();
+            if (reqData.success && Array.isArray(reqData.requests)) {
+                localStorage.setItem(STORAGE_KEYS.requests, JSON.stringify(reqData.requests));
+            }
+
+            // 2. Fetch real orders from backend
+            const ordRes = await fetch("http://127.0.0.1:5000/api/provider/orders", { headers, credentials: "include" });
+            const ordData = await ordRes.json();
+            if (ordData.success && Array.isArray(ordData.orders)) {
+                localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(ordData.orders));
+            }
+
+            // 3. Fetch real portfolio projects from backend
+            const portRes = await fetch("http://127.0.0.1:5000/api/provider/portfolio", { headers, credentials: "include" });
+            const portData = await portRes.json();
+            if (portData.success && Array.isArray(portData.projects)) {
+                localStorage.setItem(STORAGE_KEYS.services, JSON.stringify(portData.projects));
+            }
+        } catch (e) {
+            console.warn("Backend sync notice:", e);
+        }
+
         calculateProfileCompletion();
         updateServiceCount();
         updateActivityStatistics();

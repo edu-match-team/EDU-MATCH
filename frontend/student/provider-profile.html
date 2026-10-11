@@ -548,11 +548,36 @@
                 <!-- Skills -->
                 <section class="card">
                     <div class="section-content">
-
                         <h3 class="section-title">Skills & Technologies</h3>
-
                         <div class="skills" id="providerSkills"></div>
+                    </div>
+                </section>
 
+                <!-- Portfolio Projects Built by Provider -->
+                <section class="card" id="portfolioSection">
+                    <div class="section-content">
+                        <h3 class="section-title">Verified Portfolio & Experience</h3>
+                        <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+                            Academic and industry projects built by this mentor that showcase their technical capabilities:
+                        </p>
+                        <div id="portfolioProjectsList" style="display:flex; flex-direction:column; gap:12px;">
+                            <p style="color:var(--muted); font-size:13px;">Loading portfolio projects...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Student Reviews & Ratings -->
+                <section class="card" id="reviewsSection">
+                    <div class="section-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                            <h3 class="section-title" style="margin:0;">Student Reviews & Ratings</h3>
+                            <button id="openReviewModalBtn" class="primary-btn" style="padding:7px 14px; font-size:12px;" type="button">
+                                ★ Write a Review
+                            </button>
+                        </div>
+                        <div id="studentReviewsList" style="display:flex; flex-direction:column; gap:12px;">
+                            <p style="color:var(--muted); font-size:13px;">No reviews yet for this mentor. Be the first to review!</p>
+                        </div>
                     </div>
                 </section>
 
@@ -699,6 +724,83 @@
                 if (hasPayment) {
                     document.getElementById("paymentSection").style.display = "block";
                 }
+
+                // Render Portfolio Projects
+                const portList = document.getElementById("portfolioProjectsList");
+                const portfolio = p.portfolio || [];
+                if (portfolio.length > 0) {
+                    portList.innerHTML = portfolio.map(proj => `
+                        <div style="border:1px solid var(--border); border-radius:10px; padding:15px; background:#fafafa;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+                                <strong style="font-size:15px; color:var(--dark);">${proj.title}</strong>
+                                ${proj.project_url ? `<a href="${proj.project_url}" target="_blank" rel="noopener" style="font-size:12px; font-weight:700; color:var(--primary); text-decoration:none;">View Project ↗</a>` : ''}
+                            </div>
+                            <p style="font-size:13px; color:var(--text); line-height:1.6; margin-bottom:10px;">${proj.description}</p>
+                            <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                                ${(proj.technologies || []).map(t => `<span style="font-size:11px; font-weight:600; background:#e2e8f0; color:#334155; padding:3px 8px; border-radius:12px;">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    portList.innerHTML = '<p style="color:var(--muted); font-size:13px;">No past projects listed yet. Provider has verified expertise in skills above.</p>';
+                }
+
+                // Render Reviews & Ratings
+                const revList = document.getElementById("studentReviewsList");
+                const reviews = p.reviews || [];
+                if (reviews.length > 0) {
+                    revList.innerHTML = reviews.map(rev => `
+                        <div style="border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:8px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                                <strong style="font-size:13px; color:var(--dark);">${rev.student_name || 'Student'}</strong>
+                                <span style="color:#f59e0b; font-weight:700; font-size:13px;">${'★'.repeat(rev.rating)}${'☆'.repeat(5 - rev.rating)} (${rev.rating}/5)</span>
+                            </div>
+                            <p style="font-size:13px; color:var(--text); line-height:1.5;">${rev.comment || 'Great project mentor!'}</p>
+                            <span style="font-size:11px; color:var(--muted);">${rev.created_at || ''}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    revList.innerHTML = '<p style="color:var(--muted); font-size:13px;">No reviews yet. Work with this mentor and share your rating!</p>';
+                }
+
+                // Write Review button
+                document.getElementById("openReviewModalBtn")?.addEventListener("click", async () => {
+                    const token = localStorage.getItem("edumatch_token");
+                    if (!token) {
+                        alert("Please log in as a student to review this provider.");
+                        window.location.href = "login.html";
+                        return;
+                    }
+                    const ratingStr = prompt("Rate this mentor from 1 to 5 stars:", "5");
+                    if (!ratingStr) return;
+                    const ratingNum = parseInt(ratingStr);
+                    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+                        alert("Please enter a valid rating between 1 and 5.");
+                        return;
+                    }
+                    const comment = prompt("Write your feedback/review about collaborating with this mentor:", "Excellent guidance on our BCA project.");
+                    if (!comment) return;
+
+                    try {
+                        const revRes = await fetch(`${API_BASE}/providers/${p.id}/reviews`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": "Bearer " + token
+                            },
+                            body: JSON.stringify({ rating: ratingNum, comment: comment })
+                        });
+                        const revData = await revRes.json();
+                        if (revData.success) {
+                            alert("Thank you! Your review has been saved.");
+                            window.location.reload();
+                        } else {
+                            alert(revData.message || "Could not submit review.");
+                        }
+                    } catch (e) {
+                        alert("Review submission error. Check server.");
+                    }
+                });
 
                 // Setup Message Button
                 document.getElementById("messageButton").addEventListener("click", () => {

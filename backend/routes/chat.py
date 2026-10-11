@@ -66,15 +66,27 @@ def start_conversation():
         return jsonify({"success": False, "message": "Not logged in."}), 401
 
     data = request.get_json(silent=True) or {}
-    other_user_id = data.get("other_user_id") or data.get("provider_id") or data.get("student_id")
-    if not other_user_id:
+    raw_id = data.get("other_user_id") or data.get("provider_id") or data.get("student_id")
+    if not raw_id:
         return jsonify({"success": False, "message": "Recipient user ID is required."}), 400
 
-    target = get_user_by_id(int(other_user_id))
+    try:
+        target_id = int(raw_id)
+    except (ValueError, TypeError):
+        return jsonify({"success": False, "message": "Invalid recipient user ID."}), 400
+
+    db = get_db()
+    # Check if target_id is actually a provider_profiles.id
+    if "provider_id" in data or not get_user_by_id(target_id):
+        p_row = db.execute("SELECT user_id FROM provider_profiles WHERE id = ?", (target_id,)).fetchone()
+        if p_row:
+            target_id = p_row["user_id"]
+
+    target = get_user_by_id(target_id)
     if not target:
         return jsonify({"success": False, "message": "User not found."}), 404
 
-    conv_id = get_or_create_conversation(user_id, int(other_user_id))
+    conv_id = get_or_create_conversation(user_id, target_id)
     return jsonify({
         "success": True,
         "conversation_id": conv_id,

@@ -158,3 +158,219 @@ def get_skills():
         "success": True,
         "skills": [dict(r) for r in rows]
     }), 200
+
+
+# --- PORTFOLIO PROJECTS ---
+@providers_bp.route("/portfolio", methods=["GET", "POST"])
+def provider_portfolio():
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    db = get_db()
+    prof_row = db.execute("SELECT id FROM provider_profiles WHERE user_id = ?", (user_id,)).fetchone()
+    prof_id = prof_row["id"] if prof_row else user_id
+
+    if request.method == "GET":
+        rows = db.execute(
+            "SELECT id, title, description, technologies, project_url, created_at FROM portfolio_projects WHERE provider_id = ? OR provider_id = ? ORDER BY id DESC",
+            (user_id, prof_id)
+        ).fetchall()
+        projects = []
+        for r in rows:
+            techs = [t.strip() for t in (r["technologies"] or "").split(",") if t.strip()]
+            projects.append({
+                "id": r["id"],
+                "title": r["title"],
+                "description": r["description"],
+                "technologies": techs,
+                "project_url": r["project_url"],
+                "created_at": r["created_at"]
+            })
+        return jsonify({"success": True, "projects": projects, "portfolio": projects}), 200
+
+    # POST new portfolio project
+    data = request.get_json(silent=True) or {}
+    title = str(data.get("title", "")).strip()
+    description = str(data.get("description", "")).strip()
+    techs = data.get("technologies", [])
+    project_url = str(data.get("project_url", "")).strip()
+
+    if isinstance(techs, list):
+        tech_str = ", ".join(techs)
+    else:
+        tech_str = str(techs).strip()
+
+    if not title or not description:
+        return jsonify({"success": False, "message": "Project title and description are required."}), 400
+
+    cursor = db.execute(
+        """
+        INSERT INTO portfolio_projects (provider_id, title, description, technologies, project_url)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (user_id, title, description, tech_str, project_url)
+    )
+    # Increment completed_projects count in provider profile
+    db.execute(
+        "UPDATE provider_profiles SET completed_projects = completed_projects + 1 WHERE user_id = ?",
+        (user_id,)
+    )
+    db.commit()
+
+    new_id = cursor.lastrowid
+    return jsonify({
+        "success": True,
+        "message": "Portfolio project added successfully.",
+        "project": {
+            "id": new_id,
+            "title": title,
+            "description": description,
+            "technologies": [t.strip() for t in tech_str.split(",") if t.strip()],
+            "project_url": project_url
+        }
+    }), 201
+
+
+@providers_bp.route("/portfolio/<int:project_id>", methods=["DELETE"])
+def delete_portfolio_project(project_id):
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    db = get_db()
+    prof_row = db.execute("SELECT id FROM provider_profiles WHERE user_id = ?", (user_id,)).fetchone()
+    prof_id = prof_row["id"] if prof_row else user_id
+
+    cursor = db.execute("DELETE FROM portfolio_projects WHERE id = ? AND (provider_id = ? OR provider_id = ?)", (project_id, user_id, prof_id))
+    db.commit()
+
+    if cursor.rowcount == 0:
+        return jsonify({"success": False, "message": "Project not found or not owned by you."}), 404
+
+    return jsonify({"success": True, "message": "Project removed from portfolio."}), 200
+
+
+# --- REVIEWS ---
+@providers_bp.route("/<int:provider_id>/reviews", methods=["GET", "POST"])
+def provider_reviews_handler(provider_id):
+    db = get_db()
+    # Resolve both profile_id and user_id for resilient matching
+    prof_row = db.execute("SELECT id, user_id FROM provider_profiles WHERE id = ? OR user_id = ?", (provider_id, provider_id)).fetchone()
+    resolved_prov_id = prof_row["id"] if prof_row else provider_id
+    resolved_user_id = prof_row["user_id"] if prof_row else provider_id
+
+    if request.method == "GET":
+        rows = db.execute(
+            """
+            SELECT r.id, r.rating, r.comment, r.created_at, u.full_name as student_name
+            FROM reviews r
+            JOIN users u ON r.student_id = u.id
+            WHERE r.provider_id = ? OR r.provider_id = ?
+            ORDER BY r.created_at DESC
+            """,
+            (resolved_prov_id, resolved_user_id)
+        ).fetchall()
+        reviews = [dict(r) for r in rows]
+        return jsonify({"success": True, "reviews": reviews}), 200
+
+    # POST student review for this provider
+    student_id = get_auth_user_id()
+    if not student_id:
+        return jsonify({"success": False, "message": "You must be logged in as student to review."}), 401
+
+    data = request.get_json(silent=True) or {}
+    try:
+        rating = int(data.get("rating", 5))
+    except (ValueError, TypeError):
+        rating = 5
+    rating = max(1, min(5, rating))
+    comment = str(data.get("comment", "") or data.get("review", "")).strip()
+
+    db.execute(
+        "INSERT INTO reviews (provider_id, student_id, rating, comment) VALUES (?, ?, ?, ?)",
+        (resolved_prov_id, student_id, rating, comment)
+    )
+
+    # Recalculate and update provider rating in profile
+    avg_row = db.execute("SELECT AVG(rating) as avg_r FROM reviews WHERE provider_id = ? OR provider_id = ?", (resolved_prov_id, resolved_user_id)).fetchone()
+    if avg_row and avg_row["avg_r"]:
+        new_avg = round(float(avg_row["avg_r"]), 1)
+        db.execute("UPDATE provider_profiles SET rating = ? WHERE id = ? OR user_id = ?", (new_avg, resolved_prov_id, resolved_user_id))
+
+    db.commit()
+    return jsonify({"success": True, "message": "Review submitted successfully!"}), 201
+
+
+@providers_bp.route("/reviews", methods=["GET"])
+def get_current_provider_reviews():
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+    return provider_reviews_handler(user_id)
+
+
+# --- SERVICES ---
+@providers_bp.route("/services", methods=["GET", "POST"])
+def provider_services_handler():
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    db = get_db()
+    if request.method == "GET":
+        rows = db.execute("SELECT * FROM services WHERE provider_id = ? ORDER BY id DESC", (user_id,)).fetchall()
+        return jsonify({"success": True, "services": [dict(r) for r in rows]}), 200
+
+    data = request.get_json(silent=True) or {}
+    title = str(data.get("title", "")).strip()
+    category = str(data.get("category", "Web Development")).strip()
+    description = str(data.get("description", "")).strip()
+    price = int(data.get("price", 1500))
+    delivery_days = int(data.get("delivery_days", 7))
+
+    if not title:
+        return jsonify({"success": False, "message": "Service title is required."}), 400
+
+    cursor = db.execute(
+        """
+        INSERT INTO services (provider_id, title, category, description, price, delivery_days)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (user_id, title, category, description, price, delivery_days)
+    )
+    db.commit()
+    return jsonify({"success": True, "message": "Service created successfully.", "id": cursor.lastrowid}), 201
+
+
+# --- CERTIFICATIONS ---
+@providers_bp.route("/certifications", methods=["GET", "POST"])
+def provider_certifications_handler():
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    db = get_db()
+    if request.method == "GET":
+        rows = db.execute("SELECT * FROM certifications WHERE provider_id = ? ORDER BY id DESC", (user_id,)).fetchall()
+        return jsonify({"success": True, "certifications": [dict(r) for r in rows]}), 200
+
+    data = request.get_json(silent=True) or {}
+    name = str(data.get("name", "")).strip()
+    issuer = str(data.get("issuer", "")).strip()
+    issue_year = str(data.get("issue_year", "2025")).strip()
+    credential_url = str(data.get("credential_url", "")).strip()
+
+    if not name or not issuer:
+        return jsonify({"success": False, "message": "Certification name and issuer are required."}), 400
+
+    cursor = db.execute(
+        """
+        INSERT INTO certifications (provider_id, name, issuer, issue_year, credential_url)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (user_id, name, issuer, issue_year, credential_url)
+    )
+    db.commit()
+    return jsonify({"success": True, "message": "Certification added successfully.", "id": cursor.lastrowid}), 201
+

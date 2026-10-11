@@ -107,6 +107,32 @@ def create_app():
             })
         return jsonify({"success": True, "orders": orders}), 200
 
+    # Route aliases for provider portfolio, services, certifications, reviews
+    @app.route("/api/provider/portfolio", methods=["GET", "POST"])
+    def provider_portfolio_alias():
+        from backend.routes.providers import provider_portfolio
+        return provider_portfolio()
+
+    @app.route("/api/provider/portfolio/<int:project_id>", methods=["DELETE"])
+    def provider_portfolio_delete_alias(project_id):
+        from backend.routes.providers import delete_portfolio_project
+        return delete_portfolio_project(project_id)
+
+    @app.route("/api/provider/services", methods=["GET", "POST"])
+    def provider_services_alias():
+        from backend.routes.providers import provider_services_handler
+        return provider_services_handler()
+
+    @app.route("/api/provider/certifications", methods=["GET", "POST"])
+    def provider_certifications_alias():
+        from backend.routes.providers import provider_certifications_handler
+        return provider_certifications_handler()
+
+    @app.route("/api/provider/reviews", methods=["GET"])
+    def provider_reviews_alias():
+        from backend.routes.providers import get_current_provider_reviews
+        return get_current_provider_reviews()
+
     # Security Headers for production-grade protection
     @app.after_request
     def set_security_headers(response):

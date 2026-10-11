@@ -78,13 +78,51 @@ def get_all_providers_with_skills() -> List[Dict[str, Any]]:
             "payment_qr": r["payment_qr"] or "",
             "skills": skills
         })
+
+    # Attach portfolio projects count and items to each provider
+    for p in providers:
+        p_projs = db.execute(
+            "SELECT id, title, description, technologies, project_url, created_at FROM portfolio_projects WHERE provider_id = ? OR provider_id = ? ORDER BY id DESC",
+            (p["id"], p["provider_profile_id"])
+        ).fetchall()
+        p["portfolio"] = []
+        for row in p_projs:
+            techs = [t.strip() for t in (row["technologies"] or "").split(",") if t.strip()]
+            p["portfolio"].append({
+                "id": row["id"],
+                "title": row["title"],
+                "description": row["description"],
+                "technologies": techs,
+                "project_url": row["project_url"],
+                "created_at": row["created_at"]
+            })
+        if len(p["portfolio"]) > 0:
+            p["projects"] = max(p["projects"], len(p["portfolio"]))
+            p["completed_projects"] = p["projects"]
+
     return providers
 
 
 def get_provider_details(provider_user_id: int) -> Optional[Dict[str, Any]]:
     providers = get_all_providers_with_skills()
     for p in providers:
-        if p["id"] == provider_user_id:
+        if p["id"] == provider_user_id or p.get("provider_profile_id") == provider_user_id:
+            # Also fetch real reviews from reviews table
+            db = get_db()
+            rev_rows = db.execute(
+                """
+                SELECT r.id, r.rating, r.comment, r.created_at, u.full_name as student_name
+                FROM reviews r
+                JOIN users u ON r.student_id = u.id
+                WHERE r.provider_id = ? OR r.provider_id = ?
+                ORDER BY r.created_at DESC
+                """,
+                (p["id"], p["provider_profile_id"])
+            ).fetchall()
+            p["reviews"] = [dict(rev) for rev in rev_rows]
+            if rev_rows:
+                avg_rating = sum(r["rating"] for r in rev_rows) / len(rev_rows)
+                p["rating"] = round(avg_rating, 1)
             return p
     return None
 
