@@ -34,27 +34,56 @@ def list_conversations():
         return jsonify({"success": False, "message": "Not logged in."}), 401
 
     raw_convs = get_user_conversations(user_id)
+    db = get_db()
     formatted = []
     for c in raw_convs:
+        u_row = db.execute(
+            """
+            SELECT COALESCE(
+                NULLIF(u.profile_photo, ''),
+                NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
+                NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
+                ''
+            ) AS photo
+            FROM users u WHERE u.id = ?
+            """,
+            (c["other_user_id"],)
+        ).fetchone()
+        photo = u_row["photo"] if u_row else ""
         formatted.append({
             "id": c["id"],
             "participant": {
                 "id": c["other_user_id"],
                 "name": c["other_user_name"],
-                "role": c["other_user_role"].capitalize()
+                "role": c["other_user_role"].capitalize(),
+                "photo": photo
             },
             "project_title": "Academic Project Collaboration",
             "last_message": c["last_message"] or "Start conversation",
             "updated_at": c["updated_at"]
         })
 
-    user = get_user_by_id(user_id)
+    cur_user_row = db.execute(
+        """
+        SELECT u.id, u.full_name,
+               COALESCE(
+                   NULLIF(u.profile_photo, ''),
+                   NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
+                   NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
+                   ''
+               ) AS photo
+        FROM users u WHERE u.id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
     return jsonify({
         "success": True,
         "conversations": formatted,
         "current_user": {
             "id": user_id,
-            "name": user["full_name"] if user else "User"
+            "name": cur_user_row["full_name"] if cur_user_row else "User",
+            "photo": cur_user_row["photo"] if cur_user_row else ""
         }
     }), 200
 
@@ -93,7 +122,8 @@ def start_conversation():
         "recipient": {
             "id": target["id"],
             "name": target["full_name"],
-            "role": target["role"]
+            "role": target["role"],
+            "photo": target["profile_photo"] if "profile_photo" in target.keys() else ""
         }
     }), 200
 
@@ -120,7 +150,9 @@ def conversation_messages(conv_id):
                 "conversation_id": m["conversation_id"],
                 "sender_id": m["sender_id"],
                 "sender_name": m["sender_name"],
+                "sender_photo": m.get("sender_photo", ""),
                 "message": m["message_text"],
+                "is_deleted": m.get("is_deleted", False),
                 "created_at": m["created_at"]
             })
         return jsonify({
@@ -136,6 +168,31 @@ def conversation_messages(conv_id):
         return jsonify({"success": False, "message": "Message text cannot be empty."}), 400
 
     msg = add_message(conv_id, user_id, text)
+
+    # Trigger instant notification to recipient
+    other_user_id = c["user2_id"] if c["user1_id"] == user_id else c["user1_id"]
+    try:
+        from backend.database.queries import create_notification
+        sender = get_user_by_id(user_id)
+        s_name = sender["full_name"] if sender else "EduMatch User"
+        recipient = get_user_by_id(other_user_id)
+        chat_link = "/student/chat.html" if recipient and recipient["role"] == "student" else "/provider/chat.html"
+        create_notification(
+            user_id=other_user_id,
+            title=f"New Message from {s_name}",
+            message=text[:80] + ("..." if len(text) > 80 else ""),
+            link=chat_link
+        )
+    except Exception as e:
+        print(f"[Notification] Chat error: {e}")
+
+    # Sync message to Supabase in the background / try block
+    try:
+        from backend.database.supabase_client import sync_message_to_supabase
+        sync_message_to_supabase(conv_id, user_id, text)
+    except Exception as e:
+        print(f"[Supabase Sync] Message error: {e}")
+
     return jsonify({
         "success": True,
         "message": {
@@ -146,3 +203,39 @@ def conversation_messages(conv_id):
             "created_at": "Just now"
         }
     }), 201
+
+
+@chat_bp.route("/api/chat/messages/<int:msg_id>", methods=["DELETE"])
+@chat_bp.route("/api/student/messages/<int:msg_id>", methods=["DELETE"])
+@chat_bp.route("/api/provider/messages/<int:msg_id>", methods=["DELETE"])
+def delete_chat_message(msg_id):
+    user_id = get_authenticated_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    data = request.get_json(silent=True) or {}
+    delete_for = data.get("delete_for", "everyone")  # "everyone" or "me"
+
+    from backend.database.queries import delete_message_for_everyone, delete_message_for_user
+
+    if delete_for == "everyone":
+        success = delete_message_for_everyone(msg_id, user_id)
+        if not success:
+            return jsonify({"success": False, "message": "Only the sender can delete a message for everyone."}), 403
+        return jsonify({"success": True, "message": "Message deleted for everyone."}), 200
+    else:
+        success = delete_message_for_user(msg_id, user_id)
+        return jsonify({"success": True, "message": "Message deleted for you."}), 200
+
+
+@chat_bp.route("/api/chat/conversations/<int:conv_id>/clear", methods=["DELETE", "POST"])
+@chat_bp.route("/api/student/conversations/<int:conv_id>/clear", methods=["DELETE", "POST"])
+@chat_bp.route("/api/provider/conversations/<int:conv_id>/clear", methods=["DELETE", "POST"])
+def clear_chat_conversation(conv_id):
+    user_id = get_authenticated_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    from backend.database.queries import clear_conversation_for_user
+    clear_conversation_for_user(conv_id, user_id)
+    return jsonify({"success": True, "message": "Conversation cleared successfully."}), 200

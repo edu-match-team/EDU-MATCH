@@ -520,6 +520,17 @@
 
         card.appendChild(details);
 
+        if (request.deliverable_url) {
+            const delivBox = document.createElement("div");
+            delivBox.style.cssText = "margin-top:14px; margin-bottom:14px; padding:12px 16px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px;";
+            delivBox.innerHTML = `
+                <div style="font-size:13px; font-weight:700; color:#15803d; margin-bottom:4px;">📦 Completed Deliverables Submitted:</div>
+                <div style="font-size:13px; color:#166534; margin-bottom:6px;">${request.deliverable_note ? request.deliverable_note : 'The provider has uploaded your project deliverables.'}</div>
+                <a href="${request.deliverable_url}" target="_blank" rel="noopener" style="font-size:13px; font-weight:700; color:#15803d; text-decoration:underline;">Download Deliverables ↗</a>
+            `;
+            card.appendChild(delivBox);
+        }
+
         const actions = document.createElement("div");
         actions.className = "actions";
 
@@ -527,7 +538,7 @@
         chatLink.className = "btn";
         chatLink.href = request.conversation_id
             ? `chat.html?conversation_id=${encodeURIComponent(request.conversation_id)}`
-            : "chat.html";
+            : (request.provider_id ? `chat.html?provider_id=${encodeURIComponent(request.provider_id)}` : "chat.html");
         chatLink.textContent = "Open Chat";
 
         actions.appendChild(chatLink);
@@ -536,7 +547,7 @@
             const profileLink = document.createElement("a");
             profileLink.className = "btn btn-secondary";
             profileLink.href =
-                `provider-profile.html?id=${encodeURIComponent(request.provider_id)}`;
+                `provider-profile.html?provider_id=${encodeURIComponent(request.provider_id)}`;
             profileLink.textContent = "View Provider";
 
             actions.appendChild(profileLink);
@@ -577,8 +588,13 @@
         setStatus("Loading your project requests...");
 
         try {
+            const token = localStorage.getItem("edumatch_token");
+            const headers = { "Accept": "application/json" };
+            if (token) headers["Authorization"] = "Bearer " + token;
+
             const response = await fetch(`${API_BASE}/projects/my`, {
-                credentials: "include"
+                credentials: "include",
+                headers: headers
             });
 
             if (!response.ok) {

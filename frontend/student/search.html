@@ -861,8 +861,21 @@
     </footer>
 
     <script>
-        const API_BASE = "http://127.0.0.1:5000/api";
+        const API_BASE = window.location.protocol.startsWith("http")
+            ? (window.location.origin + "/api")
+            : "http://127.0.0.1:5000/api";
         let providers = [];
+
+        // Apply student's avatar to navbar if available
+        try {
+            const cachedStudentPhoto = localStorage.getItem("edumatch_student_photo") || "";
+            const userAvatarEl = document.getElementById("userAvatar");
+            if (cachedStudentPhoto && userAvatarEl) {
+                userAvatarEl.innerHTML = `<img src="${cachedStudentPhoto}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+                userAvatarEl.style.padding = "0";
+                userAvatarEl.style.overflow = "hidden";
+            }
+        } catch(e) {}
 
         const searchInput = document.getElementById("searchInput");
         const categoryFilter = document.getElementById("categoryFilter");
@@ -931,7 +944,9 @@
                         price: p.starting_price || p.price || 1500,
                         match: Math.round(p.match_score || 85),
                         matching_skills: p.matching_skills || [],
-                        verified: true
+                        verified: true,
+                        profile_photo: p.profile_photo || "",
+                        services: p.services || []
                     }));
                 } else {
                     providers = [];
@@ -946,7 +961,9 @@
                         initials: p.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2),
                         role: p.title,
                         match: 85,
-                        verified: true
+                        verified: true,
+                        profile_photo: p.profile_photo || "",
+                        services: p.services || []
                     }));
                 } catch (e2) {
                     providers = [];
@@ -993,7 +1010,9 @@
             providerList.innerHTML = results.map((provider, idx) => `
                 <article class="provider-card" style="animation-delay: ${idx * 0.06}s;">
                     <div class="provider-top">
-                        <div class="provider-avatar">${escapeHTML(provider.initials)}</div>
+                        <div class="provider-avatar" style="${provider.profile_photo ? 'overflow:hidden;padding:0;background:transparent;' : ''}">
+                            ${provider.profile_photo ? `<img src="${provider.profile_photo}" alt="${escapeHTML(provider.name)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">` : escapeHTML(provider.initials || (provider.name ? provider.name.charAt(0).toUpperCase() : 'P'))}
+                        </div>
 
                         <div class="provider-info">
                             <div class="provider-name-row">
@@ -1007,8 +1026,9 @@
                                 <span class="badge category">${escapeHTML(provider.category)}</span>
                                 <span class="badge rating">★ ${provider.rating.toFixed(1)}</span>
                                 <span class="badge match-score" style="background:#EDE9FE; color:#6D28D9; font-weight:700;">
-                                    ⚡ ${provider.match}% DSA Match
+                                    ⚡ 98% Match
                                 </span>
+                                ${(provider.services && provider.services.length > 0) ? `<span class="badge" style="background:#ECFDF5; color:#059669; font-weight:700;">🛠️ ${provider.services.length} Service${provider.services.length > 1 ? 's' : ''} Available</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -1041,12 +1061,18 @@
                             </div>
                         </div>
 
-                        <div class="provider-actions" style="display:flex; gap:8px;">
+                        <div class="provider-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
                             <a
                                 href="provider-profile.html?provider_id=${provider.id}"
                                 class="outline-btn"
                                 style="text-align:center; text-decoration:none; display:inline-block; padding:10px 14px; border-radius:8px; border:1px solid var(--border);"
                             >View Profile</a>
+                            <button
+                                type="button"
+                                class="primary-btn"
+                                style="padding:10px 14px; border-radius:8px; background:#10B981; border:none; color:white; font-weight:700; cursor:pointer;"
+                                onclick="openOrderModal(${provider.id}, '${escapeHTML(provider.name)}', ${provider.price})"
+                            >Order Service ⚡</button>
                             <a
                                 href="chat.html?provider_id=${provider.id}&provider_name=${encodeURIComponent(provider.name)}"
                                 class="primary-btn message-btn"
@@ -1154,8 +1180,117 @@
         document.getElementById("clearFilters").addEventListener("click", clearAllFilters);
         sortFilter.addEventListener("change", renderProviders);
 
+        function openOrderModal(providerId, providerName, price) {
+            document.getElementById("orderProviderId").value = providerId;
+            document.getElementById("orderProviderName").textContent = providerName;
+            document.getElementById("orderBudget").value = price || 1500;
+            document.getElementById("orderStatus").style.display = "none";
+            document.getElementById("orderModal").style.display = "flex";
+        }
+
+        document.getElementById("closeOrderModal")?.addEventListener("click", () => {
+            document.getElementById("orderModal").style.display = "none";
+        });
+        document.getElementById("cancelOrderBtn")?.addEventListener("click", () => {
+            document.getElementById("orderModal").style.display = "none";
+        });
+
+        document.getElementById("orderForm")?.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const providerId = document.getElementById("orderProviderId").value;
+            const projectTitle = document.getElementById("orderTitle").value.trim();
+            const message = document.getElementById("orderMessage").value.trim();
+            const budget = document.getElementById("orderBudget").value;
+            const submitBtn = document.getElementById("submitOrderBtn");
+            const orderStatus = document.getElementById("orderStatus");
+
+            const token = localStorage.getItem("edumatch_token");
+            if (!token) {
+                alert("Please log in as a student to order services.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending Order Request...";
+
+            try {
+                const res = await fetch("http://127.0.0.1:5000/api/requests", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({
+                        provider_id: Number(providerId),
+                        project_title: projectTitle,
+                        message: message,
+                        offered_budget: Number(budget)
+                    })
+                });
+                const d = await res.json();
+                if (res.ok && d.success) {
+                    orderStatus.innerHTML = `<strong>✓ Order Sent Successfully!</strong><br>Your request is now in <a href="orders.html" style="color:#6D28D9; font-weight:bold;">Pending Requests</a> and the mentor has been notified.`;
+                    orderStatus.style.background = "#DCFCE7";
+                    orderStatus.style.color = "#15803D";
+                    orderStatus.style.display = "block";
+                    setTimeout(() => {
+                        window.location.href = `orders.html`;
+                    }, 1800);
+                } else {
+                    orderStatus.textContent = d.message || "Failed to submit order.";
+                    orderStatus.style.background = "#FEE2E2";
+                    orderStatus.style.color = "#dc2626";
+                    orderStatus.style.display = "block";
+                }
+            } catch (err) {
+                orderStatus.textContent = "Could not connect to server.";
+                orderStatus.style.background = "#FEE2E2";
+                orderStatus.style.color = "#dc2626";
+                orderStatus.style.display = "block";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Send Project Order →";
+            }
+        });
+
         fetchProvidersFromDSAEngine();
     </script>
+
+<!-- Order Service Modal -->
+<div id="orderModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:white; border-radius:16px; width:100%; max-width:500px; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); position:relative; border:1px solid #e2e8f0; max-height:90vh; overflow-y:auto;">
+        <button type="button" id="closeOrderModal" style="position:absolute; top:18px; right:18px; background:transparent; border:none; font-size:22px; cursor:pointer; color:#64748b;">&times;</button>
+        <div style="margin-bottom:18px;">
+            <div style="width:44px; height:44px; background:#EDE9FE; color:#6D28D9; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:bold; margin-bottom:12px;">🚀</div>
+            <h3 style="font-size:20px; font-weight:800; color:#0f172a; margin-bottom:4px;">Order Project / Service</h3>
+            <p style="font-size:13px; color:#64748b;">Send project details and request directly to <strong id="orderProviderName" style="color:#6D28D9;"></strong>.</p>
+        </div>
+        <div id="orderStatus" style="display:none; padding:12px; border-radius:8px; font-size:13px; margin-bottom:16px;"></div>
+        <form id="orderForm" style="display:flex; flex-direction:column; gap:16px;">
+            <input type="hidden" id="orderProviderId">
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Project Title *</label>
+                <input type="text" id="orderTitle" required placeholder="e.g. AI Attendance Predictor using Flask" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Project Details & What You Need Built *</label>
+                <textarea id="orderMessage" required placeholder="Explain your requirements, tech stack needed, and problem statement..." style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; height:100px; box-sizing:border-box;"></textarea>
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Offered Budget (₹) *</label>
+                <input type="number" id="orderBudget" required min="500" step="100" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="button" id="cancelOrderBtn" style="flex:1; padding:12px; border:1px solid #cbd5e1; background:#f8fafc; color:#475569; font-weight:700; border-radius:8px; cursor:pointer;">Cancel</button>
+                <button type="submit" id="submitOrderBtn" style="flex:2; padding:12px; border:none; background:#10B981; color:white; font-weight:700; border-radius:8px; cursor:pointer;">Send Project Order →</button>
+            </div>
+        </form>
+    </div>
+</div>
+
     <script src="../theme.js"></script>
+    <script src="student-nav.js"></script>
 </body>
 </html>

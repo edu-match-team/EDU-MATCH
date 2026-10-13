@@ -795,6 +795,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="provider-common.css">
     <link rel="stylesheet" href="../theme.css">
 </head>
 
@@ -884,7 +885,12 @@
 
             <section class="profile-card">
 
-                <div class="cover"></div>
+                <div class="cover" id="profileCover" style="position:relative;background-size:cover;background-position:center;">
+                    <button type="button" id="coverUploadBtn" style="position:absolute;top:16px;right:16px;background:rgba(15,23,42,0.65);color:white;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px;">
+                        📷 Change Cover
+                    </button>
+                    <input type="file" id="coverFileInput" accept="image/*" style="display:none;">
+                </div>
 
                 <div class="profile-main">
 
@@ -892,9 +898,13 @@
 
                         <div class="identity">
 
-                            <div class="avatar" id="profileAvatar">
+                            <label for="avatarFileInput" class="avatar" id="profileAvatar" style="position:relative;overflow:hidden;display:grid;place-items:center;cursor:pointer;" title="Click to upload profile photo">
                                 ?
-                            </div>
+                            </label>
+                            <label for="avatarFileInput" id="avatarUploadBtn" style="background:#6c4df6;color:white;border:none;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;margin-left:-25px;margin-top:45px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,0.2);user-select:none;" title="Change profile photo">
+                                📷
+                            </label>
+                            <input type="file" id="avatarFileInput" accept="image/*" style="display:none;">
 
                             <div class="identity-text">
 
@@ -1005,6 +1015,19 @@
                         <form id="profileForm">
 
                             <div class="form-grid">
+
+                                <div class="field full" style="grid-column: 1 / -1; margin-bottom:12px; display:flex; align-items:center; gap:16px; background:#f8fafc; padding:16px; border-radius:12px; border:1px solid #e2e8f0;">
+                                    <div id="formAvatarPreview" style="width:65px; height:65px; border-radius:50%; background:#EDE9FE; color:#6c4df6; display:grid; place-items:center; font-size:24px; font-weight:800; overflow:hidden; border:2px solid #6c4df6; flex-shrink:0;">
+                                        P
+                                    </div>
+                                    <div>
+                                        <label style="margin-bottom:4px; display:block; font-weight:700;">Profile Photo</label>
+                                        <button type="button" id="formChoosePhotoBtn" style="padding:8px 16px; background:#6c4df6; color:white; border:none; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                                            📷 Choose Profile Photo
+                                        </button>
+                                        <small style="display:block; margin-top:4px; color:#64748b;">Square JPG, PNG, or WebP under 2MB</small>
+                                    </div>
+                                </div>
 
                                 <div class="field">
                                     <label for="fullName">
@@ -1275,7 +1298,9 @@
 </div>
 
 <script>
-    const API_BASE_URL = "http://127.0.0.1:5000/api";
+    const API_BASE_URL = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
 
     const profileForm = document.getElementById("profileForm");
     const editSection = document.getElementById("editSection");
@@ -1286,6 +1311,7 @@
     const cancelButton = document.getElementById("cancelButton");
 
     let currentProfile = null;
+    let currentProfilePhoto = "";
 
     /* AUTHENTICATION */
 
@@ -1415,8 +1441,25 @@
         document.getElementById("displayTitle").textContent =
             title || "Professional title not provided";
 
-        document.getElementById("profileAvatar").textContent =
-            getInitials(name);
+        currentProfilePhoto = profile.profile_photo || localStorage.getItem("edumatch_provider_photo") || "";
+
+        const avatarEl = document.getElementById("profileAvatar");
+        const formAvatarEl = document.getElementById("formAvatarPreview");
+        if (currentProfilePhoto) {
+            avatarEl.innerHTML = `<img src="${currentProfilePhoto}" alt="${name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+            avatarEl.style.padding = "0";
+            if (formAvatarEl) {
+                formAvatarEl.innerHTML = `<img src="${currentProfilePhoto}" alt="${name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+            }
+        } else {
+            avatarEl.textContent = getInitials(name);
+            if (formAvatarEl) formAvatarEl.textContent = getInitials(name);
+        }
+
+        const coverEl = document.getElementById("profileCover");
+        if (profile.cover_photo) {
+            coverEl.style.backgroundImage = `url("${profile.cover_photo}")`;
+        }
 
         document.getElementById("summaryEmail").textContent =
             email || "Not provided";
@@ -1648,6 +1691,10 @@
                 .value.trim()
         };
 
+        if (currentProfilePhoto) {
+            payload.profile_photo = currentProfilePhoto;
+        }
+
         saveButton.disabled = true;
         saveButton.textContent = "Saving...";
 
@@ -1712,11 +1759,172 @@
             window.location.href = "login.html";
         });
 
+    // Cover photo upload
+    const coverBtn = document.getElementById("coverUploadBtn");
+    const coverInput = document.getElementById("coverFileInput");
+    if (coverBtn && coverInput) {
+        coverBtn.addEventListener("click", () => coverInput.click());
+        coverInput.addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (evt) => {
+                const coverDataUrl = evt.target.result;
+                document.getElementById("profileCover").style.backgroundImage = `url("${coverDataUrl}")`;
+                try {
+                    showMessage("Uploading cover photo...", "info");
+                    const res = await fetch(`${API_BASE_URL}/provider/profile`, {
+                        method: "PUT",
+                        headers: getAuthHeaders(),
+                        credentials: "include",
+                        body: JSON.stringify({ cover_photo: coverDataUrl })
+                    });
+                    if (res.ok) {
+                        showMessage("Cover photo updated successfully!", "success");
+                    }
+                } catch (err) {
+                    console.error("Cover upload error:", err);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Avatar photo upload
+    const avatarBtn = document.getElementById("avatarUploadBtn");
+    const avatarClickTarget = document.getElementById("profileAvatar");
+    const avatarInput = document.getElementById("avatarFileInput");
+    const formPhotoBtn = document.getElementById("formChoosePhotoBtn");
+
+    // Drag and drop photo upload
+    if (avatarClickTarget) {
+        avatarClickTarget.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            avatarClickTarget.style.outline = "3px dashed #6c4df6";
+            avatarClickTarget.style.outlineOffset = "4px";
+        });
+        avatarClickTarget.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            avatarClickTarget.style.outline = "none";
+        });
+        avatarClickTarget.addEventListener("drop", (e) => {
+            e.preventDefault();
+            avatarClickTarget.style.outline = "none";
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleProviderPhotoFile(e.dataTransfer.files[0]);
+            }
+        });
+    }
+
+    function compressProviderPhoto(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawData = e.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement("canvas");
+                        const maxDim = 400;
+                        let width = img.width || 400;
+                        let height = img.height || 400;
+                        if (width > height) {
+                            if (width > maxDim) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            }
+                        } else {
+                            if (height > maxDim) {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL("image/jpeg", 0.88));
+                    } catch(err) {
+                        resolve(rawData);
+                    }
+                };
+                img.onerror = () => resolve(rawData);
+                img.src = rawData;
+            };
+            reader.onerror = () => resolve("");
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function handleProviderPhotoFile(file) {
+        if (!file) return;
+
+        showMessage("Processing and uploading your profile photo...", "info");
+
+        try {
+            // Instant local preview
+            const quickReader = new FileReader();
+            quickReader.onload = (ev) => {
+                const target = document.getElementById("profileAvatar");
+                if (target && ev.target && ev.target.result) {
+                    target.innerHTML = `<img src="${ev.target.result}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+                }
+            };
+            quickReader.readAsDataURL(file);
+
+            const avatarDataUrl = await compressProviderPhoto(file);
+            currentProfilePhoto = avatarDataUrl;
+
+            try {
+                localStorage.setItem("edumatch_provider_photo", avatarDataUrl);
+                const pId = localStorage.getItem("edumatch_provider_id");
+                if (pId) localStorage.setItem("edumatch_provider_photo_" + pId, avatarDataUrl);
+                const savedUser = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
+                savedUser.profile_photo = avatarDataUrl;
+                localStorage.setItem("eduMatchUser", JSON.stringify(savedUser));
+            } catch(err) {
+                console.warn("Storage quota warning:", err);
+            }
+
+            document.getElementById("profileAvatar").innerHTML = `<img src="${avatarDataUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+            const formAvatarEl = document.getElementById("formAvatarPreview");
+            if (formAvatarEl) {
+                formAvatarEl.innerHTML = `<img src="${avatarDataUrl}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+            }
+
+            const res = await fetch(`${API_BASE_URL}/provider/profile`, {
+                method: "PUT",
+                headers: getAuthHeaders(),
+                credentials: "include",
+                body: JSON.stringify({ profile_photo: avatarDataUrl })
+            });
+            const d = await res.json().catch(() => ({}));
+            if (res.ok) {
+                showMessage("✓ Profile photo updated successfully across your dashboard!", "success");
+                if (d.profile) displayProfile(d.profile);
+            } else {
+                showMessage("Photo applied in browser session.", "info");
+            }
+        } catch (err) {
+            console.error("Profile photo upload error:", err);
+            showMessage("Could not process this image. Please select a JPG or PNG under 2MB.", "error");
+        }
+    }
+
+    if (avatarInput) {
+        avatarInput.addEventListener("change", (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleProviderPhotoFile(e.target.files[0]);
+            }
+        });
+    }
+
     /* INITIAL LOAD */
 
     loadProfile();
 </script>
 
+    <script src="provider-common.js"></script>
     <script src="../theme.js"></script>
 </body>
 </html>

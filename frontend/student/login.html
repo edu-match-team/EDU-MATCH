@@ -565,8 +565,93 @@
     </div>
 </main>
 
+<!-- Password Reset Modal with 2-Step OTP Verification -->
+<div id="resetModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:white; border-radius:16px; width:100%; max-width:440px; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); position:relative; border:1px solid #e2e8f0;">
+        <button type="button" id="closeResetModal" style="position:absolute; top:18px; right:18px; background:transparent; border:none; font-size:22px; cursor:pointer; color:#64748b;">&times;</button>
+        <div style="margin-bottom:20px;">
+            <div style="width:44px; height:44px; background:#EDE9FE; color:#6D28D9; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:bold; margin-bottom:12px;">🛡️</div>
+            <h3 style="font-size:20px; font-weight:800; color:#0f172a; margin-bottom:6px;">Verified Password Reset</h3>
+            <p style="font-size:13px; color:#64748b; line-height:1.5;">To prevent unauthorized access, a 6-digit OTP verification code is required before password modification.</p>
+        </div>
+        <div id="resetStatus" style="display:none; padding:12px; border-radius:8px; font-size:13px; margin-bottom:16px; line-height:1.5;"></div>
+
+        <!-- Step 1: Request OTP -->
+        <div id="resetStep1">
+            <div style="margin-bottom:16px;">
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Registered Student Email *</label>
+                <input type="email" id="resetEmail" required placeholder="you@university.edu" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button type="button" id="cancelResetBtn" style="flex:1; padding:12px; border:1px solid #cbd5e1; background:#f8fafc; color:#475569; font-weight:700; border-radius:8px; cursor:pointer;">Cancel</button>
+                <button type="button" id="sendOtpBtn" style="flex:2; padding:12px; border:none; background:#6c4df6; color:white; font-weight:700; border-radius:8px; cursor:pointer;">Send Verification OTP Code →</button>
+            </div>
+        </div>
+
+        <!-- Step 2: Enter OTP & New Password -->
+        <form id="resetPasswordForm" style="display:none; flex-direction:column; gap:14px;">
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">6-Digit Verification Code (OTP) *</label>
+                <input type="text" id="resetOtpCode" required maxlength="6" placeholder="Enter 6-digit code" style="width:100%; padding:12px; border:2px solid #6c4df6; border-radius:8px; font-size:16px; font-weight:700; letter-spacing:2px; text-align:center; box-sizing:border-box;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">New Password *</label>
+                <input type="password" id="resetNewPassword" required minlength="6" placeholder="At least 6 characters" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Confirm New Password *</label>
+                <input type="password" id="resetConfirmPassword" required minlength="6" placeholder="Re-enter new password" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="submit" id="submitResetBtn" style="width:100%; padding:12px; border:none; background:#16a34a; color:white; font-weight:700; border-radius:8px; cursor:pointer;">Verify & Change Password ✓</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Google Account Chooser Modal -->
+<div id="googleAccountModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:white; border-radius:16px; width:100%; max-width:420px; padding:28px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); position:relative; border:1px solid #e2e8f0;">
+        <button type="button" id="closeGoogleModal" style="position:absolute; top:16px; right:16px; background:transparent; border:none; font-size:22px; cursor:pointer; color:#64748b;">&times;</button>
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+            <svg width="28" height="28" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+            <div>
+                <h3 style="font-size:18px; font-weight:800; color:#0f172a;">Sign in with Google</h3>
+                <p style="font-size:12px; color:#64748b;">Choose an account to continue to EduMatch</p>
+            </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:16px;">
+            <button type="button" class="google-quick-account" data-email="vishwajeet.rawat@edumatch.edu" data-name="Vishwajeet Rawat" style="display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; cursor:pointer; text-align:left;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#4f46e5; color:white; display:flex; align-items:center; justify-content:center; font-weight:700;">V</div>
+                <div>
+                    <strong style="display:block; font-size:13px; color:#1e293b;">Vishwajeet Rawat</strong>
+                    <span style="font-size:11px; color:#64748b;">vishwajeet.rawat@edumatch.edu</span>
+                </div>
+            </button>
+            <button type="button" class="google-quick-account" data-email="om.student@edumatch.edu" data-name="Om" style="display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #e2e8f0; border-radius:10px; background:#f8fafc; cursor:pointer; text-align:left;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#059669; color:white; display:flex; align-items:center; justify-content:center; font-weight:700;">O</div>
+                <div>
+                    <strong style="display:block; font-size:13px; color:#1e293b;">Om</strong>
+                    <span style="font-size:11px; color:#64748b;">om.student@edumatch.edu</span>
+                </div>
+            </button>
+        </div>
+
+        <div style="text-align:center; font-size:11px; color:#94a3b8; margin-bottom:12px;">— OR ENTER GOOGLE EMAIL —</div>
+
+        <form id="customGoogleForm" style="display:flex; gap:8px;">
+            <input type="email" id="customGoogleEmail" required placeholder="name@gmail.com" style="flex:1; padding:10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px;">
+            <button type="submit" style="padding:10px 16px; background:#2563eb; color:white; border:none; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer;">Continue</button>
+        </form>
+    </div>
+</div>
+
 <script>
-    const API_BASE_URL = "http://127.0.0.1:5000/api/auth";
+    const API_ROOT = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
+    const API_BASE_URL = API_ROOT + "/auth";
 
     const loginForm = document.getElementById("loginForm");
     const emailInput = document.getElementById("email");
@@ -673,6 +758,12 @@
             if (result.user) {
                 localStorage.setItem("eduMatchUser", JSON.stringify(result.user));
                 localStorage.setItem("eduMatchUserName", result.user.fullName || result.user.full_name);
+                const userPhoto = result.user.profile_photo || "";
+                if (userPhoto) {
+                    localStorage.setItem("edumatch_student_photo", userPhoto);
+                    localStorage.setItem("eduMatchUserPhoto", userPhoto);
+                    if (result.user.id) localStorage.setItem("edumatch_student_photo_" + result.user.id, userPhoto);
+                }
             }
 
             showMessage(
@@ -702,65 +793,210 @@
         }
     });
 
+    const resetModal = document.getElementById("resetModal");
+    const resetForm = document.getElementById("resetPasswordForm");
+    const resetStatus = document.getElementById("resetStatus");
+
+    // Two-step reset state
+    let resetEmailTarget = "";
+
     document.getElementById("forgotPassword").addEventListener(
         "click",
         function (event) {
             event.preventDefault();
-            showMessage(
-                "Password recovery has not been implemented yet.",
-                "info"
-            );
-        }
-    );
-
-    document.getElementById("googleLogin").addEventListener(
-        "click",
-        async function () {
-            const googleBtn = document.getElementById("googleLogin");
-            googleBtn.disabled = true;
-            googleBtn.textContent = "Connecting with Google...";
-
-            try {
-                // Prompt user for Google account email or default to sample Google student
-                const googleEmail = prompt("Enter your Google Email to continue:", "student.google@edumatch.edu");
-                if (!googleEmail) {
-                    googleBtn.disabled = false;
-                    googleBtn.textContent = "G   Continue with Google";
-                    return;
-                }
-
-                const response = await fetch("http://127.0.0.1:5000/api/auth/google", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        email: googleEmail,
-                        fullName: googleEmail.split("@")[0].replace(".", " "),
-                        role: "student"
-                    })
-                });
-
-                const data = await response.json();
-                if (data.success && data.user) {
-                    localStorage.setItem("edumatch_token", data.token);
-                    localStorage.setItem("eduMatchUser", JSON.stringify(data.user));
-                    localStorage.setItem("studentName", data.user.fullName || "Student");
-                    showMessage("Google sign-in successful! Redirecting...", "success");
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 800);
-                } else {
-                    showMessage(data.message || "Google sign-in failed.", "error");
-                    googleBtn.disabled = false;
-                    googleBtn.textContent = "G   Continue with Google";
-                }
-            } catch (err) {
-                console.error("Google sign-in error:", err);
-                showMessage("Could not connect to authentication service.", "error");
-                googleBtn.disabled = false;
-                googleBtn.textContent = "G   Continue with Google";
+            resetStatus.textContent = "";
+            resetStatus.style.display = "none";
+            const curEmail = document.getElementById("email").value.trim();
+            if (curEmail) {
+                document.getElementById("resetEmail").value = curEmail;
             }
+            // Reset to step 1
+            document.getElementById("resetStep1").style.display = "block";
+            document.getElementById("resetStep2").style.display = "none";
+            resetModal.style.display = "flex";
         }
     );
+
+    document.getElementById("closeResetModal")?.addEventListener("click", () => {
+        if (resetModal) resetModal.style.display = "none";
+    });
+
+    document.getElementById("cancelResetBtn")?.addEventListener("click", () => {
+        if (resetModal) resetModal.style.display = "none";
+    });
+
+    // Step 1: Send OTP
+    document.getElementById("sendOtpBtn")?.addEventListener("click", async function () {
+        const emailVal = document.getElementById("resetEmail").value.trim();
+        if (!emailVal) {
+            resetStatus.textContent = "Please enter your registered student email address.";
+            resetStatus.style.background = "#FEE2E2";
+            resetStatus.style.color = "#dc2626";
+            resetStatus.style.display = "block";
+            return;
+        }
+
+        const sendBtn = document.getElementById("sendOtpBtn");
+        sendBtn.disabled = true;
+        sendBtn.textContent = "Sending Verification Code...";
+
+        try {
+            const res = await fetch(API_BASE_URL + "/forgot-password/send-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: emailVal })
+            });
+            const d = await res.json();
+            if (res.ok && d.success) {
+                resetEmailTarget = emailVal;
+                resetStatus.innerHTML = `<strong>✓ Verification code sent!</strong><br>${d.message || "Enter the 6-digit verification code below."}${d.otp ? `<br><span style="font-weight:700;color:#1e40af;">[Demo Code: ${d.otp}]</span>` : ""}`;
+                resetStatus.style.background = "#EFF6FF";
+                resetStatus.style.color = "#1E40AF";
+                resetStatus.style.display = "block";
+
+                document.getElementById("resetStep1").style.display = "none";
+                document.getElementById("resetStep2").style.display = "block";
+                document.getElementById("resetOtpCode").focus();
+            } else {
+                resetStatus.textContent = d.message || "Email address not found. Please check your registered email.";
+                resetStatus.style.background = "#FEE2E2";
+                resetStatus.style.color = "#dc2626";
+                resetStatus.style.display = "block";
+            }
+        } catch (err) {
+            resetStatus.textContent = "Could not connect to server. Ensure Flask backend is running.";
+            resetStatus.style.background = "#FEE2E2";
+            resetStatus.style.color = "#dc2626";
+            resetStatus.style.display = "block";
+        } finally {
+            sendBtn.disabled = false;
+            sendBtn.textContent = "Send Verification OTP Code →";
+        }
+    });
+
+    // Step 2: Verify OTP and Reset
+    resetForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const otpVal = document.getElementById("resetOtpCode").value.trim();
+        const p1 = document.getElementById("resetNewPassword").value;
+        const p2 = document.getElementById("resetConfirmPassword").value;
+
+        if (p1 !== p2) {
+            resetStatus.textContent = "Passwords do not match.";
+            resetStatus.style.background = "#FEE2E2";
+            resetStatus.style.color = "#dc2626";
+            resetStatus.style.display = "block";
+            return;
+        }
+
+        const submitBtn = document.getElementById("submitResetBtn");
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Verifying & Updating Password...";
+
+        try {
+            const res = await fetch(API_BASE_URL + "/forgot-password/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: resetEmailTarget,
+                    otp: otpVal,
+                    new_password: p1
+                })
+            });
+            const d = await res.json();
+            if (res.ok && d.success) {
+                resetModal.style.display = "none";
+                document.getElementById("email").value = resetEmailTarget;
+                document.getElementById("password").value = "";
+                showMessage(d.message || "Password verified and successfully updated! You can now sign in.", "success");
+            } else {
+                resetStatus.textContent = d.message || "Invalid or expired verification code. Unauthorized reset denied.";
+                resetStatus.style.background = "#FEE2E2";
+                resetStatus.style.color = "#dc2626";
+                resetStatus.style.display = "block";
+            }
+        } catch (err) {
+            resetStatus.textContent = "Could not connect to server. Ensure Flask backend is running.";
+            resetStatus.style.background = "#FEE2E2";
+            resetStatus.style.color = "#dc2626";
+            resetStatus.style.display = "block";
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Verify & Change Password";
+        }
+    });
+
+    // Google Sign-In Modal Handlers
+    const googleModal = document.getElementById("googleAccountModal");
+    const googleLoginBtn = document.getElementById("googleLogin");
+
+    googleLoginBtn.addEventListener("click", function () {
+        googleModal.style.display = "flex";
+    });
+
+    document.getElementById("closeGoogleModal")?.addEventListener("click", () => {
+        googleModal.style.display = "none";
+    });
+
+    async function executeGoogleLogin(googleEmail, fullName) {
+        googleModal.style.display = "none";
+        googleLoginBtn.disabled = true;
+        googleLoginBtn.textContent = "Signing in with Google...";
+
+        try {
+            const response = await fetch(API_BASE_URL + "/google", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: googleEmail,
+                    fullName: fullName || googleEmail.split("@")[0].replace(".", " "),
+                    role: "student"
+                })
+            });
+
+            const data = await response.json();
+            if (data.success && data.user) {
+                localStorage.setItem("edumatch_token", data.token);
+                localStorage.setItem("eduMatchUser", JSON.stringify(data.user));
+                localStorage.setItem("studentName", data.user.fullName || "Student");
+                if (data.user.profile_photo) {
+                    localStorage.setItem("edumatch_student_photo", data.user.profile_photo);
+                    localStorage.setItem("eduMatchUserPhoto", data.user.profile_photo);
+                    if (data.user.id) localStorage.setItem("edumatch_student_photo_" + data.user.id, data.user.profile_photo);
+                }
+                showMessage("Google sign-in successful! Opening your student dashboard...", "success");
+                setTimeout(() => {
+                    window.location.href = "dashboard.html";
+                }, 700);
+            } else {
+                showMessage(data.message || "Google sign-in failed.", "error");
+                googleLoginBtn.disabled = false;
+                googleLoginBtn.textContent = "G   Continue with Google";
+            }
+        } catch (err) {
+            console.error("Google sign-in error:", err);
+            showMessage("Could not connect to authentication service.", "error");
+            googleLoginBtn.disabled = false;
+            googleLoginBtn.textContent = "G   Continue with Google";
+        }
+    }
+
+    document.querySelectorAll(".google-quick-account").forEach(btn => {
+        btn.addEventListener("click", function () {
+            const email = this.dataset.email;
+            const name = this.dataset.name;
+            executeGoogleLogin(email, name);
+        });
+    });
+
+    document.getElementById("customGoogleForm")?.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const customEmail = document.getElementById("customGoogleEmail").value.trim();
+        if (customEmail) {
+            executeGoogleLogin(customEmail, customEmail.split("@")[0]);
+        }
+    });
 </script>
 
     <script src="../theme.js"></script>

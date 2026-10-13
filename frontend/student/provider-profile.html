@@ -461,10 +461,13 @@
             <span>Edu<span>Match</span></span>
         </a>
 
-        <div class="nav-links">
+        <div class="nav-links" style="display:flex;align-items:center;gap:14px;">
             <a href="dashboard.html">Dashboard</a>
             <a href="search.html" class="optional">Find Providers</a>
             <a href="chat.html">Messages</a>
+            <a href="profile.html" id="userAvatarLink" style="display:flex;align-items:center;text-decoration:none;" title="My Profile">
+                <div id="userAvatar" style="width:34px;height:34px;border-radius:50%;background:#7657ff;color:white;display:grid;place-items:center;font-size:13px;font-weight:700;overflow:hidden;">S</div>
+            </a>
         </div>
 
     </nav>
@@ -553,6 +556,22 @@
                     </div>
                 </section>
 
+                <!-- Offered Services & Pricing Packages -->
+                <section class="card" id="servicesSection">
+                    <div class="section-content">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                            <h3 class="section-title" style="margin:0;">🛠️ Offered Services & Pricing Packages</h3>
+                            <span id="servicesCountBadge" class="badge" style="background:#EDE9FE; color:#6D28D9; font-weight:700;">0 Available</span>
+                        </div>
+                        <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">
+                            Services and project development packages directly provided by this mentor:
+                        </p>
+                        <div id="servicesList" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:14px;">
+                            <p style="color:var(--muted); font-size:13px; grid-column:1/-1;">Loading services...</p>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- Portfolio Projects Built by Provider -->
                 <section class="card" id="portfolioSection">
                     <div class="section-content">
@@ -638,7 +657,11 @@
                         <strong id="sideSkills">0</strong>
                     </div>
 
-                    <button class="primary-btn" id="messageButton" type="button">
+                    <button class="primary-btn" id="orderServiceBtn" type="button" style="background:#10B981; margin-bottom:8px;">
+                        Order Service ⚡
+                    </button>
+
+                    <button class="primary-btn" id="messageButton" type="button" style="margin-bottom:8px;">
                         Message & Connect
                     </button>
 
@@ -659,13 +682,35 @@
     </footer>
 
     <script>
-        const API_BASE = "http://127.0.0.1:5000/api";
+        const API_BASE = window.location.protocol.startsWith("http")
+            ? (window.location.origin + "/api")
+            : "http://127.0.0.1:5000/api";
         const loadingState = document.getElementById("loadingState");
         const errorState = document.getElementById("errorState");
         const profileLayout = document.getElementById("profileLayout");
 
+        // Initialize navbar student avatar
+        (function initNavStudentAvatar() {
+            const uAvatar = document.getElementById("userAvatar");
+            if (!uAvatar) return;
+            let photo = localStorage.getItem("edumatch_student_photo") || localStorage.getItem("eduMatchUserPhoto") || "";
+            let name = localStorage.getItem("studentName") || localStorage.getItem("eduMatchUserName") || "Student";
+            if (!photo) {
+                try {
+                    const u = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
+                    if (u.profile_photo) photo = u.profile_photo;
+                    if (u.fullName || u.full_name) name = u.fullName || u.full_name;
+                } catch(e) {}
+            }
+            if (photo) {
+                uAvatar.innerHTML = `<img src="${photo}" alt="${name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+            } else {
+                uAvatar.textContent = name.trim().charAt(0).toUpperCase() || "S";
+            }
+        })();
+
         const urlParams = new URLSearchParams(window.location.search);
-        const providerId = urlParams.get("provider_id");
+        const providerId = urlParams.get("provider_id") || urlParams.get("id");
 
         function showError(message) {
             loadingState.classList.add("hidden");
@@ -689,7 +734,21 @@
 
                 const p = data.provider;
                 document.getElementById("providerName").textContent = p.name;
-                document.getElementById("providerAvatar").textContent = p.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+                if (p.profile_photo) {
+                    document.getElementById("providerAvatar").innerHTML = `<img src="${p.profile_photo}" alt="${p.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+                    document.getElementById("providerAvatar").style.padding = "0";
+                    document.getElementById("providerAvatar").style.overflow = "hidden";
+                } else {
+                    document.getElementById("providerAvatar").textContent = p.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+                }
+                if (p.cover_photo) {
+                    const coverEl = document.querySelector(".cover");
+                    if (coverEl) {
+                        coverEl.style.backgroundImage = `url('${p.cover_photo}')`;
+                        coverEl.style.backgroundSize = "cover";
+                        coverEl.style.backgroundPosition = "center";
+                    }
+                }
                 document.querySelector(".provider-role").textContent = p.title || p.role || "Project Provider";
                 document.getElementById("providerRating").textContent = (p.rating || 5.0).toFixed(1);
                 document.getElementById("sideRating").textContent = `★ ${(p.rating || 5.0).toFixed(1)}`;
@@ -723,6 +782,36 @@
                 }
                 if (hasPayment) {
                     document.getElementById("paymentSection").style.display = "block";
+                }
+
+                // Render Offered Services
+                const servList = document.getElementById("servicesList");
+                const services = p.services || [];
+                document.getElementById("servicesCountBadge").textContent = `${services.length} Available`;
+                if (services.length > 0) {
+                    servList.innerHTML = services.map(s => `
+                        <div style="border:1px solid var(--border); border-radius:12px; padding:16px; background:#ffffff; box-shadow:0 2px 8px rgba(0,0,0,0.04); display:flex; flex-direction:column; justify-content:space-between; transition:transform 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.boxShadow='0 8px 20px rgba(108,77,246,0.12)'; this.style.transform='translateY(-2px)'" onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.04)'; this.style.transform='none'">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                                    <span style="font-size:11px; font-weight:700; color:var(--primary); background:#eee9ff; padding:3px 8px; border-radius:8px;">${escapeHtml(s.category || 'Development')}</span>
+                                    <span style="font-size:12px; color:var(--muted); font-weight:600;">⚡ ${s.delivery_days || 7} Days</span>
+                                </div>
+                                <h4 style="font-size:15px; font-weight:800; color:var(--dark); margin-bottom:6px;">${escapeHtml(s.title)}</h4>
+                                <p style="font-size:13px; color:var(--text); line-height:1.5; margin-bottom:14px;">${escapeHtml(s.description || 'Professional service deliverable.')}</p>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #f1f5f9; padding-top:12px; margin-top:8px;">
+                                <div>
+                                    <div style="font-size:10px; color:var(--muted); text-transform:uppercase; font-weight:700;">Price</div>
+                                    <div style="font-size:16px; font-weight:800; color:var(--primary);">₹${(s.price || 1500).toLocaleString('en-IN')}</div>
+                                </div>
+                                <button type="button" class="primary-btn" style="padding:8px 14px; font-size:12px; background:#10B981; border:none; border-radius:8px; font-weight:700; cursor:pointer;" onclick="openOrderModalWithService('${escapeHtml(s.title)}', ${s.price || 1500})">
+                                    Order Service ⚡
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    servList.innerHTML = '<p style="color:var(--muted); font-size:13px; grid-column:1/-1;">No custom service packages listed yet. You can still order any academic project directly using the "Order Service ⚡" button.</p>';
                 }
 
                 // Render Portfolio Projects
@@ -807,6 +896,27 @@
                     window.location.href = `chat.html?provider_id=${p.id}&provider_name=${encodeURIComponent(p.name)}`;
                 });
 
+                // Setup Order Service Button
+                document.getElementById("orderServiceBtn").addEventListener("click", () => {
+                    document.getElementById("orderProviderId").value = p.id;
+                    document.getElementById("orderProviderName").textContent = p.name;
+                    document.getElementById("orderBudget").value = p.price || 1500;
+                    document.getElementById("orderStatus").style.display = "none";
+                    document.getElementById("orderModal").style.display = "flex";
+                });
+
+                window.openOrderModalWithService = function(serviceTitle, servicePrice) {
+                    document.getElementById("orderProviderId").value = p.id;
+                    document.getElementById("orderProviderName").textContent = p.name;
+                    document.getElementById("orderBudget").value = servicePrice || p.price || 1500;
+                    const titleInput = document.getElementById("orderProjectTitle");
+                    if (titleInput) titleInput.value = serviceTitle || "";
+                    const msgInput = document.getElementById("orderMessage");
+                    if (msgInput) msgInput.value = `I would like to order your package: ${serviceTitle}. Please confirm and let's collaborate.`;
+                    document.getElementById("orderStatus").style.display = "none";
+                    document.getElementById("orderModal").style.display = "flex";
+                };
+
                 loadingState.classList.add("hidden");
                 profileLayout.classList.remove("hidden");
 
@@ -815,8 +925,107 @@
             }
         }
 
+        document.getElementById("closeOrderModal")?.addEventListener("click", () => {
+            document.getElementById("orderModal").style.display = "none";
+        });
+        document.getElementById("cancelOrderBtn")?.addEventListener("click", () => {
+            document.getElementById("orderModal").style.display = "none";
+        });
+
+        document.getElementById("orderForm")?.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            const providerId = document.getElementById("orderProviderId").value;
+            const projectTitle = document.getElementById("orderTitle").value.trim();
+            const message = document.getElementById("orderMessage").value.trim();
+            const budget = document.getElementById("orderBudget").value;
+            const submitBtn = document.getElementById("submitOrderBtn");
+            const orderStatus = document.getElementById("orderStatus");
+
+            const token = localStorage.getItem("edumatch_token");
+            if (!token) {
+                alert("Please log in as a student to order services.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Sending Order Request...";
+
+            try {
+                const res = await fetch(`${API_BASE}/requests`, {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + token
+                    },
+                    body: JSON.stringify({
+                        provider_id: Number(providerId),
+                        project_title: projectTitle,
+                        message: message,
+                        offered_budget: Number(budget)
+                    })
+                });
+                const d = await res.json();
+                if (res.ok && d.success) {
+                    orderStatus.innerHTML = `<strong>✓ Order Sent Successfully!</strong><br>Your request is now in <a href="orders.html" style="color:#6D28D9; font-weight:bold;">Pending Requests</a> and the mentor has been notified.`;
+                    orderStatus.style.background = "#DCFCE7";
+                    orderStatus.style.color = "#15803D";
+                    orderStatus.style.display = "block";
+                    setTimeout(() => {
+                        window.location.href = `orders.html`;
+                    }, 1800);
+                } else {
+                    orderStatus.textContent = d.message || "Failed to submit order.";
+                    orderStatus.style.background = "#FEE2E2";
+                    orderStatus.style.color = "#dc2626";
+                    orderStatus.style.display = "block";
+                }
+            } catch (err) {
+                orderStatus.textContent = "Could not connect to server.";
+                orderStatus.style.background = "#FEE2E2";
+                orderStatus.style.color = "#dc2626";
+                orderStatus.style.display = "block";
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Send Project Order →";
+            }
+        });
+
         loadProviderProfile();
     </script>
+
+<!-- Order Service Modal -->
+<div id="orderModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); backdrop-filter:blur(4px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:white; border-radius:16px; width:100%; max-width:500px; padding:32px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25); position:relative; border:1px solid #e2e8f0; max-height:90vh; overflow-y:auto;">
+        <button type="button" id="closeOrderModal" style="position:absolute; top:18px; right:18px; background:transparent; border:none; font-size:22px; cursor:pointer; color:#64748b;">&times;</button>
+        <div style="margin-bottom:18px;">
+            <div style="width:44px; height:44px; background:#EDE9FE; color:#6D28D9; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:bold; margin-bottom:12px;">🚀</div>
+            <h3 style="font-size:20px; font-weight:800; color:#0f172a; margin-bottom:4px;">Order Project / Service</h3>
+            <p style="font-size:13px; color:#64748b;">Send project details and request directly to <strong id="orderProviderName" style="color:#6D28D9;"></strong>.</p>
+        </div>
+        <div id="orderStatus" style="display:none; padding:12px; border-radius:8px; font-size:13px; margin-bottom:16px;"></div>
+        <form id="orderForm" style="display:flex; flex-direction:column; gap:16px;">
+            <input type="hidden" id="orderProviderId">
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Project Title *</label>
+                <input type="text" id="orderTitle" required placeholder="e.g. AI Attendance Predictor using Flask" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Project Details & What You Need Built *</label>
+                <textarea id="orderMessage" required placeholder="Explain your requirements, tech stack needed, and problem statement..." style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; height:100px; box-sizing:border-box;"></textarea>
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">Offered Budget (₹) *</label>
+                <input type="number" id="orderBudget" required min="500" step="100" style="width:100%; padding:12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; box-sizing:border-box;">
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="button" id="cancelOrderBtn" style="flex:1; padding:12px; border:1px solid #cbd5e1; background:#f8fafc; color:#475569; font-weight:700; border-radius:8px; cursor:pointer;">Cancel</button>
+                <button type="submit" id="submitOrderBtn" style="flex:2; padding:12px; border:none; background:#10B981; color:white; font-weight:700; border-radius:8px; cursor:pointer;">Send Project Order →</button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <script src="../theme.js"></script>
 </body>

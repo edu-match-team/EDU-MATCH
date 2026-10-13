@@ -386,9 +386,9 @@
         <aside>
             <section class="card profile-summary">
 
-                <div class="avatar" id="avatar">
+                <label for="photoInput" class="avatar" id="avatar" style="cursor:pointer; position:relative; transition:all 0.2s ease; display:flex;" title="Click to upload profile photo">
                     <span id="avatarInitials">S</span>
-                </div>
+                </label>
 
                 <h2 id="previewName">Your Name</h2>
 
@@ -396,15 +396,19 @@
                     Add your college and degree
                 </p>
 
-                <label for="photoInput" class="upload-label">
-                    Upload Profile Photo
-                </label>
-
-                <input
-                    type="file"
-                    id="photoInput"
-                    accept="image/png,image/jpeg,image/webp"
-                >
+                <div style="margin: 10px 0 16px;">
+                    <label for="photoInput" id="choosePhotoBtn" class="upload-label" style="border:none; display:inline-flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; font-weight:700; user-select:none;">
+                        📷 Choose Profile Photo
+                    </label>
+                    <input
+                        type="file"
+                        id="photoInput"
+                        accept="image/*"
+                        style="display:none;"
+                    >
+                    <small style="display:block; font-size:11px; color:#697386; margin-top:5px;">Click button or avatar • Supports JPG, PNG or WebP</small>
+                    <div id="photoStatusBadge" style="margin-top:8px; font-size:12px; font-weight:600; display:none; padding:6px 12px; border-radius:6px; text-align:center;"></div>
+                </div>
 
                 <div class="completion">
                     <div class="completion-heading">
@@ -657,9 +661,7 @@
                 <h2>Account Data</h2>
 
                 <p style="color:#697386;line-height:1.7;margin-bottom:16px;">
-                    This prototype stores profile information in your current
-                    browser. It does not delete your EduMatch account.
-                    Account management can be connected to the backend later.
+                    Manage your local form cache or reset unsaved inputs. All saved changes are permanently stored in the EduMatch platform database.
                 </p>
 
                 <button type="button" class="danger-btn" id="clearProfile">
@@ -674,13 +676,24 @@
 </main>
 
 <script>
-    const STORAGE_KEY = "edumatchStudentProfile";
+    let currentUserId = "default";
+    let STORAGE_KEY = "edumatchStudentProfile_" + currentUserId;
 
     const form = document.getElementById("profileForm");
     const statusMessage = document.getElementById("statusMessage");
     const photoInput = document.getElementById("photoInput");
 
     let profilePhoto = "";
+
+    function getApiRoot() {
+        if (window.location.protocol.startsWith("http")) {
+            if (window.location.port === "5173" || window.location.port === "5500") {
+                return window.location.protocol + "//" + window.location.hostname + ":5000/api";
+            }
+            return window.location.origin + "/api";
+        }
+        return "http://127.0.0.1:5000/api";
+    }
 
     const fieldIds = [
         "fullName",
@@ -772,7 +785,8 @@
             "bio",
             "github",
             "linkedin",
-            "portfolio"
+            "portfolio",
+            "profilePhoto"
         ];
 
         const completed = requiredProfileFields.filter(
@@ -798,109 +812,351 @@
             percentage === 100
                 ? "Your profile information is complete!"
                 : "Complete more profile fields to reach 100%.";
+
+        try {
+            localStorage.setItem("edumatch_student_completion", percentage);
+            localStorage.setItem("edumatch_student_completion_" + currentUserId, percentage);
+        } catch(e) {}
     }
 
-    function loadProfile() {
+    async function initUserSession() {
+        const token = localStorage.getItem("edumatch_token");
+        const headers = { "Accept": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+
+        try {
+            const res = await fetch(getApiRoot() + "/auth/me", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.user && data.user.id) {
+                    currentUserId = String(data.user.id);
+                    STORAGE_KEY = "edumatchStudentProfile_" + currentUserId;
+                    if (data.user.fullName && !document.getElementById("fullName").value) {
+                        document.getElementById("fullName").value = data.user.fullName;
+                    }
+                    if (data.user.email && !document.getElementById("email").value) {
+                        document.getElementById("email").value = data.user.email;
+                    }
+                    const cachedPhoto = localStorage.getItem("edumatch_student_photo_" + currentUserId) || localStorage.getItem("edumatch_student_photo") || "";
+                    if (data.user.profile_photo) {
+                        profilePhoto = data.user.profile_photo;
+                        updatePreview();
+                    } else if (cachedPhoto) {
+                        profilePhoto = cachedPhoto;
+                        updatePreview();
+                    }
+                }
+            }
+        } catch (e) {
+            console.warn("Auth check failed:", e);
+        }
+    }
+
+    async function loadProfile() {
+        await initUserSession();
+
+        const token = localStorage.getItem("edumatch_token");
+        const headers = { "Accept": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+
+        try {
+            // First try loading from authoritative backend API
+            const res = await fetch(getApiRoot() + "/students/profile", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                if (data.success && data.profile) {
+                    const prof = data.profile;
+                    fieldIds.forEach(id => {
+                        const val = prof[id] || (id === "college" ? prof["institution"] : "") || (id === "fullName" ? prof["full_name"] : "");
+                        if (val && typeof val === "string") {
+                            document.getElementById(id).value = val;
+                        }
+                    });
+
+                    if (prof.profile_photo || prof.profilePhoto) {
+                        profilePhoto = prof.profile_photo || prof.profilePhoto;
+                    }
+
+                    updatePreview();
+                    return;
+                }
+            }
+        } catch (err) {
+            console.warn("Backend profile load error, checking local scoped store:", err);
+        }
+
+        // Fallback to user-scoped localStorage
         try {
             const saved = JSON.parse(
                 localStorage.getItem(STORAGE_KEY) || "null"
             );
 
-            if (!saved || typeof saved !== "object") {
-                updatePreview();
-                return;
-            }
+            if (saved && typeof saved === "object") {
+                fieldIds.forEach(id => {
+                    if (typeof saved[id] === "string" && saved[id]) {
+                        document.getElementById(id).value = saved[id];
+                    }
+                });
 
-            fieldIds.forEach(id => {
-                if (typeof saved[id] === "string") {
-                    document.getElementById(id).value = saved[id];
+                if (saved.profilePhoto) {
+                    profilePhoto = saved.profilePhoto;
                 }
-            });
-
-            profilePhoto = saved.profilePhoto || "";
-
+            }
             updatePreview();
-
         } catch (error) {
-            console.error("Unable to load profile:", error);
-            statusMessage.textContent =
-                "Could not load the saved profile.";
-            statusMessage.className = "error";
+            console.error("Unable to load profile from cache:", error);
         }
     }
 
     form.addEventListener("input", updatePreview);
 
-    photoInput.addEventListener("change", function() {
-        const file = photoInput.files[0];
+    const avatarClickTarget = document.getElementById("avatar");
+    const choosePhotoBtn = document.getElementById("choosePhotoBtn");
+    
+    // Add drag and drop support to the avatar preview
+    if (avatarClickTarget) {
+        avatarClickTarget.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            avatarClickTarget.style.outline = "3px dashed #7657ff";
+            avatarClickTarget.style.outlineOffset = "4px";
+        });
+        avatarClickTarget.addEventListener("dragleave", (e) => {
+            e.preventDefault();
+            avatarClickTarget.style.outline = "none";
+        });
+        avatarClickTarget.addEventListener("drop", (e) => {
+            e.preventDefault();
+            avatarClickTarget.style.outline = "none";
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handlePhotoFile(e.dataTransfer.files[0]);
+            }
+        });
+    }
 
+    function compressAndProcessPhoto(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const rawData = e.target.result;
+                const img = new Image();
+                img.onload = function() {
+                    try {
+                        const canvas = document.createElement("canvas");
+                        const maxDim = 400;
+                        let width = img.width || 400;
+                        let height = img.height || 400;
+                        if (width > height) {
+                            if (width > maxDim) {
+                                height = Math.round((height * maxDim) / width);
+                                width = maxDim;
+                            }
+                        } else {
+                            if (height > maxDim) {
+                                width = Math.round((width * maxDim) / height);
+                                height = maxDim;
+                            }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL("image/jpeg", 0.88));
+                    } catch(err) {
+                        // Canvas export fallback
+                        resolve(rawData);
+                    }
+                };
+                img.onerror = function() {
+                    resolve(rawData);
+                };
+                img.src = rawData;
+            };
+            reader.onerror = function() {
+                resolve("");
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function handlePhotoFile(file) {
         if (!file) return;
 
-        const allowedTypes = [
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
-
-        if (!allowedTypes.includes(file.type)) {
-            statusMessage.textContent =
-                "Please select a JPG, PNG or WebP image.";
-            statusMessage.className = "error";
-            photoInput.value = "";
-            return;
+        const badge = document.getElementById("photoStatusBadge");
+        if (badge) {
+            badge.textContent = "⏳ Uploading photo...";
+            badge.style.background = "#EDE9FE";
+            badge.style.color = "#6D28D9";
+            badge.style.display = "block";
+        }
+        if (statusMessage) {
+            statusMessage.textContent = "Processing and uploading your profile photo...";
+            statusMessage.className = "info";
         }
 
-        if (file.size > 1024 * 1024) {
-            statusMessage.textContent =
-                "Please select an image smaller than 1 MB.";
-            statusMessage.className = "error";
-            photoInput.value = "";
-            return;
-        }
+        try {
+            // Instant local preview
+            const quickReader = new FileReader();
+            quickReader.onload = (ev) => {
+                const avatar = document.getElementById("avatar");
+                if (avatar && ev.target && ev.target.result) {
+                    avatar.innerHTML = `<img src="${ev.target.result}" alt="Profile photo" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+                }
+            };
+            quickReader.readAsDataURL(file);
 
-        const reader = new FileReader();
+            const compressed = await compressAndProcessPhoto(file);
+            if (!compressed) throw new Error("Could not read image file.");
 
-        reader.onload = function(event) {
-            profilePhoto = event.target.result;
+            profilePhoto = compressed;
             updatePreview();
 
-            statusMessage.textContent =
-                "Photo selected. Click Save Profile to save your changes.";
-            statusMessage.className = "success";
-        };
+            // Store in multiple localStorage keys for guaranteed persistence
+            try {
+                localStorage.setItem("edumatch_student_photo", compressed);
+                localStorage.setItem("eduMatchUserPhoto", compressed);
+                if (currentUserId && currentUserId !== "default") {
+                    localStorage.setItem("edumatch_student_photo_" + currentUserId, compressed);
+                }
+                const savedUser = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
+                savedUser.profile_photo = compressed;
+                localStorage.setItem("eduMatchUser", JSON.stringify(savedUser));
+            } catch(e) {
+                console.warn("Storage quota warning:", e);
+            }
 
-        reader.onerror = function() {
-            statusMessage.textContent =
-                "Unable to read this image.";
-            statusMessage.className = "error";
-        };
+            // Immediately persist to backend API
+            const token = localStorage.getItem("edumatch_token");
+            const headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            };
+            if (token) headers["Authorization"] = "Bearer " + token;
 
-        reader.readAsDataURL(file);
+            const res = await fetch(getApiRoot() + "/students/profile", {
+                method: "PUT",
+                credentials: "include",
+                headers: headers,
+                body: JSON.stringify({ profilePhoto: compressed })
+            });
+
+            if (res.ok) {
+                const resData = await res.json().catch(() => ({}));
+                if (badge) {
+                    badge.textContent = "✓ Photo saved & synced to dashboard!";
+                    badge.style.background = "#DCFCE7";
+                    badge.style.color = "#166534";
+                    badge.style.display = "block";
+                }
+                if (statusMessage) {
+                    statusMessage.textContent = "✓ Profile photo uploaded and synced! It will now appear across your student dashboard.";
+                    statusMessage.className = "success";
+                }
+            } else {
+                if (badge) {
+                    badge.textContent = "✓ Photo applied locally! Click Save Profile to sync.";
+                    badge.style.background = "#FEF3C7";
+                    badge.style.color = "#92400E";
+                    badge.style.display = "block";
+                }
+            }
+        } catch(err) {
+            console.error("Photo upload error:", err);
+            if (badge) {
+                badge.textContent = "Could not process this image.";
+                badge.style.background = "#FEE2E2";
+                badge.style.color = "#DC2626";
+                badge.style.display = "block";
+            }
+            if (statusMessage) {
+                statusMessage.textContent = "Could not process this image. Please select a JPG or PNG under 2MB.";
+                statusMessage.className = "error";
+            }
+        }
+    }
+
+    photoInput.addEventListener("change", function() {
+        if (photoInput.files && photoInput.files[0]) {
+            handlePhotoFile(photoInput.files[0]);
+        }
     });
 
-    form.addEventListener("submit", function(event) {
+    form.addEventListener("submit", async function(event) {
         event.preventDefault();
 
         if (!form.reportValidity()) return;
 
+        const saveButton = form.querySelector('button[type="submit"]');
+        if (saveButton) {
+            saveButton.disabled = true;
+            saveButton.textContent = "Saving to EduMatch Database...";
+        }
+
+        const formData = getFormData();
+
+        // 1. Save to user-scoped localStorage
         try {
             localStorage.setItem(
                 STORAGE_KEY,
-                JSON.stringify(getFormData())
+                JSON.stringify(formData)
             );
+            if (formData.profilePhoto) {
+                localStorage.setItem("edumatch_student_photo", formData.profilePhoto);
+                localStorage.setItem("edumatch_student_photo_" + currentUserId, formData.profilePhoto);
+            }
+            if (formData.fullName) {
+                localStorage.setItem("edumatch_student_name", formData.fullName);
+                localStorage.setItem("edumatch_student_name_" + currentUserId, formData.fullName);
+            }
+        } catch (e) {
+            console.warn("Local storage cache error:", e);
+        }
 
-            updatePreview();
+        // 2. Persist to SQLite Backend
+        try {
+            const token = localStorage.getItem("edumatch_token");
+            const headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            };
+            if (token) headers["Authorization"] = "Bearer " + token;
 
+            const res = await fetch(getApiRoot() + "/students/profile", {
+                method: "PUT",
+                credentials: "include",
+                headers: headers,
+                body: JSON.stringify(formData)
+            });
+
+            const resData = await res.json();
+            if (res.ok && resData.success) {
+                statusMessage.textContent =
+                    "✓ Profile and photo saved successfully to EduMatch Database!";
+                statusMessage.className = "success";
+            } else {
+                statusMessage.textContent =
+                    resData.message || "Profile cached in browser session.";
+                statusMessage.className = "success";
+            }
+        } catch (err) {
+            console.warn("Backend save error:", err);
             statusMessage.textContent =
-                "Profile saved successfully in this browser.";
-
+                "Profile saved in local browser session.";
             statusMessage.className = "success";
-
-        } catch (error) {
-            statusMessage.textContent =
-                "Unable to save. The image or profile data may be too large.";
-
-            statusMessage.className = "error";
+        } finally {
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.textContent = "Save Profile";
+            }
+            updatePreview();
         }
     });
 
@@ -930,6 +1186,7 @@
             if (!confirmed) return;
 
             localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem("edumatch_student_photo_" + currentUserId);
 
             form.reset();
             profilePhoto = "";
@@ -948,5 +1205,6 @@
 </script>
 
     <script src="../theme.js"></script>
+    <script src="student-nav.js"></script>
 </body>
 </html>

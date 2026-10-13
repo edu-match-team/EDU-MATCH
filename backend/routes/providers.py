@@ -91,14 +91,20 @@ def provider_own_profile():
     price = data.get("price") or data.get("starting_price")
     availability = data.get("availability")
     phone = data.get("phone")
+    location = data.get("location")
     experience = data.get("experience_years") or data.get("experience")
     payment_upi = data.get("payment_upi")
     payment_account = data.get("payment_account")
     payment_qr = data.get("payment_qr")
+    profile_photo = data.get("profile_photo") or data.get("profilePhoto")
+    cover_photo = data.get("cover_photo") or data.get("coverPhoto")
     skills_input = data.get("skills")
 
     if full_name:
         db.execute("UPDATE users SET full_name = ? WHERE id = ?", (str(full_name).strip(), user_id))
+
+    if profile_photo and str(profile_photo).strip():
+        db.execute("UPDATE users SET profile_photo = ? WHERE id = ?", (profile_photo, user_id))
 
     # Ensure profile row exists
     db.execute("INSERT OR IGNORE INTO provider_profiles (user_id) VALUES (?)", (user_id,))
@@ -106,19 +112,22 @@ def provider_own_profile():
     db.execute(
         """
         UPDATE provider_profiles
-        SET title = COALESCE(?, title),
-            category = COALESCE(?, category),
-            bio = COALESCE(?, bio),
+        SET title = COALESCE(NULLIF(?, ''), title),
+            category = COALESCE(NULLIF(?, ''), category),
+            bio = COALESCE(NULLIF(?, ''), bio),
             starting_price = COALESCE(?, starting_price),
             experience_years = COALESCE(?, experience_years),
-            availability = COALESCE(?, availability),
-            phone = COALESCE(?, phone),
-            payment_upi = COALESCE(?, payment_upi),
-            payment_account = COALESCE(?, payment_account),
-            payment_qr = COALESCE(?, payment_qr)
+            availability = COALESCE(NULLIF(?, ''), availability),
+            phone = COALESCE(NULLIF(?, ''), phone),
+            location = COALESCE(NULLIF(?, ''), location),
+            profile_photo = COALESCE(NULLIF(?, ''), profile_photo),
+            cover_photo = COALESCE(NULLIF(?, ''), cover_photo),
+            payment_upi = COALESCE(NULLIF(?, ''), payment_upi),
+            payment_account = COALESCE(NULLIF(?, ''), payment_account),
+            payment_qr = COALESCE(NULLIF(?, ''), payment_qr)
         WHERE user_id = ?
         """,
-        (title, category, bio, price, experience, availability, phone, payment_upi, payment_account, payment_qr, user_id)
+        (title, category, bio, price, experience, availability, phone, location, profile_photo, cover_photo, payment_upi, payment_account, payment_qr, user_id)
     )
 
     # Update skills if provided
@@ -343,6 +352,42 @@ def provider_services_handler():
     return jsonify({"success": True, "message": "Service created successfully.", "id": cursor.lastrowid}), 201
 
 
+@providers_bp.route("/services/<int:service_id>", methods=["PUT", "DELETE"])
+def provider_service_detail_handler(service_id):
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    db = get_db()
+    row = db.execute("SELECT * FROM services WHERE id = ? AND provider_id = ?", (service_id, user_id)).fetchone()
+    if not row:
+        return jsonify({"success": False, "message": "Service not found or unauthorized."}), 404
+
+    if request.method == "DELETE":
+        db.execute("DELETE FROM services WHERE id = ?", (service_id,))
+        db.commit()
+        return jsonify({"success": True, "message": "Service deleted successfully."}), 200
+
+    # PUT update
+    data = request.get_json(silent=True) or {}
+    title = str(data.get("title", row["title"])).strip()
+    category = str(data.get("category", row["category"])).strip()
+    description = str(data.get("description", row["description"])).strip()
+    price = int(data.get("price", row["price"]))
+    delivery_days = int(data.get("delivery_days", row["delivery_days"]))
+
+    db.execute(
+        """
+        UPDATE services
+        SET title = ?, category = ?, description = ?, price = ?, delivery_days = ?
+        WHERE id = ?
+        """,
+        (title, category, description, price, delivery_days, service_id)
+    )
+    db.commit()
+    return jsonify({"success": True, "message": "Service updated successfully."}), 200
+
+
 # --- CERTIFICATIONS ---
 @providers_bp.route("/certifications", methods=["GET", "POST"])
 def provider_certifications_handler():
@@ -373,4 +418,96 @@ def provider_certifications_handler():
     )
     db.commit()
     return jsonify({"success": True, "message": "Certification added successfully.", "id": cursor.lastrowid}), 201
+
+
+# --- SKILLS MANAGEMENT ---
+@providers_bp.route("/skills", methods=["GET", "POST"])
+def provider_skills_handler():
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    db = get_db()
+    # Resolve provider_profile_id
+    prof_row = db.execute("SELECT id FROM provider_profiles WHERE user_id = ?", (user_id,)).fetchone()
+    if not prof_row:
+        db.execute("INSERT OR IGNORE INTO provider_profiles (user_id) VALUES (?)", (user_id,))
+        db.commit()
+        prof_row = db.execute("SELECT id FROM provider_profiles WHERE user_id = ?", (user_id,)).fetchone()
+    
+    prov_prof_id = prof_row["id"] if prof_row else user_id
+
+    if request.method == "GET":
+        rows = db.execute(
+            """
+            SELECT ps.id, s.id as skill_id, s.name, 'Expert' as level
+            FROM provider_skills ps
+            JOIN skills s ON ps.skill_id = s.id
+            WHERE ps.provider_id = ?
+            ORDER BY s.name ASC
+            """,
+            (prov_prof_id,)
+        ).fetchall()
+        return jsonify({"success": True, "skills": [dict(r) for r in rows]}), 200
+
+    # POST - add skill
+    data = request.get_json(silent=True) or {}
+    skill_name = str(data.get("name", "")).strip()
+    level = str(data.get("level", "Intermediate")).strip()
+
+    if not skill_name:
+        return jsonify({"success": False, "message": "Skill name is required."}), 400
+
+    db.execute("INSERT OR IGNORE INTO skills (name) VALUES (?)", (skill_name,))
+    s_row = db.execute("SELECT id FROM skills WHERE LOWER(name) = LOWER(?)", (skill_name,)).fetchone()
+    if s_row:
+        skill_id = s_row["id"]
+        cursor = db.execute(
+            "INSERT OR IGNORE INTO provider_skills (provider_id, skill_id) VALUES (?, ?)",
+            (prov_prof_id, skill_id)
+        )
+        db.commit()
+        return jsonify({
+            "success": True,
+            "message": f"Skill '{skill_name}' added successfully.",
+            "skill": {
+                "id": cursor.lastrowid or skill_id,
+                "name": skill_name,
+                "level": level
+            }
+        }), 201
+
+    return jsonify({"success": False, "message": "Could not save skill."}), 400
+
+
+@providers_bp.route("/skills/<int:skill_entry_id>", methods=["PUT", "DELETE"])
+def provider_skill_item_handler(skill_entry_id):
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Authentication required."}), 401
+
+    db = get_db()
+    prof_row = db.execute("SELECT id FROM provider_profiles WHERE user_id = ?", (user_id,)).fetchone()
+    prov_prof_id = prof_row["id"] if prof_row else user_id
+
+    if request.method == "DELETE":
+        # Delete by provider_skills.id OR skill_id
+        db.execute(
+            "DELETE FROM provider_skills WHERE provider_id = ? AND (id = ? OR skill_id = ?)",
+            (prov_prof_id, skill_entry_id, skill_entry_id)
+        )
+        db.commit()
+        return jsonify({"success": True, "message": "Skill removed successfully."}), 200
+
+    # PUT
+    data = request.get_json(silent=True) or {}
+    new_name = str(data.get("name", "")).strip()
+    if new_name:
+        db.execute("INSERT OR IGNORE INTO skills (name) VALUES (?)", (new_name,))
+        s_row = db.execute("SELECT id FROM skills WHERE LOWER(name) = LOWER(?)", (new_name,)).fetchone()
+        if s_row:
+            db.execute("UPDATE provider_skills SET skill_id = ? WHERE id = ? AND provider_id = ?", (s_row["id"], skill_entry_id, prov_prof_id))
+            db.commit()
+    return jsonify({"success": True, "message": "Skill updated successfully."}), 200
+
 

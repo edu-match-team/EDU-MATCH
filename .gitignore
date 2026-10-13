@@ -31,4 +31,6 @@ inject_theme.py
 migrate_payments.py
 configure_admin.py
 verify_e2e.py
+.playwright-mcp/
+backend/database/*.db
 

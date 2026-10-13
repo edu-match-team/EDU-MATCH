@@ -747,11 +747,13 @@
         }
 
         function normalizeStatus(status) {
-            return String(status || "pending")
+            const raw = String(status || "pending")
                 .trim()
                 .toLowerCase()
                 .replaceAll(" ", "_")
                 .replaceAll("-", "_");
+            if (raw === "open") return "pending";
+            return raw;
         }
 
         function readableStatus(status) {
@@ -895,11 +897,58 @@
                 statusCell.appendChild(statusBadge);
 
                 const actionCell = document.createElement("td");
+                actionCell.style.display = "flex";
+                actionCell.style.gap = "6px";
+                actionCell.style.alignItems = "center";
+                actionCell.style.flexWrap = "wrap";
+
+                const normStatus = normalizeStatus(request.status);
+
+                if (normStatus === "accepted" && request.provider_id) {
+                    const giveWorkBtn = document.createElement("button");
+                    giveWorkBtn.className = "primary-btn";
+                    giveWorkBtn.style.padding = "6px 12px";
+                    giveWorkBtn.style.fontSize = "12px";
+                    giveWorkBtn.textContent = "✓ Give Work";
+                    giveWorkBtn.title = "Accept provider and give project to start work";
+                    giveWorkBtn.addEventListener("click", async () => {
+                        await updateRequestStatus(request.id, "in_progress");
+                        window.location.href = `chat.html?provider_id=${request.provider_id}&provider_name=${encodeURIComponent(request.provider_name || 'Provider')}`;
+                    });
+                    actionCell.appendChild(giveWorkBtn);
+
+                    const declineBtn = document.createElement("button");
+                    declineBtn.className = "view-btn";
+                    declineBtn.style.padding = "6px 10px";
+                    declineBtn.style.fontSize = "12px";
+                    declineBtn.style.color = "#dc2626";
+                    declineBtn.textContent = "Decline";
+                    declineBtn.addEventListener("click", async () => {
+                        if (confirm("Decline this provider for this project?")) {
+                            await updateRequestStatus(request.id, "rejected");
+                            loadRequests();
+                        }
+                    });
+                    actionCell.appendChild(declineBtn);
+                }
+
+                if ((normStatus === "in_progress" || normStatus === "accepted") && request.provider_id) {
+                    const chatBtn = document.createElement("a");
+                    chatBtn.className = "outline-btn";
+                    chatBtn.style.padding = "6px 10px";
+                    chatBtn.style.fontSize = "12px";
+                    chatBtn.style.textDecoration = "none";
+                    chatBtn.style.borderRadius = "6px";
+                    chatBtn.style.border = "1px solid #cbd5e1";
+                    chatBtn.textContent = "💬 Chat";
+                    chatBtn.href = `chat.html?provider_id=${request.provider_id}&provider_name=${encodeURIComponent(request.provider_name || 'Provider')}`;
+                    actionCell.appendChild(chatBtn);
+                }
 
                 const viewButton = document.createElement("button");
                 viewButton.className = "view-btn";
                 viewButton.type = "button";
-                viewButton.textContent = "View Details";
+                viewButton.textContent = "Details";
 
                 viewButton.addEventListener("click", () => {
                     showDetails(request);
@@ -979,6 +1028,22 @@
                 .classList.add("hidden");
         }
 
+        async function updateRequestStatus(requestId, newStatus) {
+            const token = localStorage.getItem("edumatch_token");
+            const headers = { "Content-Type": "application/json" };
+            if (token) headers["Authorization"] = "Bearer " + token;
+            try {
+                await fetch(API_BASE_URL + "/api/requests/" + requestId + "/status", {
+                    method: "PATCH",
+                    credentials: "include",
+                    headers: headers,
+                    body: JSON.stringify({ status: newStatus })
+                });
+            } catch (e) {
+                console.error("Status update error:", e);
+            }
+        }
+
         async function loadRequests() {
             showOnly(loadingState);
 
@@ -988,11 +1053,18 @@
              */
 
             try {
+                const token = localStorage.getItem("edumatch_token");
+                const headers = { "Accept": "application/json" };
+                if (token) {
+                    headers["Authorization"] = "Bearer " + token;
+                }
+
                 const response = await fetch(
                     API_BASE_URL + "/api/projects/my",
                     {
                         method: "GET",
-                        credentials: "include"
+                        credentials: "include",
+                        headers: headers
                     }
                 );
 
@@ -1062,5 +1134,6 @@
     </script>
 
     <script src="../theme.js"></script>
+    <script src="student-nav.js"></script>
 </body>
 </html>

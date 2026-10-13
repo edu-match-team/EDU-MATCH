@@ -444,6 +444,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="provider-common.css">
     <link rel="stylesheet" href="../theme.css">
 </head>
 
@@ -525,6 +526,15 @@
             </div>
 
             <div id="notice" class="notice"></div>
+
+            <div class="tabs" style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
+                <button type="button" class="tab-btn" id="tabDirectRequests" style="padding:10px 18px; border-radius:8px; border:1px solid #6c4df6; background:#6c4df6; color:white; font-weight:700; cursor:pointer;">
+                    Direct Student Requests / Orders
+                </button>
+                <button type="button" class="tab-btn" id="tabStudentRequirements" style="padding:10px 18px; border-radius:8px; border:1px solid #cbd5e1; background:white; color:#475569; font-weight:700; cursor:pointer;">
+                    📋 Browse Student Project Requirements
+                </button>
+            </div>
 
             <div class="filters">
 
@@ -934,12 +944,121 @@
         }
     });
 
-    searchInput.addEventListener("input", renderRequests);
+    // --- TABS SWITCHING ---
+    let currentView = "direct";
+    let studentRequirements = [];
+
+    const tabDirect = document.getElementById("tabDirectRequests");
+    const tabReqs = document.getElementById("tabStudentRequirements");
+
+    tabDirect?.addEventListener("click", () => {
+        currentView = "direct";
+        tabDirect.style.background = "#6c4df6";
+        tabDirect.style.color = "white";
+        tabReqs.style.background = "white";
+        tabReqs.style.color = "#475569";
+        statusFilter.style.display = "inline-block";
+        renderRequests();
+    });
+
+    tabReqs?.addEventListener("click", () => {
+        currentView = "requirements";
+        tabReqs.style.background = "#6c4df6";
+        tabReqs.style.color = "white";
+        tabDirect.style.background = "white";
+        tabDirect.style.color = "#475569";
+        statusFilter.style.display = "none";
+        loadStudentRequirements();
+    });
+
+    async function loadStudentRequirements() {
+        requestList.innerHTML = `<div class="empty-state"><h3>Loading student requirements...</h3></div>`;
+        try {
+            const data = await apiRequest("/provider/requirements");
+            studentRequirements = data.requirements || [];
+            tabReqs.textContent = `📋 Browse Student Project Requirements (${studentRequirements.length})`;
+            renderStudentRequirements();
+        } catch (e) {
+            requestList.innerHTML = `<div class="empty-state"><h3>Could not load requirements</h3><p>${escapeHTML(e.message)}</p></div>`;
+        }
+    }
+
+    function renderStudentRequirements() {
+        const query = searchInput.value.trim().toLowerCase();
+        const filtered = studentRequirements.filter(r => {
+            const str = [r.title, r.description, r.category, r.student_name, (r.skills || []).join(" ")].join(" ").toLowerCase();
+            return str.includes(query);
+        });
+
+        if (filtered.length === 0) {
+            requestList.innerHTML = `<div class="empty-state"><div class="icon">📋</div><h3>No student requirements found</h3><p>When students submit project requirements, they will appear here for you to review and propose.</p></div>`;
+            return;
+        }
+
+        requestList.innerHTML = filtered.map(r => `
+            <article class="request-card">
+                <div class="request-top">
+                    <div>
+                        <h3>${escapeHTML(r.title)}</h3>
+                        <div class="request-meta">
+                            Student: <strong>${escapeHTML(r.student_name)}</strong> (${escapeHTML(r.student_email)})<br>
+                            Category: <span class="badge" style="background:#EDE9FE; color:#6D28D9; padding:2px 8px; border-radius:4px; font-weight:bold;">${escapeHTML(r.category)}</span> · Complexity: ${escapeHTML(r.complexity)}
+                        </div>
+                    </div>
+                    <span class="status status-pending">Open Requirement</span>
+                </div>
+                <div class="request-description" style="margin:12px 0;">${escapeHTML(r.description)}</div>
+                <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
+                    ${(r.skills || []).map(s => `<span style="background:#F1F5F9; color:#475569; padding:3px 8px; border-radius:6px; font-size:12px; font-weight:bold;">${escapeHTML(s)}</span>`).join("")}
+                </div>
+                <div class="request-details">
+                    <div class="detail-item">
+                        <small>Student Budget</small>
+                        <strong>${escapeHTML(formatAmount(r.budget))}</strong>
+                    </div>
+                    <div class="detail-item">
+                        <small>Deadline</small>
+                        <strong>${escapeHTML(r.deadline || "Flexible")}</strong>
+                    </div>
+                    <div class="detail-item" style="grid-column: span 2; display:flex; justify-content:flex-end; gap:8px;">
+                        <button type="button" class="action-btn accept" onclick="proposeOnRequirement(${r.id}, '${escapeHTML(r.title).replace(/'/g, "\\'")}')" style="background:#6c4df6; border-color:#6c4df6; color:white; padding:8px 16px; border-radius:8px; font-weight:700;">
+                            ⚡ Propose & Accept Requirement
+                        </button>
+                    </div>
+                </div>
+            </article>
+        `).join("");
+    }
+
+    async function proposeOnRequirement(reqId, title) {
+        const msg = prompt(`Send a proposal note to the student for "${title}":`, "Hi! I have reviewed your requirements and would be delighted to mentor and build this project with you.");
+        if (!msg) return;
+
+        try {
+            setNotice("Sending proposal to student...", "info");
+            const res = await apiRequest("/provider/propose", {
+                method: "POST",
+                body: JSON.stringify({ requirement_id: reqId, message: msg })
+            });
+            setNotice(res.message || "Proposal sent! The student will be notified and can give you the project.", "success");
+            alert("✓ Proposal sent successfully! The student now has the option in their dashboard to Give Project to you.");
+        } catch (err) {
+            setNotice(err.message, "error");
+        }
+    }
+
+    searchInput.addEventListener("input", () => {
+        if (currentView === "requirements") {
+            renderStudentRequirements();
+        } else {
+            renderRequests();
+        }
+    });
     statusFilter.addEventListener("change", renderRequests);
 
     document.getElementById("refreshButton").addEventListener(
         "click",
-        loadRequests
+        () => currentView === "requirements" ? loadStudentRequirements() : loadRequests()
     );
 
     document.getElementById("menuToggle").addEventListener("click", () => {
@@ -948,15 +1067,14 @@
 
     document.getElementById("logoutLink").addEventListener("click", event => {
         event.preventDefault();
-
         localStorage.removeItem("edumatch_token");
-
         window.location.href = "login.html";
     });
 
     loadRequests();
 </script>
 
+    <script src="provider-common.js"></script>
     <script src="../theme.js"></script>
 </body>
 </html>

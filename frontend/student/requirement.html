@@ -1164,13 +1164,19 @@
             }
 
             try {
+                const token = localStorage.getItem("edumatch_token");
+                const headers = {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                };
+                if (token) {
+                    headers["Authorization"] = "Bearer " + token;
+                }
+
                 const response = await fetch("http://127.0.0.1:5000/api/students/requirements", {
                     method: "POST",
                     credentials: "include",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Accept": "application/json"
-                    },
+                    headers: headers,
                     body: JSON.stringify({
                         title: title,
                         category: category,
@@ -1225,5 +1231,6 @@
     </script>
 
     <script src="../theme.js"></script>
+    <script src="student-nav.js"></script>
 </body>
 </html>

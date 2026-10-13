@@ -3,1103 +3,1728 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages | EduMatch</title>
+    <title>Provider Messages & Collaboration | EduMatch</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --primary: #6c4df6;
+            --primary-dark: #5535df;
+            --primary-light: #f3f0ff;
+            --navy: #0f172a;
+            --slate: #1e293b;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(108,77,246,0.08);
+            --shadow-lg: 0 12px 28px rgba(15,23,42,0.08);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        :root {
-            --primary: #2563eb;
-            --background: #f5f8ff;
-            --text: #1e293b;
-            --muted: #64748b;
-            --border: #dbe5f3;
-            --white: #ffffff;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
         }
 
         body {
             background: var(--background);
-            color: var(--text);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow: hidden;
         }
 
-        button, input {
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button, input, textarea {
             font: inherit;
+            outline: none;
         }
 
         button {
             cursor: pointer;
         }
 
-        a {
-            text-decoration: none;
-        }
-
         .layout {
             display: flex;
-            min-height: 100vh;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
         }
 
-        /* Sidebar */
-
+        /* SIDEBAR (Matches Provider Dashboard) */
         .sidebar {
             width: 250px;
             flex-shrink: 0;
-            padding: 25px 15px;
-            background: white;
+            background: #ffffff;
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            transition: transform 0.25s;
+            padding: 24px 16px;
+            z-index: 20;
+            transition: transform 0.25s ease;
         }
 
         .logo {
-            margin: 0 10px 30px;
-            font-size: 27px;
-            font-weight: bold;
+            font-size: 24px;
+            font-weight: 800;
             color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 28px;
+            padding: 0 8px;
         }
 
         .logo span {
-            color: #7c3aed;
+            color: var(--navy);
         }
 
-        .account {
+        .workspace-badge {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--text-muted);
+            padding: 0 10px;
+            margin-bottom: 12px;
+        }
+
+        .nav {
             display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 0 5px 25px;
-        }
-
-        .avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
-            display: grid;
-            place-items: center;
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .account strong {
-            display: block;
-            font-size: 14px;
-            margin-bottom: 5px;
-            overflow-wrap: anywhere;
-        }
-
-        .account small {
-            color: var(--muted);
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
         }
 
         .nav a {
-            display: block;
-            padding: 12px 13px;
-            margin-bottom: 5px;
-            border-radius: 8px;
-            color: #334e78;
-            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #475569;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
-        .nav a:hover,
-        .nav a.active {
-            background: #e7efff;
+        .nav a:hover {
+            background: var(--primary-light);
             color: var(--primary);
         }
 
-        .logout {
-            margin-top: auto;
-            padding: 12px;
-            color: #dc2626;
-            font-size: 14px;
+        .nav a.active {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(108,77,246,0.25);
         }
 
-        /* Main */
+        .nav-icon {
+            font-size: 16px;
+            width: 20px;
+            display: grid;
+            place-items: center;
+        }
 
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .back-home-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            color: var(--text-muted);
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .back-home-link:hover {
+            color: var(--primary);
+            background: #f1f5f9;
+        }
+
+        /* MAIN CONTENT AREA */
         .main {
             flex: 1;
+            display: flex;
+            flex-direction: column;
             min-width: 0;
+            height: 100vh;
+            background: var(--background);
         }
 
+        /* TOPBAR */
         .topbar {
-            height: 65px;
-            padding: 0 25px;
-            background: white;
+            height: 64px;
+            background: #ffffff;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
+            padding: 0 28px;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
-        .menu-button {
-            border: none;
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .menu-toggle {
+            display: none;
             background: none;
-            font-size: 25px;
+            border: none;
+            font-size: 22px;
+            color: var(--navy);
+        }
+
+        .page-title-box h1 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .page-title-box p {
+            font-size: 11px;
+            color: var(--text-muted);
         }
 
         .topbar-right {
             display: flex;
             align-items: center;
-            gap: 12px;
-            color: var(--muted);
+            gap: 16px;
+        }
+
+        .provider-profile-pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 12px 5px 6px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+        }
+
+        .topbar-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #EDE9FE;
+            color: var(--primary);
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
             font-size: 13px;
         }
 
-        .small-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--primary);
-            color: white;
+        .topbar-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .topbar-name {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--navy);
+        }
+
+        /* CHAT WORKSPACE */
+        .chat-workspace {
+            flex: 1;
             display: grid;
-            place-items: center;
-            font-weight: bold;
-        }
-
-        .content {
-            padding: 25px;
-        }
-
-        .page-heading {
-            margin-bottom: 22px;
-        }
-
-        .page-heading h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .page-heading p {
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        /* Chat layout */
-
-        .chat-container {
-            height: 690px;
-            max-height: calc(100vh - 160px);
-            min-height: 480px;
-            display: grid;
-            grid-template-columns: 310px minmax(0, 1fr);
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            grid-template-columns: 330px 1fr;
+            height: calc(100vh - 64px);
             overflow: hidden;
         }
 
-        /* Conversation list */
-
-        .conversations {
+        /* CONVERSATIONS PANE */
+        .conversations-pane {
+            background: #ffffff;
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            min-width: 0;
+            height: 100%;
+            overflow: hidden;
         }
 
-        .conversation-heading {
-            padding: 20px;
+        .conversations-header {
+            padding: 16px 18px 12px;
             border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .conversation-heading h2 {
-            font-size: 19px;
-            margin-bottom: 15px;
+        .conversations-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .search-box {
+        .conversations-title-row h2 {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .conv-badge {
+            font-size: 11px;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 12px;
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-container input {
             width: 100%;
-            padding: 11px;
-            border: 1px solid var(--border);
+            padding: 9px 12px 9px 34px;
             border-radius: 8px;
-            outline: none;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 13px;
+            color: var(--text-main);
+            transition: all 0.2s ease;
         }
 
-        .search-box:focus {
+        .search-container input:focus {
+            background: #ffffff;
             border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108,77,246,0.1);
         }
 
-        .conversation-list {
+        .search-icon {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .conversations-list {
             flex: 1;
             overflow-y: auto;
+            padding: 8px 0;
         }
 
-        .conversation {
-            width: 100%;
+        .conversation-card {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 16px;
-            border: none;
-            border-bottom: 1px solid #edf1f7;
-            background: white;
-            text-align: left;
+            padding: 12px 18px;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+            transition: background 0.15s ease;
+            position: relative;
         }
 
-        .conversation:hover {
-            background: #f8faff;
+        .conversation-card:hover {
+            background: #f8fafc;
         }
 
-        .conversation.active {
-            background: #eff6ff;
-            border-left: 3px solid var(--primary);
+        .conversation-card.active {
+            background: #f5f3ff;
+            border-left-color: var(--primary);
         }
 
-        .conversation-avatar {
-            width: 43px;
-            height: 43px;
-            border-radius: 50%;
-            background: #dbeafe;
-            color: #1d4ed8;
-            display: grid;
-            place-items: center;
-            font-weight: bold;
+        .avatar-wrap {
+            position: relative;
             flex-shrink: 0;
         }
 
-        .conversation-details {
-            min-width: 0;
+        .student-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+            color: #3730a3;
+            font-weight: 800;
+            font-size: 15px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border: 2px solid #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .student-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .online-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            background: var(--success);
+            border: 2px solid #ffffff;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        .conv-info {
             flex: 1;
+            min-width: 0;
         }
 
-        .conversation-name {
+        .conv-name-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 3px;
+        }
+
+        .conv-name {
             font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
-
-        .conversation-preview {
-            color: var(--muted);
-            font-size: 12px;
+            font-weight: 700;
+            color: var(--navy);
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .conv-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .conv-preview {
+            font-size: 12px;
+            color: var(--text-muted);
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4;
         }
 
-        .conversation-time {
-            font-size: 10px;
-            color: var(--muted);
-            margin-top: 5px;
+        .conversation-card.active .conv-name {
+            color: var(--primary-dark);
         }
 
-        /* Message window */
+        /* EMPTY CHATS */
+        .empty-conversations {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+        }
 
-        .chat-window {
-            min-width: 0;
+        .empty-conversations p {
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* CHAT ACTIVE VIEW */
+        .chat-active-pane {
             display: flex;
             flex-direction: column;
+            height: 100%;
+            background: #fafafa;
+            overflow: hidden;
+            position: relative;
         }
 
-        .chat-header {
-            min-height: 76px;
-            padding: 15px 20px;
+        .chat-active-header {
+            height: 64px;
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            flex-shrink: 0;
+            z-index: 5;
+        }
+
+        .chat-header-identity {
             display: flex;
             align-items: center;
             gap: 12px;
-            border-bottom: 1px solid var(--border);
         }
 
-        .chat-header h2 {
-            font-size: 16px;
-            margin-bottom: 6px;
+        .chat-header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #EDE9FE;
+            color: var(--primary);
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            font-size: 14px;
         }
 
-        .online-status {
+        .chat-header-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chat-header-meta h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chat-header-meta p {
+            font-size: 11px;
+            color: var(--success);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chat-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-tool-btn {
+            padding: 7px 12px;
+            border-radius: 8px;
             font-size: 12px;
-            color: #15803d;
+            font-weight: 700;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
         }
 
-        .messages {
+        .chat-tool-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .chat-tool-btn.primary {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .chat-tool-btn.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* MESSAGES FEED */
+        .messages-feed {
             flex: 1;
-            padding: 22px;
             overflow-y: auto;
+            padding: 24px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
-            background: #fbfdff;
+            gap: 14px;
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .date-divider {
+            text-align: center;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .date-divider span {
+            background: #e2e8f0;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .message-row {
             display: flex;
             flex-direction: column;
-            max-width: 78%;
-            align-self: flex-start;
+            max-width: 68%;
+            position: relative;
         }
 
-        .message-row.mine {
+        .message-row.sent {
             align-self: flex-end;
+            align-items: flex-end;
+        }
+
+        .message-row.received {
+            align-self: flex-start;
+            align-items: flex-start;
+        }
+
+        .bubble-wrapper {
+            position: relative;
+            display: inline-block;
         }
 
         .message-bubble {
-            padding: 12px 15px;
-            border-radius: 12px 12px 12px 3px;
-            background: #eaf1ff;
-            font-size: 14px;
-            line-height: 1.6;
-            overflow-wrap: anywhere;
-            white-space: pre-wrap;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            word-break: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            position: relative;
         }
 
-        .message-row.mine .message-bubble {
-            background: var(--primary);
-            color: white;
-            border-radius: 12px 12px 3px 12px;
+        .message-row.sent .message-bubble {
+            background: linear-gradient(135deg, #6c4df6 0%, #5535df 100%);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
         }
 
-        .message-time {
-            margin-top: 6px;
-            color: var(--muted);
-            font-size: 10px;
-        }
-
-        .message-row.mine .message-time {
-            text-align: right;
-        }
-
-        .message-form {
-            display: flex;
-            gap: 10px;
-            padding: 16px;
-            border-top: 1px solid var(--border);
-            background: white;
-        }
-
-        .message-input {
-            flex: 1;
-            min-width: 0;
-            padding: 13px;
+        .message-row.received .message-bubble {
+            background: #ffffff;
+            color: #1e293b;
             border: 1px solid var(--border);
-            border-radius: 8px;
-            outline: none;
+            border-bottom-left-radius: 4px;
         }
 
-        .message-input:focus {
+        .message-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            font-size: 10.5px;
+            color: var(--text-muted);
+            padding: 0 4px;
+        }
+
+        .message-row.sent .message-meta {
+            justify-content: flex-end;
+        }
+
+        /* Hover action trash button */
+        .msg-actions-trigger {
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #ffffff;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            border-radius: 6px;
+            width: 26px;
+            height: 26px;
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: #ef4444;
+        }
+
+        .message-row.sent .msg-actions-trigger {
+            left: -32px;
+        }
+
+        .message-row.received .msg-actions-trigger {
+            right: -32px;
+        }
+
+        .message-row:hover .msg-actions-trigger {
+            opacity: 1;
+        }
+
+        /* Deliverable Bubble Card */
+        .deliverable-card-bubble {
+            background: #fdfcff;
+            border: 1.5px solid #c4b5fd;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 4px 14px rgba(108,77,246,0.1);
+            color: var(--navy);
+            width: 320px;
+        }
+
+        .deliverable-badge-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .deliv-tag {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: #EDE9FE;
+            color: #6d28d9;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .deliv-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .deliv-notes {
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        .deliv-download-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 9px;
+            background: var(--primary);
+            color: #ffffff;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+
+        .deliv-download-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* CHAT INPUT AREA */
+        .chat-input-bar {
+            background: #ffffff;
+            border-top: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+            z-index: 5;
+        }
+
+        .attach-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: #475569;
+            display: grid;
+            place-items: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .attach-btn:hover {
+            background: var(--primary-light);
+            color: var(--primary);
             border-color: var(--primary);
         }
 
-        .send-button {
+        .message-textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 13.5px;
+            color: var(--text-main);
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+            line-height: 1.4;
+            transition: all 0.2s;
+        }
+
+        .message-textarea:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108,77,246,0.1);
+        }
+
+        .send-btn {
+            height: 44px;
             padding: 0 20px;
-            border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             background: var(--primary);
-            color: white;
-            font-weight: bold;
-        }
-
-        .send-button:hover {
-            background: #1d4ed8;
-        }
-
-        .empty-state {
-            padding: 30px 15px;
-            color: var(--muted);
-            text-align: center;
+            color: #ffffff;
+            border: none;
             font-size: 13px;
-            line-height: 1.7;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(108,77,246,0.3);
+            transition: all 0.2s;
         }
 
-        .notice {
-            margin-top: 16px;
-            padding: 13px;
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            color: #475569;
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15,23,42,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 440px;
+            padding: 28px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border);
+        }
+
+        .modal-box h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 8px;
+        }
+
+        .modal-box p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .modal-form-group {
+            margin-bottom: 16px;
+        }
+
+        .modal-form-group label {
+            display: block;
             font-size: 12px;
-            line-height: 1.6;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .modal-form-group input,
+        .modal-form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            padding: 11px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
         }
 
         /* Responsive */
-
-        @media (max-width: 1000px) {
-            .chat-container {
-                grid-template-columns: 260px minmax(0, 1fr);
-            }
-        }
-
-        @media (max-width: 700px) {
+        @media (max-width: 900px) {
             .sidebar {
                 position: fixed;
+                left: -250px;
                 top: 0;
                 bottom: 0;
-                left: 0;
-                z-index: 10;
-                transform: translateX(-100%);
-                overflow-y: auto;
             }
-
             .sidebar.open {
-                transform: translateX(0);
-                box-shadow: 5px 0 25px #00000020;
+                left: 0;
             }
-
-            .content {
-                padding: 18px 12px;
+            .menu-toggle {
+                display: block;
             }
-
-            .topbar {
-                padding: 0 15px;
-            }
-
-            .page-heading h1 {
-                font-size: 24px;
-            }
-
-            .chat-container {
-                height: 72vh;
-                max-height: none;
-                min-height: 460px;
+            .chat-workspace {
                 grid-template-columns: 1fr;
             }
-
-            .conversations {
+            .conversations-pane.hidden-mobile {
                 display: none;
-            }
-
-            .conversations.show-mobile {
-                display: flex;
-                border-right: none;
-            }
-
-            .chat-container.show-conversations .chat-window {
-                display: none;
-            }
-
-            .chat-container.show-conversations .conversations {
-                display: flex;
-            }
-
-            .message-row {
-                max-width: 90%;
             }
         }
     </style>
+    <link rel="stylesheet" href="provider-common.css">
     <link rel="stylesheet" href="../theme.css">
 </head>
-
 <body>
 
 <div class="layout">
 
-    <!-- Sidebar -->
+    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
+        <a href="../index.html" class="logo">
+            Edu<span>Match</span>
+        </a>
 
-        <div class="logo">Edu<span>Match</span></div>
-
-        <div class="account">
-            <div class="avatar" id="providerAvatar">P</div>
-
-            <div>
-                <strong id="providerName">Provider Account</strong>
-                <small>Project Provider</small>
-            </div>
-        </div>
+        <div class="workspace-badge">WORKSPACE</div>
 
         <nav class="nav">
-            <a href="dashboard.html">⌂ &nbsp; Dashboard</a>
-            <a href="profile.html">◎ &nbsp; My Profile</a>
-            <a href="portfolio.html">💼 &nbsp; My Portfolio</a>
-            <a href="services.html">🛠️ &nbsp; My Services & Pricing</a>
-            <a href="skills.html">✿ &nbsp; My Skills</a>
-            <a href="requests.html">♧ &nbsp; Project Requests</a>
-            <a href="orders.html">▤ &nbsp; My Orders</a>
-            <a href="chat.html" class="active">✉ &nbsp; Messages & Share</a>
-            <a href="../index.html">← &nbsp; Back to Website</a>
+            <a href="dashboard.html">
+                <span class="nav-icon">⌂</span> Dashboard
+            </a>
+            <a href="profile.html">
+                <span class="nav-icon">👤</span> My Profile
+            </a>
+            <a href="portfolio.html">
+                <span class="nav-icon">💼</span> My Portfolio
+            </a>
+            <a href="services.html">
+                <span class="nav-icon">🛠️</span> My Services
+            </a>
+            <a href="skills.html">
+                <span class="nav-icon">✿</span> My Skills
+            </a>
+            <a href="requests.html">
+                <span class="nav-icon">♧</span> Student Requests
+            </a>
+            <a href="orders.html">
+                <span class="nav-icon">▤</span> My Orders
+            </a>
+            <a href="chat.html" class="active">
+                <span class="nav-icon">✉</span> Messages & Deliver
+            </a>
         </nav>
 
-        <a href="#" class="logout" id="logoutButton">⇥ &nbsp; Log Out</a>
-
+        <div class="sidebar-bottom">
+            <a href="dashboard.html" class="back-home-link">
+                ← Back to Dashboard
+            </a>
+        </div>
     </aside>
 
-    <!-- Main -->
+    <!-- MAIN CHAT EXPERIENCE -->
     <main class="main">
 
+        <!-- TOPBAR -->
         <header class="topbar">
-            <button
-                class="menu-button"
-                id="menuToggle"
-                aria-label="Toggle navigation"
-            >☰</button>
+            <div class="topbar-left">
+                <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+                <div class="page-title-box">
+                    <h1>Messages & Collaboration</h1>
+                    <p>Real-time chat and deliverable management for active student orders</p>
+                </div>
+            </div>
 
             <div class="topbar-right">
-                <span id="headerProviderName">My Account</span>
-                <div class="small-avatar" id="headerAvatar">P</div>
+                <div class="provider-profile-pill">
+                    <div class="topbar-avatar" id="providerAvatar">P</div>
+                    <span class="topbar-name" id="providerName">Provider</span>
+                </div>
             </div>
         </header>
 
-        <div class="content">
+        <!-- CHAT WORKSPACE -->
+        <div class="chat-workspace">
 
-            <section class="page-heading">
-                <h1>💬 Messages</h1>
-                <p>Communicate with students about their projects.</p>
-            </section>
-
-            <section class="chat-container" id="chatContainer">
-
-                <!-- Conversation list -->
-                <aside class="conversations" id="conversationsPanel">
-
-                    <div class="conversation-heading">
+            <!-- LEFT: CONVERSATIONS LIST -->
+            <div class="conversations-pane" id="conversationsPane">
+                <div class="conversations-header">
+                    <div class="conversations-title-row">
                         <h2>Conversations</h2>
-
-                        <input
-                            type="search"
-                            class="search-box"
-                            id="searchConversations"
-                            placeholder="Search conversations..."
-                            aria-label="Search conversations"
-                        >
+                        <span class="conv-badge" id="convCountBadge">0 active</span>
                     </div>
-
-                    <div class="conversation-list" id="conversationList"></div>
-
-                </aside>
-
-                <!-- Chat window -->
-                <section class="chat-window">
-
-                    <header class="chat-header">
-                        <button
-                            type="button"
-                            class="send-button"
-                            id="backToChats"
-                            style="display:none; padding:8px 10px;"
-                        >←</button>
-
-                        <div class="conversation-avatar" id="chatAvatar">?</div>
-
-                        <div>
-                            <h2 id="chatName">Select a conversation</h2>
-                            <div class="online-status" id="chatStatus">
-                                Demo messaging
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="messages" id="messages">
-                        <div class="empty-state">
-                            <div style="font-size:35px;">💬</div>
-                            <strong>Welcome to EduMatch Messages</strong>
-                            <p>Select a conversation to view messages.</p>
-                        </div>
+                    <div class="search-container">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="convSearchInput" placeholder="Search student or order...">
                     </div>
+                </div>
 
-                    <form class="message-form" id="messageForm" style="display:flex; gap:8px; align-items:center;">
-                        <button type="button" id="shareProjectBtn" title="Share Project Deliverable, Code, or Files" style="background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:10px 14px; font-size:13px; font-weight:700; color:#475569; cursor:pointer; display:flex; align-items:center; gap:5px; white-space:nowrap;">
-                            📁 Share Project
-                        </button>
-                        <input
-                            type="text"
-                            class="message-input"
-                            id="messageInput"
-                            placeholder="Type your message or project note..."
-                            maxlength="2000"
-                            autocomplete="off"
-                            aria-label="Message"
-                            required
-                        >
-                        <button type="submit" class="send-button">
-                            Send ➤
-                        </button>
-                    </form>
-
-                </section>
-
-            </section>
-
-            <!-- Project Share Modal Dialog -->
-            <div id="projectShareModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; display:none; align-items:center; justify-content:center;">
-                <div style="background:white; border-radius:14px; padding:25px; width:90%; max-width:500px; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
-                    <h3 style="margin-bottom:6px; font-size:18px;">📁 Share Project Deliverable to Student</h3>
-                    <p style="font-size:12px; color:var(--muted); margin-bottom:15px;">Send complete source code, GitHub repository links, Drive folders, or project zip links directly into the conversation.</p>
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:5px;">Project Deliverable Title *</label>
-                        <input type="text" id="shareProjTitle" placeholder="e.g. Final Python ML Project Code + Report" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:5px;">Download / Repo / Drive Link *</label>
-                        <input type="url" id="shareProjLink" placeholder="https://github.com/... or Google Drive link" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:13px;">
-                    </div>
-                    <div style="margin-bottom:18px;">
-                        <label style="display:block; font-size:12px; font-weight:700; margin-bottom:5px;">Submission Notes / Instructions</label>
-                        <textarea id="shareProjNotes" placeholder="Instructions on how the student should run the code, setup libraries, and test..." style="width:100%; padding:10px; border:1px solid var(--border); border-radius:8px; font-size:13px; height:80px;"></textarea>
-                    </div>
-                    <div style="display:flex; justify-content:flex-end; gap:10px;">
-                        <button type="button" id="cancelShareBtn" style="padding:10px 16px; border:1px solid var(--border); background:white; border-radius:8px; cursor:pointer;">Cancel</button>
-                        <button type="button" id="submitShareBtn" class="send-button" style="padding:10px 18px; border-radius:8px;">Send Project to Student ➤</button>
+                <div class="conversations-list" id="conversationsList">
+                    <div class="empty-conversations">
+                        <p>Loading your student conversations...</p>
                     </div>
                 </div>
             </div>
 
+            <!-- RIGHT: ACTIVE CHAT PANE -->
+            <div class="chat-active-pane" id="chatActivePane">
+
+                <!-- Active Chat Header -->
+                <div class="chat-active-header">
+                    <div class="chat-header-identity">
+                        <div class="chat-header-avatar" id="activeStudentAvatar">S</div>
+                        <div class="chat-header-meta">
+                            <h3 id="activeStudentName">Select a student</h3>
+                            <p id="activeStudentStatus">● Ready for project discussion</p>
+                        </div>
+                    </div>
+
+                    <div class="chat-header-actions" id="chatHeaderActions" style="display:none;">
+                        <button type="button" class="chat-tool-btn primary" id="shareDeliverableBtn">
+                            📦 Submit Deliverable
+                        </button>
+                        <button type="button" class="chat-tool-btn" id="openOrdersBtn">
+                            ▤ View Order
+                        </button>
+                        <button type="button" class="chat-tool-btn" id="clearChatBtn" style="color:var(--danger);">
+                            🧹 Clear Chat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Messages Feed -->
+                <div class="messages-feed" id="messagesFeed">
+                    <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
+                        <div style="font-size:36px; margin-bottom:12px;">💬</div>
+                        <h4 style="font-size:16px; font-weight:700; color:var(--navy); margin-bottom:6px;">Select a conversation</h4>
+                        <p style="font-size:13px;">Choose a student from the left pane to view messages and deliver completed project files.</p>
+                    </div>
+                </div>
+
+                <!-- Photo Preview Container -->
+                <div id="photoPreviewBar" style="display:none; padding:8px 16px; background:#ffffff; border-top:1px solid var(--border); align-items:center; gap:12px;">
+                    <img id="photoPreviewImg" src="" style="width:44px; height:44px; object-fit:cover; border-radius:8px; border:1px solid var(--border);">
+                    <div style="flex:1; min-width:0;">
+                        <div id="photoPreviewTitle" style="font-size:12px; font-weight:700; color:var(--navy); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Project Photo</div>
+                        <div style="font-size:11px; color:var(--text-muted);">Attached photo ready to send</div>
+                    </div>
+                    <button type="button" id="removePhotoBtn" style="background:#fee2e2; border:none; color:#ef4444; font-weight:700; font-size:12px; padding:6px 10px; border-radius:6px; cursor:pointer;">✕ Remove</button>
+                </div>
+
+                <!-- Chat Input Bar -->
+                <form class="chat-input-bar" id="messageForm" style="display:none; position:relative;">
+                    <input type="file" id="providerPhotoInput" accept="image/*" style="display:none;">
+                    <button type="button" class="attach-btn" id="attachPhotoBtn" title="Send Project Photo">
+                        📷
+                    </button>
+                    <button type="button" class="attach-btn" id="attachDeliverableQuickBtn" title="Send Deliverable Files">
+                        📦
+                    </button>
+                    <button type="button" class="attach-btn" id="emojiPickerBtn" title="Insert Emoji">
+                        😀
+                    </button>
+
+                    <!-- Emoji Popover -->
+                    <div id="emojiPopover" style="display:none; position:absolute; bottom:68px; left:20px; background:#ffffff; border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow-lg); padding:12px; z-index:100; width:300px; max-height:220px; overflow-y:auto;">
+                        <div style="font-size:11px; font-weight:800; color:var(--text-muted); text-transform:uppercase; margin-bottom:8px;">Choose Emoji</div>
+                        <div id="emojiGrid" style="display:grid; grid-template-columns:repeat(7, 1fr); gap:6px; font-size:20px; text-align:center; cursor:pointer;">
+                        </div>
+                    </div>
+
+                    <textarea class="message-textarea" id="messageInput" rows="1" placeholder="Type your message to the student... (Enter to send)"></textarea>
+                    <button type="submit" class="send-btn" id="sendBtn">
+                        Send ➤
+                    </button>
+                </form>
+
+            </div>
+
         </div>
+
     </main>
+
+</div>
+
+<!-- DELIVERABLE MODAL -->
+<div class="modal-overlay" id="deliverableModal">
+    <div class="modal-box">
+        <h3>Submit Project Deliverable</h3>
+        <p>Send completed project code or deliverables directly into this chat for student review.</p>
+
+        <form id="deliverableModalForm">
+            <div class="modal-form-group">
+                <label>Project Title / Milestone *</label>
+                <input type="text" id="delivTitle" placeholder="e.g. Completed React + Python Source Code" required>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Repository / Google Drive / Download URL *</label>
+                <input type="url" id="delivUrl" placeholder="https://github.com/... or https://drive.google.com/..." required>
+            </div>
+
+            <div class="modal-form-group">
+                <label>Deliverable Notes & Instructions</label>
+                <textarea id="delivNotes" rows="3" placeholder="Provide setup commands, credentials, or review instructions for the student..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" id="cancelDelivBtn" style="background:#f1f5f9; color:#475569; border:none;">Cancel</button>
+                <button type="submit" style="background:var(--primary); color:#ffffff; border:none;">Send Deliverable</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- WHATSAPP-STYLE DELETE MESSAGE MODAL -->
+<div class="modal-overlay" id="deleteMsgModal">
+    <div class="modal-box" style="max-width:360px; text-align:center;">
+        <div style="font-size:32px; margin-bottom:8px;">🗑️</div>
+        <h3>Delete Message?</h3>
+        <p style="margin-bottom:18px;">Choose how you would like to delete this message.</p>
+
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <button type="button" id="delEveryoneBtn" style="padding:11px; background:#dc2626; color:white; border:none; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer;">
+                Delete for Everyone
+            </button>
+            <button type="button" id="delMeBtn" style="padding:11px; background:#f1f5f9; color:#334155; border:1px solid #cbd5e1; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer;">
+                Delete for Me
+            </button>
+            <button type="button" id="delCancelBtn" style="padding:10px; background:transparent; color:#64748b; border:none; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer;">
+                Cancel
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // ======================================
-    // EduMatch Provider Chat
-    // Browser-based demonstration
-    // ======================================
+    "use strict";
 
-    const CHAT_STORAGE_KEY = "edumatch_provider_chats";
+    const API_BASE = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
 
-    const conversationList = document.getElementById("conversationList");
-    const messagesContainer = document.getElementById("messages");
-    const messageInput = document.getElementById("messageInput");
-    const messageForm = document.getElementById("messageForm");
-    const searchInput = document.getElementById("searchConversations");
-    const chatContainer = document.getElementById("chatContainer");
-
-    let activeConversationId = null;
-
-    const API_BASE = "http://127.0.0.1:5000/api";
-    let conversations = [];
     let currentUserId = null;
+    let conversations = [];
+    let activeConvId = null;
+    let activeStudent = null;
+    let pendingDeleteMsgId = null;
+    let pollTimer = null;
 
     function getAuthHeaders() {
         const token = localStorage.getItem("edumatch_token");
-        const headers = { "Content-Type": "application/json" };
-        if (token) headers["Authorization"] = `Bearer ${token}`;
+        const headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        };
+        if (token) headers["Authorization"] = "Bearer " + token;
         return headers;
     }
 
-    async function fetchServerConversations() {
+    function getAuthUserId() {
+        if (currentUserId && Number(currentUserId) > 0) return Number(currentUserId);
+        const token = localStorage.getItem("edumatch_token");
+        if (token) {
+            const parts = token.split("_");
+            const lastPart = parts[parts.length - 1];
+            if (!isNaN(lastPart) && Number(lastPart) > 0) return Number(lastPart);
+        }
+        try {
+            const u = JSON.parse(localStorage.getItem("edumatch_user") || "{}");
+            if (u && u.id) return Number(u.id);
+        } catch(e) {}
+        return null;
+    }
+
+    // Load active provider avatar and name
+    async function loadProviderInfo() {
+        try {
+            const res = await fetch(`${API_BASE}/provider/profile`, {
+                headers: getAuthHeaders(),
+                credentials: "include"
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.profile) {
+                    const prof = data.profile;
+                    const name = prof.name || prof.full_name || "Provider";
+                    document.getElementById("providerName").textContent = name;
+                    const avatarEl = document.getElementById("providerAvatar");
+                    let pPhoto = prof.profile_photo || localStorage.getItem("edumatch_provider_photo") || "";
+                    if (pPhoto) {
+                        avatarEl.innerHTML = `<img src="${pPhoto}" alt="${name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+                    } else {
+                        avatarEl.textContent = name.charAt(0).toUpperCase();
+                    }
+                    if (prof.user_id) {
+                        currentUserId = Number(prof.user_id);
+                    } else if (prof.id && !isNaN(prof.id)) {
+                        currentUserId = Number(prof.user_id || prof.id);
+                    }
+                }
+            }
+        } catch(e) {
+            console.warn("Failed to load provider profile:", e);
+        }
+    }
+
+    // Format ISO or SQLite timestamp
+    function formatTime(isoStr) {
+        if (!isoStr) return "";
+        try {
+            const d = new Date(isoStr);
+            if (isNaN(d.getTime())) return isoStr;
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        } catch {
+            return "";
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    // Load conversations list
+    async function loadConversations() {
         try {
             const res = await fetch(`${API_BASE}/provider/conversations`, {
                 headers: getAuthHeaders(),
                 credentials: "include"
             });
+            if (!res.ok) throw new Error("Failed to load conversations");
+
             const data = await res.json();
-            if (data.success && Array.isArray(data.conversations) && data.conversations.length > 0) {
-                if (data.current_user) currentUserId = data.current_user.id;
-                conversations = data.conversations.map(c => ({
-                    id: c.id,
-                    name: c.participant ? c.participant.name : "Student",
-                    messages: [],
-                    lastMessageText: c.last_message || "",
-                    updatedAt: c.updated_at
-                }));
-            } else {
-                // Fallback to local saved or demo if no server conversations yet
-                conversations = loadFallbackChats();
+            conversations = data.conversations || [];
+            document.getElementById("convCountBadge").textContent = `${conversations.length} active`;
+
+            renderConversationsList();
+
+            // Auto-open URL-requested conversation or first one
+            const urlParams = new URLSearchParams(window.location.search);
+            const reqConvId = urlParams.get("conversation_id");
+            const reqStudentId = urlParams.get("student_id");
+
+            if (reqConvId) {
+                const matched = conversations.find(c => String(c.id) === String(reqConvId));
+                if (matched) {
+                    selectConversation(matched);
+                    return;
+                }
             }
-        } catch (e) {
-            console.warn("Using offline/local conversation state:", e);
-            conversations = loadFallbackChats();
-        }
-        renderConversations();
-        if (conversations.length > 0 && !activeConversationId) {
-            openConversation(conversations[0].id);
-        }
-    }
 
-    function loadFallbackChats() {
-        try {
-            const saved = localStorage.getItem(CHAT_STORAGE_KEY);
-            if (saved !== null) {
-                const parsed = JSON.parse(saved);
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (reqStudentId) {
+                const matched = conversations.find(c => String(c.other_user_id) === String(reqStudentId));
+                if (matched) {
+                    selectConversation(matched);
+                    return;
+                }
             }
-        } catch (e) {}
-        return [
-            {
-                id: "demo-1",
-                name: "Aarav Sharma (BCA Student)",
-                messages: [
-                    { sender: "student", text: "Hello! I need help with my machine learning project.", time: new Date().toISOString() },
-                    { sender: "provider", text: "Hello Aarav! I would be glad to help. What is the scope?", time: new Date().toISOString() }
-                ]
+
+            if (!activeConvId && conversations.length > 0) {
+                selectConversation(conversations[0]);
             }
-        ];
-    }
-
-    // Persist chats fallback.
-    function saveChats() {
-        try {
-            localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(conversations));
-            return true;
-        } catch (error) {
-            return false;
+        } catch (err) {
+            console.error("Conversations error:", err);
+            document.getElementById("conversationsList").innerHTML = `
+                <div class="empty-conversations">
+                    <p>Unable to load conversations. Ensure you are logged in as a provider.</p>
+                </div>
+            `;
         }
     }
 
-    // Format message time.
-    function formatTime(dateString) {
-        if (!dateString) return "Just now";
-        const date = new Date(dateString);
-        if (Number.isNaN(date.getTime())) {
-            return dateString;
-        }
-        return date.toLocaleTimeString("en-IN", {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    }
+    function renderConversationsList() {
+        const listEl = document.getElementById("conversationsList");
+        const query = document.getElementById("convSearchInput").value.trim().toLowerCase();
 
-    // Get the latest message in a conversation.
-    function getLastMessage(conversation) {
-        if (conversation.lastMessageText) return { text: conversation.lastMessageText, sender: "other", time: conversation.updatedAt };
-        const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
-        return messages.length ? messages[messages.length - 1] : null;
-    }
-
-    // Render conversation buttons.
-    function renderConversations() {
-        conversationList.replaceChildren();
-        const search = searchInput.value.trim().toLowerCase();
-        const filtered = conversations.filter(function(conversation) {
-            return conversation.name.toLowerCase().includes(search);
+        const filtered = conversations.filter(c => {
+            const name = (c.other_user_name || "").toLowerCase();
+            const msg = (c.last_message || "").toLowerCase();
+            return name.includes(query) || msg.includes(query);
         });
 
         if (filtered.length === 0) {
-            const empty = document.createElement("div");
-            empty.className = "empty-state";
-            empty.textContent = "No matching conversations found.";
-            conversationList.appendChild(empty);
+            listEl.innerHTML = `
+                <div class="empty-conversations">
+                    <p>${query ? 'No matching students found.' : 'No active student conversations yet.'}</p>
+                </div>
+            `;
             return;
         }
 
-        filtered.forEach(function(conversation) {
-            const button = document.createElement("button");
-            button.type = "button";
-            button.className = "conversation";
+        listEl.innerHTML = filtered.map(c => {
+            const name = c.other_user_name || "Student";
+            const initial = name.charAt(0).toUpperCase() || "S";
+            const time = formatTime(c.last_message_time || c.updated_at);
+            const preview = c.last_message || "No messages yet";
+            const isDeliverable = preview.includes("[PROJECT_DELIVERABLE]");
+            const isPhoto = preview.includes("[PROJECT_PHOTO:");
+            let displayPreview = preview;
+            if (isDeliverable) displayPreview = "📦 Project Deliverable submitted";
+            else if (isPhoto) displayPreview = "📷 Project Photo";
+            const isActive = activeConvId === c.id;
 
-            if (conversation.id === activeConversationId) {
-                button.classList.add("active");
-            }
+            const avatarHtml = c.other_user_photo
+                ? `<img src="${c.other_user_photo}" alt="${name}">`
+                : initial;
 
-            const avatar = document.createElement("div");
-            avatar.className = "conversation-avatar";
-            avatar.textContent = conversation.name.charAt(0).toUpperCase();
+            return `
+                <div class="conversation-card ${isActive ? 'active' : ''}" onclick="window.selectConversationById(${c.id})">
+                    <div class="avatar-wrap">
+                        <div class="student-avatar">${avatarHtml}</div>
+                        <div class="online-dot"></div>
+                    </div>
+                    <div class="conv-info">
+                        <div class="conv-name-row">
+                            <span class="conv-name">${escapeHtml(name)}</span>
+                            <span class="conv-time">${time}</span>
+                        </div>
+                        <p class="conv-preview">${escapeHtml(displayPreview)}</p>
+                    </div>
+                </div>
+            `;
+        }).join("");
+    }
 
-            const details = document.createElement("div");
-            details.className = "conversation-details";
+    window.selectConversationById = function(id) {
+        const c = conversations.find(item => item.id === id);
+        if (c) selectConversation(c);
+    };
 
-            const name = document.createElement("div");
-            name.className = "conversation-name";
-            name.textContent = conversation.name;
+    function selectConversation(c) {
+        activeConvId = c.id;
+        activeStudent = c;
+        renderConversationsList();
 
-            const preview = document.createElement("div");
-            preview.className = "conversation-preview";
+        // Update active header
+        document.getElementById("activeStudentName").textContent = c.other_user_name || "Student";
+        const avatarEl = document.getElementById("activeStudentAvatar");
+        if (c.other_user_photo) {
+            avatarEl.innerHTML = `<img src="${c.other_user_photo}" alt="${c.other_user_name}">`;
+        } else {
+            avatarEl.textContent = (c.other_user_name || "S").charAt(0).toUpperCase();
+        }
 
-            const lastMessage = getLastMessage(conversation);
-            preview.textContent = lastMessage
-                ? (lastMessage.sender === "provider" ? "You: " : "") + lastMessage.text
-                : "No messages yet";
+        document.getElementById("chatHeaderActions").style.display = "flex";
+        document.getElementById("messageForm").style.display = "flex";
 
-            const time = document.createElement("div");
-            time.className = "conversation-time";
-            time.textContent = lastMessage ? formatTime(lastMessage.time) : "";
+        loadActiveMessages();
 
-            details.append(name, preview, time);
-            button.append(avatar, details);
+        // Start live polling every 3.5 seconds
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(loadActiveMessages, 3500);
+    }
 
-            button.addEventListener("click", function() {
-                openConversation(conversation.id);
+    // Load messages for selected conversation
+    async function loadActiveMessages() {
+        if (!activeConvId) return;
+
+        try {
+            const res = await fetch(`${API_BASE}/provider/conversations/${activeConvId}/messages`, {
+                headers: getAuthHeaders(),
+                credentials: "include"
             });
+            if (!res.ok) return;
 
-            conversationList.appendChild(button);
-        });
-    }
-
-    // Open one conversation.
-    async function openConversation(id) {
-        const conversation = conversations.find(function(item) {
-            return item.id === id;
-        });
-
-        if (!conversation) return;
-        activeConversationId = id;
-
-        document.getElementById("chatName").textContent = conversation.name;
-        document.getElementById("chatAvatar").textContent = conversation.name.charAt(0).toUpperCase();
-        document.getElementById("chatStatus").textContent = typeof id === "number" ? "Active Student Connection" : "Demo conversation";
-
-        document.getElementById("backToChats").style.display =
-            window.innerWidth <= 700 ? "inline-block" : "none";
-
-        if (window.innerWidth <= 700) {
-            chatContainer.classList.remove("show-conversations");
-        }
-
-        renderConversations();
-
-        // If numeric ID, fetch messages from server
-        if (typeof id === "number") {
-            try {
-                const res = await fetch(`${API_BASE}/provider/conversations/${id}/messages`, {
-                    headers: getAuthHeaders(),
-                    credentials: "include"
-                });
-                const d = await res.json();
-                if (d.success && Array.isArray(d.messages)) {
-                    if (d.current_user) currentUserId = d.current_user.id;
-                    conversation.messages = d.messages.map(m => ({
-                        sender: m.sender_id === currentUserId ? "provider" : "student",
-                        text: m.message,
-                        time: m.created_at
-                    }));
-                }
-            } catch (err) {
-                console.warn("Failed fetching live messages:", err);
+            const data = await res.json();
+            if (data.current_user && data.current_user.id) {
+                currentUserId = Number(data.current_user.id);
             }
-        }
 
-        renderMessages(conversation);
-        messageInput.focus();
+            renderMessagesFeed(data.messages || []);
+        } catch(e) {
+            console.warn("Messages fetch error:", e);
+        }
     }
 
-    // Render messages safely using textContent.
-    function renderMessages(conversation) {
-        messagesContainer.replaceChildren();
-
-        const messages = Array.isArray(conversation.messages) ? conversation.messages : [];
+    function renderMessagesFeed(messages) {
+        const feed = document.getElementById("messagesFeed");
+        const isNearBottom = feed.scrollHeight - feed.scrollTop <= feed.clientHeight + 100;
+        const myId = getAuthUserId();
 
         if (messages.length === 0) {
-            const empty = document.createElement("div");
-            empty.className = "empty-state";
-            empty.textContent = "No messages yet. Start the conversation!";
-            messagesContainer.appendChild(empty);
+            feed.innerHTML = `
+                <div style="text-align:center; padding:60px 20px; color:var(--text-muted);">
+                    <div style="font-size:32px; margin-bottom:8px;">🤝</div>
+                    <h4 style="font-size:15px; font-weight:700; color:var(--navy); margin-bottom:4px;">Start collaborating with ${escapeHtml(activeStudent.other_user_name)}</h4>
+                    <p style="font-size:12.5px;">Send a message, attach project photos, or submit project deliverables using the buttons below.</p>
+                </div>
+            `;
             return;
         }
 
-        messages.forEach(function(message) {
-            const row = document.createElement("div");
-            row.className = "message-row";
+        feed.innerHTML = `
+            <div class="date-divider"><span>Today</span></div>
+            ${messages.map(m => {
+                const isMine = myId !== null && String(m.sender_id) === String(myId);
+                const time = formatTime(m.created_at);
+                const isDeleted = m.is_deleted || m.message === "🚫 This message was deleted";
+                const isDeliv = !isDeleted && m.message && m.message.includes("[PROJECT_DELIVERABLE]");
+                const isPhoto = !isDeleted && m.message && m.message.includes("[PROJECT_PHOTO:");
 
-            if (message.sender === "provider") {
-                row.classList.add("mine");
-            }
+                let bubbleContent = "";
 
-            const bubble = document.createElement("div");
-            bubble.className = "message-bubble";
-
-            const msgText = message.text || "";
-            if (msgText.includes("[PROJECT_DELIVERABLE]")) {
-                try {
-                    const rawJson = msgText.replace("[PROJECT_DELIVERABLE]", "").trim();
-                    const proj = JSON.parse(rawJson);
-                    bubble.style.background = "#f5f3ff";
-                    bubble.style.border = "1px solid #c4b5fd";
-                    bubble.style.color = "#1e1b4b";
-                    bubble.style.borderRadius = "12px";
-                    bubble.style.padding = "14px";
-                    bubble.innerHTML = `
-                        <div style="font-size:12px; font-weight:800; color:#6d28d9; margin-bottom:5px; text-transform:uppercase;">📦 Project Deliverable</div>
-                        <div style="font-size:15px; font-weight:700; color:#1e1b4b; margin-bottom:6px;">${proj.title}</div>
-                        ${proj.notes ? `<div style="font-size:12px; color:#475569; margin-bottom:10px; line-height:1.5;">${proj.notes}</div>` : ''}
-                        <a href="${proj.link}" target="_blank" rel="noopener" style="display:inline-block; background:#6d28d9; color:white; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:700; text-decoration:none;">
-                            📥 Download / View Source Code ↗
-                        </a>
-                    `;
-                } catch(e) {
-                    bubble.textContent = msgText;
-                }
-            } else {
-                bubble.textContent = msgText;
-            }
-
-            const time = document.createElement("div");
-            time.className = "message-time";
-            time.textContent = formatTime(message.time);
-
-            row.append(bubble, time);
-            messagesContainer.appendChild(row);
-        });
-
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-
-    // Project Sharing Modal Handlers
-    const shareModal = document.getElementById("projectShareModal");
-    const shareBtn = document.getElementById("shareProjectBtn");
-    const cancelShareBtn = document.getElementById("cancelShareBtn");
-    const submitShareBtn = document.getElementById("submitShareBtn");
-
-    if (shareBtn && shareModal) {
-        shareBtn.addEventListener("click", () => {
-            if (!activeConversationId) {
-                alert("Please select a student conversation first to share a project deliverable.");
-                return;
-            }
-            shareModal.style.display = "flex";
-        });
-        cancelShareBtn.addEventListener("click", () => {
-            shareModal.style.display = "none";
-        });
-        submitShareBtn.addEventListener("click", async () => {
-            const title = document.getElementById("shareProjTitle").value.trim();
-            const link = document.getElementById("shareProjLink").value.trim();
-            const notes = document.getElementById("shareProjNotes").value.trim();
-            if (!title || !link) {
-                alert("Please fill in both the Project Title and the Deliverable/Repository Link.");
-                return;
-            }
-            const deliverableData = { title, link, notes };
-            const payloadText = `[PROJECT_DELIVERABLE] ${JSON.stringify(deliverableData)}`;
-
-            const conversation = conversations.find(c => c.id === activeConversationId);
-            if (!conversation) return;
-
-            const messageObj = {
-                sender: "provider",
-                text: payloadText,
-                time: new Date().toISOString()
-            };
-
-            if (typeof conversation.id === "number") {
-                try {
-                    await fetch(`${API_BASE}/provider/conversations/${conversation.id}/messages`, {
-                        method: "POST",
-                        headers: getAuthHeaders(),
-                        credentials: "include",
-                        body: JSON.stringify({ message: payloadText })
-                    });
-                } catch(err) {
-                    console.warn(err);
-                }
-            }
-            conversation.messages.push(messageObj);
-            conversation.lastMessageText = `📦 Project Deliverable: ${title}`;
-            renderMessages(conversation);
-            renderConversations();
-            shareModal.style.display = "none";
-            document.getElementById("shareProjTitle").value = "";
-            document.getElementById("shareProjLink").value = "";
-            document.getElementById("shareProjNotes").value = "";
-        });
-    }
-
-    // Send a message.
-    messageForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-        const text = messageInput.value.trim();
-        if (!text) return;
-
-        const conversation = conversations.find(function(item) {
-            return item.id === activeConversationId;
-        });
-
-        if (!conversation) {
-            alert("Please select a conversation first.");
-            return;
-        }
-
-        const messageObj = {
-            sender: "provider",
-            text: text,
-            time: new Date().toISOString()
-        };
-
-        if (!Array.isArray(conversation.messages)) {
-            conversation.messages = [];
-        }
-
-        // If numeric server conversation, post to backend
-        if (typeof conversation.id === "number") {
-            try {
-                const res = await fetch(`${API_BASE}/provider/conversations/${conversation.id}/messages`, {
-                    method: "POST",
-                    headers: getAuthHeaders(),
-                    credentials: "include",
-                    body: JSON.stringify({ message: text })
-                });
-                const d = await res.json();
-                if (d.success) {
-                    conversation.messages.push(messageObj);
+                if (isDeleted) {
+                    bubbleContent = `<em style="color:#94a3b8; font-size:12.5px;">🚫 This message was deleted</em>`;
+                } else if (isPhoto) {
+                    const photoMatch = m.message.match(/\[PROJECT_PHOTO:(.*?)\](.*)/s);
+                    if (photoMatch) {
+                        const photoSrc = photoMatch[1].trim();
+                        const caption = photoMatch[2].trim();
+                        bubbleContent = `
+                            <div style="margin-bottom:${caption ? '8px' : '0'};">
+                                <img src="${photoSrc}" alt="Project Photo" style="max-width:100%; max-height:280px; border-radius:10px; display:block; object-fit:contain; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.12);" onclick="window.open(this.src, '_blank')">
+                            </div>
+                            ${caption ? `<div style="font-size:13px; line-height:1.5;">${escapeHtml(caption)}</div>` : ''}
+                        `;
+                    } else {
+                        bubbleContent = escapeHtml(m.message);
+                    }
+                } else if (isDeliv) {
+                    try {
+                        const rawJson = m.message.replace("[PROJECT_DELIVERABLE]", "").trim();
+                        const p = JSON.parse(rawJson);
+                        bubbleContent = `
+                            <div class="deliverable-card-bubble">
+                                <div class="deliverable-badge-row">
+                                    <span class="deliv-tag">📦 Project Deliverable</span>
+                                    <span style="font-size:11px; color:#6d28d9; font-weight:700;">Completed</span>
+                                </div>
+                                <div class="deliv-title">${escapeHtml(p.title || "Project Deliverable")}</div>
+                                ${p.notes ? `<div class="deliv-notes">${escapeHtml(p.notes)}</div>` : ''}
+                                <a href="${escapeHtml(p.link || '#')}" target="_blank" rel="noopener" class="deliv-download-btn">
+                                    📥 Download / Open Files ↗
+                                </a>
+                            </div>
+                        `;
+                    } catch {
+                        bubbleContent = escapeHtml(m.message);
+                    }
                 } else {
-                    alert(d.message || "Failed to send message.");
-                    return;
+                    bubbleContent = escapeHtml(m.message);
                 }
-            } catch (err) {
-                console.warn("Offline message append:", err);
-                conversation.messages.push(messageObj);
-            }
-        } else {
-            conversation.messages.push(messageObj);
-            saveChats();
+
+                return `
+                    <div class="message-row ${isMine ? 'sent' : 'received'}">
+                        <div class="bubble-wrapper">
+                            ${!isDeleted ? `<button type="button" class="msg-actions-trigger" title="Delete message" onclick="window.triggerDeleteMessage(${m.id}, ${isMine})">🗑️</button>` : ''}
+                            <div class="message-bubble">${bubbleContent}</div>
+                        </div>
+                        <div class="message-meta">
+                            <span>${time}</span>
+                            ${isMine ? '<span>✓✓</span>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join("")}
+        `;
+
+        if (isNearBottom) {
+            feed.scrollTop = feed.scrollHeight;
         }
-
-        conversation.lastMessageText = text;
-        messageInput.value = "";
-        renderMessages(conversation);
-        renderConversations();
-        messageInput.focus();
-    });
-
-    // Search conversations.
-    searchInput.addEventListener("input", renderConversations);
-
-    // Mobile sidebar toggle.
-    document.getElementById("menuToggle")
-        .addEventListener("click", function() {
-            document.getElementById("sidebar").classList.toggle("open");
-        });
-
-    // Back button for mobile conversation list.
-    document.getElementById("backToChats")
-        .addEventListener("click", function() {
-            chatContainer.classList.add("show-conversations");
-        });
-
-    window.addEventListener("resize", function() {
-        document.getElementById("backToChats").style.display =
-            window.innerWidth <= 700 && activeConversationId
-                ? "inline-block"
-                : "none";
-
-        if (window.innerWidth > 700) {
-            chatContainer.classList.remove("show-conversations");
-        }
-    });
-
-    // Load provider name.
-    function loadProviderName() {
-        const profile = (() => {
-            try {
-                return JSON.parse(
-                    localStorage.getItem("edumatch_provider_profile") || "{}"
-                );
-            } catch (error) {
-                return {};
-            }
-        })();
-
-        const name =
-            profile.fullName ||
-            localStorage.getItem("providerName") ||
-            "Provider Account";
-
-        const initial = name.trim().charAt(0).toUpperCase() || "P";
-
-        document.getElementById("providerName").textContent = name;
-        document.getElementById("headerProviderName").textContent = name;
-        document.getElementById("providerAvatar").textContent = initial;
-        document.getElementById("headerAvatar").textContent = initial;
     }
 
-    // Demo logout.
-    document.getElementById("logoutButton")
-        .addEventListener("click", function(event) {
-            event.preventDefault();
+    // Provider Project Photo Attachment Handler
+    const providerPhotoInput = document.getElementById("providerPhotoInput");
+    const attachPhotoBtn = document.getElementById("attachPhotoBtn");
+    const photoPreviewBar = document.getElementById("photoPreviewBar");
+    const photoPreviewImg = document.getElementById("photoPreviewImg");
+    const photoPreviewTitle = document.getElementById("photoPreviewTitle");
+    const removePhotoBtn = document.getElementById("removePhotoBtn");
+    let selectedProviderPhotoDataUrl = null;
 
-            if (confirm("Are you sure you want to log out?")) {
-                localStorage.removeItem("providerName");
-                window.location.href = "login.html";
+    if (attachPhotoBtn && providerPhotoInput) {
+        attachPhotoBtn.addEventListener("click", () => {
+            if (!activeConvId) {
+                alert("Please select a student conversation first to send a photo.");
+                return;
             }
+            providerPhotoInput.click();
         });
 
-    // Initialize page.
-    loadProviderName();
-    fetchServerConversations();
+        providerPhotoInput.addEventListener("change", (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("Please select a valid image file (PNG, JPG, JPEG, WebP).");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const img = new Image();
+                img.onload = function() {
+                    const maxDim = 1200;
+                    let width = img.width;
+                    let height = img.height;
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+                    const canvas = document.createElement("canvas");
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+                    selectedProviderPhotoDataUrl = canvas.toDataURL("image/jpeg", 0.82);
+
+                    if (photoPreviewImg) photoPreviewImg.src = selectedProviderPhotoDataUrl;
+                    if (photoPreviewTitle) photoPreviewTitle.textContent = file.name || "Project Photo Attached";
+                    if (photoPreviewBar) photoPreviewBar.style.display = "flex";
+                    document.getElementById("messageInput").focus();
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        if (removePhotoBtn) {
+            removePhotoBtn.addEventListener("click", () => {
+                selectedProviderPhotoDataUrl = null;
+                if (photoPreviewBar) photoPreviewBar.style.display = "none";
+                if (photoPreviewImg) photoPreviewImg.src = "";
+                providerPhotoInput.value = "";
+            });
+        }
+    }
+
+    // Emoji Picker Popover & Grid
+    const emojiPickerBtn = document.getElementById("emojiPickerBtn");
+    const emojiPopover = document.getElementById("emojiPopover");
+    const emojiGrid = document.getElementById("emojiGrid");
+    const popularEmojis = [
+        "😀","😃","😄","😁","😆","😅","😂","🤣","😊","😇","🙂","😉","😍","🥰","😘",
+        "😋","😛","😎","🤩","🥳","😏","👍","👎","👌","✌️","🤞","🤝","👏","🙌","🙏",
+        "🔥","✨","🎉","🚀","💡","⭐","🎯","💼","💻","📦","📝","✅","⚡","❤️","💯"
+    ];
+
+    if (emojiGrid) {
+        emojiGrid.innerHTML = popularEmojis.map(em => `<span class="emoji-item" data-emoji="${em}" style="display:inline-block; padding:4px; border-radius:6px; transition:background 0.15s ease;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='transparent'">${em}</span>`).join("");
+        emojiGrid.addEventListener("click", (e) => {
+            const item = e.target.closest("[data-emoji]");
+            if (item) {
+                const char = item.getAttribute("data-emoji");
+                const textarea = document.getElementById("messageInput");
+                textarea.value += char;
+                textarea.focus();
+            }
+        });
+    }
+
+    if (emojiPickerBtn && emojiPopover) {
+        emojiPickerBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            emojiPopover.style.display = emojiPopover.style.display === "none" ? "block" : "none";
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!emojiPopover.contains(e.target) && e.target !== emojiPickerBtn) {
+                emojiPopover.style.display = "none";
+            }
+        });
+    }
+
+    // Send Message Handler
+    document.getElementById("messageForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const input = document.getElementById("messageInput");
+        const text = input.value.trim();
+        if ((!text && !selectedProviderPhotoDataUrl) || !activeConvId) return;
+
+        let payloadText = text;
+        if (selectedProviderPhotoDataUrl) {
+            payloadText = `[PROJECT_PHOTO:${selectedProviderPhotoDataUrl}] ${text}`.trim();
+        }
+
+        // Reset input & photo preview
+        input.value = "";
+        selectedProviderPhotoDataUrl = null;
+        if (photoPreviewBar) photoPreviewBar.style.display = "none";
+        if (photoPreviewImg) photoPreviewImg.src = "";
+        if (providerPhotoInput) providerPhotoInput.value = "";
+        if (emojiPopover) emojiPopover.style.display = "none";
+
+        try {
+            const res = await fetch(`${API_BASE}/provider/conversations/${activeConvId}/messages`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                credentials: "include",
+                body: JSON.stringify({ message: payloadText })
+            });
+
+            if (res.ok) {
+                await loadActiveMessages();
+                const feed = document.getElementById("messagesFeed");
+                feed.scrollTop = feed.scrollHeight;
+            }
+        } catch(err) {
+            console.error("Message send error:", err);
+        }
+    });
+
+    // Enter key submits message (Shift+Enter adds newline)
+    document.getElementById("messageInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            document.getElementById("messageForm").dispatchEvent(new Event("submit"));
+        }
+    });
+
+    // Deliverable Modal Logic
+    const delivModal = document.getElementById("deliverableModal");
+    const openDelivBtn = document.getElementById("shareDeliverableBtn");
+    const quickAttachBtn = document.getElementById("attachDeliverableQuickBtn");
+    const cancelDelivBtn = document.getElementById("cancelDelivBtn");
+
+    function openDeliverableModal() {
+        if (!activeConvId) return;
+        delivModal.style.display = "flex";
+    }
+
+    if (openDelivBtn) openDelivBtn.addEventListener("click", openDeliverableModal);
+    if (quickAttachBtn) quickAttachBtn.addEventListener("click", openDeliverableModal);
+    if (cancelDelivBtn) cancelDelivBtn.addEventListener("click", () => delivModal.style.display = "none");
+
+    document.getElementById("deliverableModalForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const title = document.getElementById("delivTitle").value.trim();
+        const link = document.getElementById("delivUrl").value.trim();
+        const notes = document.getElementById("delivNotes").value.trim();
+
+        if (!title || !link || !activeConvId) return;
+
+        const payloadObj = { title, link, notes };
+        const msgText = `[PROJECT_DELIVERABLE] ${JSON.stringify(payloadObj)}`;
+
+        delivModal.style.display = "none";
+        document.getElementById("deliverableModalForm").reset();
+
+        try {
+            await fetch(`${API_BASE}/provider/conversations/${activeConvId}/messages`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                credentials: "include",
+                body: JSON.stringify({ message: msgText })
+            });
+            await loadActiveMessages();
+        } catch (err) {
+            console.error("Deliverable submission error:", err);
+        }
+    });
+
+    // Clear Chat
+    document.getElementById("clearChatBtn").addEventListener("click", async () => {
+        if (!activeConvId) return;
+        if (!confirm("Are you sure you want to clear this entire chat for your account?")) return;
+
+        try {
+            await fetch(`${API_BASE}/chat/conversations/${activeConvId}/clear`, {
+                method: "DELETE",
+                headers: getAuthHeaders(),
+                credentials: "include"
+            });
+            await loadActiveMessages();
+        } catch(err) {
+            console.error("Clear chat error:", err);
+        }
+    });
+
+    // Delete message modal (WhatsApp style)
+    const deleteMsgModal = document.getElementById("deleteMsgModal");
+    const delEveryoneBtn = document.getElementById("delEveryoneBtn");
+    const delMeBtn = document.getElementById("delMeBtn");
+    const delCancelBtn = document.getElementById("delCancelBtn");
+
+    window.triggerDeleteMessage = function(msgId, isMine) {
+        pendingDeleteMsgId = msgId;
+        delEveryoneBtn.style.display = isMine ? "block" : "none";
+        deleteMsgModal.style.display = "flex";
+    };
+
+    delCancelBtn.addEventListener("click", () => {
+        pendingDeleteMsgId = null;
+        deleteMsgModal.style.display = "none";
+    });
+
+    async function executeDeleteMessage(deleteFor) {
+        if (!pendingDeleteMsgId) return;
+        const msgId = pendingDeleteMsgId;
+        deleteMsgModal.style.display = "none";
+        pendingDeleteMsgId = null;
+
+        try {
+            const res = await fetch(`${API_BASE}/chat/messages/${msgId}`, {
+                method: "DELETE",
+                headers: getAuthHeaders(),
+                credentials: "include",
+                body: JSON.stringify({ delete_for: deleteFor })
+            });
+            if (res.ok) {
+                await loadActiveMessages();
+            }
+        } catch(err) {
+            console.error("Delete message error:", err);
+        }
+    }
+
+    delEveryoneBtn.addEventListener("click", () => executeDeleteMessage("everyone"));
+    delMeBtn.addEventListener("click", () => executeDeleteMessage("me"));
+
+    // View Order Button
+    document.getElementById("openOrdersBtn").addEventListener("click", () => {
+        window.location.href = "orders.html";
+    });
+
+    // Search filter
+    document.getElementById("convSearchInput").addEventListener("input", renderConversationsList);
+
+    // Sidebar Mobile Toggle
+    document.getElementById("menuToggle").addEventListener("click", () => {
+        document.getElementById("sidebar").classList.toggle("open");
+    });
+
+    // Initialize
+    loadProviderInfo();
+    loadConversations();
 </script>
 
+    <script src="provider-common.js"></script>
     <script src="../theme.js"></script>
 </body>
 </html>

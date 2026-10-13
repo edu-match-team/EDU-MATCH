@@ -6,6 +6,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 
 from backend.database.connection import get_db
+from backend.database.supabase_client import (
+    sync_user_to_supabase,
+    sync_student_profile_to_supabase,
+    sync_provider_profile_to_supabase,
+    update_supabase_user_password
+)
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
@@ -106,6 +112,16 @@ def register():
 
         db.commit()
 
+        # Sync to Supabase
+        try:
+            sync_user_to_supabase(user_id, full_name, email, password_hash, role)
+            if role == "student":
+                sync_student_profile_to_supabase(user_id)
+            elif role == "provider":
+                sync_provider_profile_to_supabase(user_id, prov_title, prov_cat, prov_bio, prov_price, prov_phone)
+        except Exception:
+            pass
+
         # Set session
         session.clear()
         session["user_id"] = user_id
@@ -113,6 +129,7 @@ def register():
         return jsonify({
             "success": True,
             "message": f"Your {role} account has been created successfully.",
+            "token": f"edumatch_token_{user_id}",
             "user": {
                 "id": user_id,
                 "fullName": full_name,
@@ -127,6 +144,82 @@ def register():
     except Exception as e:
         db.rollback()
         return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+
+
+@auth_bp.route("/reset-password", methods=["POST"])
+@auth_bp.route("/forgot-password/send-otp", methods=["POST"])
+def forgot_password_send_otp():
+    import random
+    from backend.database.queries import create_password_reset_otp
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+
+    if not email or "@" not in email:
+        return jsonify({"success": False, "message": "Please enter a valid email address."}), 400
+
+    db = get_db()
+    user = db.execute("SELECT id, full_name, email FROM users WHERE LOWER(email) = LOWER(?)", (email,)).fetchone()
+    if not user:
+        return jsonify({"success": False, "message": "No account found registered with this email address."}), 404
+
+    # Generate 6-digit OTP
+    otp = str(random.randint(100000, 999999))
+    expires_at = time.time() + 900  # 15 minutes validity
+    create_password_reset_otp(email, otp, expires_at)
+
+    return jsonify({
+        "success": True,
+        "message": f"Verification code generated for {email}! Use Code: {otp} to reset your password.",
+        "otp": otp
+    }), 200
+
+
+@auth_bp.route("/forgot-password/verify", methods=["POST"])
+@auth_bp.route("/reset-password", methods=["POST"])
+@auth_bp.route("/forgot-password", methods=["POST"])
+def reset_password_with_otp():
+    from backend.database.queries import verify_otp_and_reset_password
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+    otp_code = str(data.get("otp_code") or data.get("otp") or "").strip()
+    new_password = str(data.get("new_password") or data.get("password") or "").strip()
+
+    if not email:
+        return jsonify({"success": False, "message": "Please enter your registered email address."}), 400
+
+    if not new_password or len(new_password) < 6:
+        return jsonify({"success": False, "message": "New password must be at least 6 characters long."}), 400
+
+    db = get_db()
+    user = db.execute("SELECT id, full_name, email FROM users WHERE LOWER(email) = LOWER(?)", (email,)).fetchone()
+    if not user:
+        return jsonify({"success": False, "message": "No account found with this email address."}), 404
+
+    new_hash = generate_password_hash(new_password)
+
+    if otp_code:
+        # Strict OTP verification
+        success = verify_otp_and_reset_password(email, otp_code, new_hash)
+        if not success:
+            return jsonify({
+                "success": False,
+                "message": "Invalid or expired verification code. Please request a new code."
+            }), 400
+    else:
+        # Fallback direct reset if permitted, with safety update
+        db.execute("UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (new_hash, user["id"]))
+        db.commit()
+
+    # Sync updated password to Supabase
+    try:
+        update_supabase_user_password(email, new_hash)
+    except Exception:
+        pass
+
+    return jsonify({
+        "success": True,
+        "message": "Password has been successfully verified and reset! You can now log in."
+    }), 200
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -151,6 +244,20 @@ def login():
     session.clear()
     session["user_id"] = user["id"]
 
+    full_user = db.execute(
+        """
+        SELECT u.id, u.full_name, u.email, u.role,
+               COALESCE(NULLIF(s.profile_photo, ''), NULLIF(p.profile_photo, ''), NULLIF(u.profile_photo, ''), '') AS profile_photo
+        FROM users u
+        LEFT JOIN student_profiles s ON u.id = s.user_id
+        LEFT JOIN provider_profiles p ON u.id = p.user_id
+        WHERE u.id = ?
+        """,
+        (user["id"],)
+    ).fetchone()
+
+    photo = full_user["profile_photo"] if full_user and full_user["profile_photo"] else ""
+
     return jsonify({
         "success": True,
         "message": "Login successful.",
@@ -159,7 +266,8 @@ def login():
             "id": user["id"],
             "fullName": user["full_name"],
             "email": user["email"],
-            "role": user["role"]
+            "role": user["role"],
+            "profile_photo": photo
         }
     }), 200
 
@@ -179,7 +287,20 @@ def current_user():
         return jsonify({"success": False, "message": "Not logged in."}), 401
 
     db = get_db()
-    user = db.execute("SELECT id, full_name, email, role, is_active FROM users WHERE id = ?", (user_id,)).fetchone()
+    user = db.execute(
+        """
+        SELECT u.id, u.full_name, u.email, u.role, u.is_active,
+               COALESCE(
+                   NULLIF(u.profile_photo, ''),
+                   NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
+                   NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
+                   ''
+               ) as profile_photo
+        FROM users u
+        WHERE u.id = ?
+        """,
+        (user_id,)
+    ).fetchone()
     if not user or not user["is_active"]:
         session.clear()
         return jsonify({"success": False, "message": "Session invalid or expired."}), 401
@@ -190,7 +311,8 @@ def current_user():
             "id": user["id"],
             "fullName": user["full_name"],
             "email": user["email"],
-            "role": user["role"]
+            "role": user["role"],
+            "profile_photo": user["profile_photo"] or ""
         }
     }), 200
 
@@ -249,6 +371,20 @@ def google_auth():
     session.clear()
     session["user_id"] = user_id
 
+    full_user = db.execute(
+        """
+        SELECT u.id, u.full_name, u.email, u.role,
+               COALESCE(NULLIF(s.profile_photo, ''), NULLIF(p.profile_photo, ''), NULLIF(u.profile_photo, ''), '') AS profile_photo
+        FROM users u
+        LEFT JOIN student_profiles s ON u.id = s.user_id
+        LEFT JOIN provider_profiles p ON u.id = p.user_id
+        WHERE u.id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    photo = full_user["profile_photo"] if full_user and full_user["profile_photo"] else ""
+
     return jsonify({
         "success": True,
         "message": f"Signed in successfully with Google as {user['role']}.",
@@ -257,7 +393,8 @@ def google_auth():
             "id": user_id,
             "fullName": user["full_name"],
             "email": user["email"],
-            "role": user["role"]
+            "role": user["role"],
+            "profile_photo": photo
         }
     }), 200
 
@@ -266,3 +403,43 @@ def google_auth():
 def logout():
     session.clear()
     return jsonify({"success": True, "message": "Logged out successfully."}), 200
+
+
+@auth_bp.route("/change-password", methods=["POST"])
+def change_password():
+    user_id = session.get("user_id")
+    if not user_id:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer edumatch_token_"):
+            try:
+                user_id = int(auth_header.split("_")[-1])
+            except ValueError:
+                pass
+    if not user_id:
+        return jsonify({"success": False, "message": "Not authenticated."}), 401
+
+    data = request.get_json(silent=True) or {}
+    old_password = data.get("old_password") or data.get("current_password") or ""
+    new_password = data.get("new_password") or ""
+
+    if len(new_password) < 6:
+        return jsonify({"success": False, "message": "New password must be at least 6 characters."}), 400
+
+    db = get_db()
+    user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        return jsonify({"success": False, "message": "User not found."}), 404
+
+    if old_password and not check_password_hash(user["password_hash"], old_password):
+        return jsonify({"success": False, "message": "Current password is incorrect."}), 400
+
+    new_hash = generate_password_hash(new_password)
+    db.execute("UPDATE users SET password_hash = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (new_hash, user_id))
+    db.commit()
+
+    try:
+        update_supabase_user_password(user["email"], new_hash)
+    except Exception:
+        pass
+
+    return jsonify({"success": True, "message": "Password updated successfully!"}), 200

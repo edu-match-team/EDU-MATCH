@@ -581,10 +581,6 @@
                 <span class="nav-icon">☏</span> Messages
             </a>
 
-            <a href="notifications.html" class="nav-link">
-                <span class="nav-icon">♧</span> Notifications
-            </a>
-
             <a href="profile.html" class="nav-link">
                 <span class="nav-icon">◎</span> My Profile
             </a>
@@ -631,25 +627,25 @@
 
                 <div class="stat-card">
                     <div class="stat-label">Account Status</div>
-                    <div class="stat-value">Active</div>
+                    <div class="stat-value" style="color:#10b981;">Active</div>
                     <div class="stat-caption">
                         Your student session has been verified.
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card" style="cursor:pointer;" onclick="window.location.href='orders.html'" title="Click to open your orders">
                     <div class="stat-label">Project Orders</div>
-                    <div class="stat-value">Not connected</div>
-                    <div class="stat-caption">
-                        Order statistics will appear when the orders API is implemented.
+                    <div class="stat-value" id="ordersStatValue" style="color:#6366f1;">—</div>
+                    <div class="stat-caption" id="ordersStatCaption">
+                        Click to view and track your orders →
                     </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card" style="cursor:pointer;" onclick="openNotificationsModal()" title="Click to view notifications">
                     <div class="stat-label">Notifications</div>
-                    <div class="stat-value">Not connected</div>
-                    <div class="stat-caption">
-                        Notification data is not available yet.
+                    <div class="stat-value" id="notifsStatValue" style="color:#8b5cf6;">—</div>
+                    <div class="stat-caption" id="notifsStatCaption">
+                        Click to view live alerts & messages →
                     </div>
                 </div>
 
@@ -662,16 +658,16 @@
                     <section class="panel">
                         <div class="panel-heading">
                             <h2>Your Student Profile</h2>
-                            <a href="profile.html">View Profile →</a>
+                            <a href="profile.html">Edit Profile →</a>
                         </div>
 
                         <div class="profile-row">
-                            <div class="large-avatar" id="profileAvatar">S</div>
+                            <div class="large-avatar" id="profileAvatar" style="overflow:hidden; display:grid; place-items:center;">S</div>
 
                             <div class="profile-details">
                                 <h3 id="studentName">Loading...</h3>
                                 <p id="studentEmail">Loading...</p>
-                                <span class="status-badge">Authenticated Student</span>
+                                <span class="status-badge" style="background:#EDE9FE; color:#5B21B6;">Authenticated Student</span>
                             </div>
                         </div>
 
@@ -683,30 +679,41 @@
 
                             <div class="info-item">
                                 <span>Account ID</span>
-                                <span id="studentId">—</span>
+                                <span><span id="studentId">—</span></span>
                             </div>
 
                             <div class="info-item">
                                 <span>Session Status</span>
-                                <span>Verified</span>
+                                <span style="color:#10b981; font-weight:700;">Verified</span>
                             </div>
+                        </div>
+
+                        <!-- Profile Completion Progress Bar -->
+                        <div class="completion-section" style="margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                <span style="font-size:12px; font-weight:700; color:var(--text);">Profile Completion</span>
+                                <span id="studentCompletionBadge" style="font-size:12px; font-weight:800; color:var(--purple);">0%</span>
+                            </div>
+                            <div style="height:8px; background:#EDE9FE; border-radius:999px; overflow:hidden;">
+                                <div id="studentProgressBar" style="width:0%; height:100%; background:linear-gradient(90deg, #7657FF, #6344EB); border-radius:999px; transition:width 0.4s ease;"></div>
+                            </div>
+                            <p id="studentCompletionCaption" style="font-size:11px; color:var(--muted); margin-top:6px; line-height:1.4;">
+                                Add your college, degree, and technical skills to reach 100%.
+                            </p>
                         </div>
                     </section>
 
                     <section class="panel">
                         <div class="panel-heading">
                             <h2>Recent Project Activity</h2>
-                            <a href="orders.html">View Orders →</a>
+                            <a href="orders.html">View All Orders →</a>
                         </div>
 
-                        <div class="empty-state">
-                            <div class="empty-icon">▤</div>
-                            <h3>Project activity is not connected yet</h3>
-                            <p>
-                                Your real project requests and orders will appear
-                                here after their backend APIs and database tables
-                                are implemented.
-                            </p>
+                        <div id="recentActivityContainer">
+                            <div class="empty-state">
+                                <div class="empty-icon">▤</div>
+                                <h3>Loading project activity...</h3>
+                            </div>
                         </div>
                     </section>
 
@@ -758,16 +765,15 @@
 
                     <section class="panel">
                         <div class="panel-heading">
-                            <h2>Notifications</h2>
+                            <h2>Notifications & Alerts</h2>
+                            <a href="notifications.html">View All →</a>
                         </div>
 
-                        <div class="empty-state">
-                            <div class="empty-icon">♧</div>
-                            <h3>Notification service not connected</h3>
-                            <p>
-                                This section will show real notifications once
-                                the notification backend is available.
-                            </p>
+                        <div id="dashboardNotificationsPanel">
+                            <div class="empty-state">
+                                <div class="empty-icon">♧</div>
+                                <h3>Loading notifications...</h3>
+                            </div>
                         </div>
                     </section>
 
@@ -781,7 +787,10 @@
 </div>
 
 <script>
-    const API_BASE_URL = "http://127.0.0.1:5000/api/auth";
+    const API_ROOT = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
+    const API_BASE_URL = API_ROOT + "/auth";
 
     const loadingElement = document.getElementById("dashboardLoading");
     const dashboardContent = document.getElementById("dashboardContent");
@@ -814,6 +823,38 @@
             parts[0].charAt(0) +
             parts[parts.length - 1].charAt(0)
         ).toUpperCase();
+    }
+
+    function updateStudentCompletionUI(prof) {
+        if (!prof) return;
+        const checkFields = [
+            Boolean(prof.fullName || prof.full_name),
+            Boolean(prof.email),
+            Boolean(prof.phone),
+            Boolean(prof.college || prof.institution),
+            Boolean(prof.degree),
+            Boolean(prof.specialization),
+            Boolean(prof.year),
+            Boolean(prof.skills),
+            Boolean(prof.interests),
+            Boolean(prof.bio),
+            Boolean(prof.profile_photo || prof.profilePhoto),
+            Boolean(prof.github || prof.linkedin || prof.portfolio)
+        ];
+        const completed = checkFields.filter(Boolean).length;
+        const percentage = Math.round((completed / checkFields.length) * 100);
+
+        const badge = document.getElementById("studentCompletionBadge");
+        const bar = document.getElementById("studentProgressBar");
+        const caption = document.getElementById("studentCompletionCaption");
+
+        if (badge) badge.textContent = percentage + "%";
+        if (bar) bar.style.width = percentage + "%";
+        if (caption) {
+            caption.textContent = percentage === 100
+                ? "✓ Outstanding! Your student profile is 100% complete."
+                : `Profile is ${percentage}% complete. Add more details to stand out to project mentors.`;
+        }
     }
 
     async function loadDashboard() {
@@ -888,11 +929,78 @@
 
             document.getElementById("topbarName").textContent = name;
 
-            document.getElementById("topbarAvatar").textContent = initials;
-            document.getElementById("profileAvatar").textContent = initials;
+            // Avatar rendering: prioritize database profile_photo, then user-scoped cache, then initials
+            let photoUrl = user.profile_photo || "";
+            if (!photoUrl) {
+                photoUrl = (user.id ? localStorage.getItem("edumatch_student_photo_" + user.id) : null)
+                        || localStorage.getItem("edumatch_student_photo")
+                        || localStorage.getItem("eduMatchUserPhoto")
+                        || "";
+            }
+            if (!photoUrl) {
+                try {
+                    const uObj = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
+                    if (uObj && uObj.profile_photo) photoUrl = uObj.profile_photo;
+                } catch(e) {}
+            }
+
+            const topbarAvatarEl = document.getElementById("topbarAvatar");
+            const profileAvatarEl = document.getElementById("profileAvatar");
+
+            function applyAvatarPhoto(url) {
+                if (url) {
+                    topbarAvatarEl.innerHTML = `<img src="${url}" alt="${name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+                    topbarAvatarEl.style.padding = "0";
+                    topbarAvatarEl.style.overflow = "hidden";
+                    profileAvatarEl.innerHTML = `<img src="${url}" alt="${name}" style="width:100%;height:100%;border-radius:17px;object-fit:cover;display:block;">`;
+                    profileAvatarEl.style.padding = "0";
+                    profileAvatarEl.style.overflow = "hidden";
+                    profileAvatarEl.style.background = "transparent";
+                } else {
+                    topbarAvatarEl.textContent = initials;
+                    profileAvatarEl.textContent = initials;
+                }
+            }
+
+            applyAvatarPhoto(photoUrl);
+
+            // Fetch live profile details for photo and completion percentage
+            try {
+                const profRes = await fetch(API_ROOT + "/students/profile", {
+                    method: "GET",
+                    credentials: "include",
+                    headers: headers
+                });
+                if (profRes.ok) {
+                    const profData = await profRes.json();
+                    if (profData.profile) {
+                        const prof = profData.profile;
+                        if (prof.profile_photo || prof.profilePhoto) {
+                            photoUrl = prof.profile_photo || prof.profilePhoto;
+                            try {
+                                localStorage.setItem("edumatch_student_photo_" + user.id, photoUrl);
+                                localStorage.setItem("edumatch_student_photo", photoUrl);
+                            } catch(e) {}
+                            applyAvatarPhoto(photoUrl);
+                        }
+                        updateStudentCompletionUI(prof);
+                    }
+                }
+            } catch(e) {
+                console.warn("Student profile fetch error:", e);
+                const cachedPct = localStorage.getItem("edumatch_student_completion_" + user.id) || localStorage.getItem("edumatch_student_completion");
+                if (cachedPct) {
+                    document.getElementById("studentCompletionBadge").textContent = cachedPct + "%";
+                    document.getElementById("studentProgressBar").style.width = cachedPct + "%";
+                }
+            }
 
             loadingElement.hidden = true;
             dashboardContent.hidden = false;
+
+            // Load live orders and notifications
+            loadOrdersData(token);
+            loadNotificationsData(token);
 
         } catch (error) {
             console.error("Dashboard authentication error:", error);
@@ -901,11 +1009,172 @@
             dashboardContent.hidden = true;
 
             showPageMessage(
-                "EduMatch could not verify your session. Check that Flask is running and that your browser is allowing session cookies. Your dashboard data has not been loaded.",
+                "EduMatch could not verify your session. Check that Flask is running and that your browser is allowing session cookies.",
                 "error"
             );
         }
     }
+
+    async function loadOrdersData(token) {
+        const headers = { "Accept": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+
+        try {
+            const res = await fetch(API_ROOT + "/projects/my", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+
+            if (!res.ok) throw new Error("Orders API error");
+            const data = await res.json();
+            const projects = data.projects || (Array.isArray(data) ? data : []);
+
+            document.getElementById("ordersStatValue").textContent = projects.length;
+            document.getElementById("ordersStatCaption").textContent =
+                projects.length === 1 ? "1 active/recorded project order" : `${projects.length} active/recorded project orders`;
+
+            renderRecentActivity(projects);
+        } catch (err) {
+            console.warn("Failed to load project orders:", err);
+            document.getElementById("ordersStatValue").textContent = "0";
+            document.getElementById("ordersStatCaption").textContent = "No project orders yet →";
+            renderRecentActivity([]);
+        }
+    }
+
+    function renderRecentActivity(projects) {
+        const container = document.getElementById("recentActivityContainer");
+        if (!container) return;
+
+        if (!projects || projects.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">▤</div>
+                    <h3>No project activity yet</h3>
+                    <p>Find a provider or post your project requirement to get started.</p>
+                    <a href="search.html" style="display:inline-block;margin-top:10px;color:var(--purple);font-weight:700;">Browse Providers →</a>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '<div style="display:flex;flex-direction:column;gap:12px;">';
+        projects.slice(0, 4).forEach(p => {
+            const status = (p.status || "pending").toLowerCase();
+            const badgeBg = status === "accepted" ? "#dbeafe" : (status === "completed" ? "#dcfce7" : "#fef3c7");
+            const badgeColor = status === "accepted" ? "#1e40af" : (status === "completed" ? "#166534" : "#92400e");
+            html += `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+                    <div>
+                        <strong style="display:block;font-size:14px;color:#0f172a;">${p.title || p.project_name || "Project"}</strong>
+                        <small style="color:#64748b;">Provider: ${p.provider_name || "Assigned Provider"} • ₹${(p.budget || 2000).toLocaleString()}</small>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:${badgeBg};color:${badgeColor};text-transform:capitalize;">${status.replace("_", " ")}</span>
+                        <a href="orders.html" style="font-size:12px;color:var(--purple);font-weight:700;">View →</a>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    let globalNotifications = [];
+
+    async function loadNotificationsData(token) {
+        const headers = { "Accept": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+
+        try {
+            const res = await fetch(API_ROOT + "/notifications", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+            if (res.ok) {
+                const data = await res.json();
+                globalNotifications = data.notifications || [];
+                const unread = data.unread_count != null ? data.unread_count : globalNotifications.length;
+                document.getElementById("notifsStatValue").textContent = globalNotifications.length;
+                document.getElementById("notifsStatCaption").textContent =
+                    unread > 0 ? `${unread} unread notifications • Click to view` : `${globalNotifications.length} notifications on record`;
+
+                const panel = document.getElementById("dashboardNotificationsPanel");
+                if (panel) {
+                    if (globalNotifications.length === 0) {
+                        panel.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-icon">♧</div>
+                                <h3>No alerts at this moment</h3>
+                                <p>You will receive live notifications when providers accept your project or send you messages.</p>
+                            </div>
+                        `;
+                    } else {
+                        let pHtml = '<div style="display:flex; flex-direction:column; gap:9px;">';
+                        globalNotifications.slice(0, 3).forEach(n => {
+                            pHtml += `
+                                <div style="padding:11px 13px; background:#f8fafc; border-radius:9px; border:1px solid #e2e8f0; font-size:12px;">
+                                    <strong style="display:block; color:#1e293b; margin-bottom:3px;">${n.title}</strong>
+                                    <span style="color:#64748b; line-height:1.4; display:block;">${n.message}</span>
+                                    ${n.link ? `<a href="${n.link}" style="color:var(--purple); font-weight:700; margin-top:5px; display:inline-block;">Open →</a>` : ""}
+                                </div>
+                            `;
+                        });
+                        pHtml += '</div>';
+                        panel.innerHTML = pHtml;
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn("Notifications error:", err);
+            document.getElementById("notifsStatValue").textContent = "0";
+            document.getElementById("notifsStatCaption").textContent = "No notifications yet";
+        }
+    }
+
+    window.openNotificationsModal = function() {
+        const modal = document.getElementById("notificationsModal");
+        const list = document.getElementById("notificationsList");
+        if (!modal || !list) return;
+
+        if (globalNotifications.length === 0) {
+            list.innerHTML = `<div style="text-align:center;padding:24px;color:#64748b;">No notifications yet. You will receive notifications when providers message you or update order statuses.</div>`;
+        } else {
+            let html = "";
+            globalNotifications.forEach(n => {
+                html += `
+                    <div style="padding:14px;border-bottom:1px solid #f1f5f9;display:flex;flex-direction:column;gap:4px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <strong style="font-size:14px;color:#0f172a;">${n.title}</strong>
+                            <small style="color:#94a3b8;font-size:11px;">${n.created_at || ""}</small>
+                        </div>
+                        <p style="font-size:13px;color:#475569;margin:0;line-height:1.5;">${n.message}</p>
+                        ${n.link ? `<a href="${n.link}" style="align-self:flex-start;font-size:12px;color:#6366f1;font-weight:700;margin-top:4px;">Open link →</a>` : ""}
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        modal.style.display = "flex";
+
+        // Mark as read in background
+        const token = localStorage.getItem("edumatch_token");
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
+        fetch(API_ROOT + "/notifications/mark-read", {
+            method: "POST",
+            credentials: "include",
+            headers: headers
+        }).catch(() => {});
+    };
+
+    window.closeNotificationsModal = function() {
+        const modal = document.getElementById("notificationsModal");
+        if (modal) modal.style.display = "none";
+    };
 
     logoutButton.addEventListener("click", async function () {
         logoutButton.disabled = true;
@@ -944,6 +1213,23 @@
     loadDashboard();
 </script>
 
+<!-- Notifications Modal -->
+<div id="notificationsModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:white;border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e2e8f0;overflow:hidden;">
+        <div style="padding:18px 24px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
+            <h3 style="font-size:17px;font-weight:800;color:#0f172a;margin:0;">🔔 Notifications & Live Alerts</h3>
+            <button onclick="closeNotificationsModal()" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:#64748b;">&times;</button>
+        </div>
+        <div id="notificationsList" style="padding:12px 18px;overflow-y:auto;flex:1;">
+            <!-- Rendered notifications -->
+        </div>
+        <div style="padding:12px 24px;border-top:1px solid #e2e8f0;text-align:right;">
+            <button onclick="closeNotificationsModal()" style="padding:8px 16px;background:#6366f1;color:white;border:none;border-radius:8px;font-weight:700;cursor:pointer;">Close</button>
+        </div>
+    </div>
+</div>
+
+    <script src="student-nav.js"></script>
     <script src="../theme.js"></script>
 </body>
 </html>

@@ -107,6 +107,147 @@ def create_app():
             })
         return jsonify({"success": True, "orders": orders}), 200
 
+    @app.route("/api/provider/orders/<int:order_id>", methods=["GET"])
+    def provider_order_detail_handler(order_id):
+        from backend.database.queries import get_order_details
+        order = get_order_details(order_id)
+        if not order:
+            return jsonify({"success": False, "message": "Order not found."}), 404
+        return jsonify({"success": True, "order": order}), 200
+
+    @app.route("/api/provider/orders/<int:order_id>/status", methods=["PATCH", "PUT"])
+    def provider_order_status_handler(order_id):
+        from backend.routes.requests import get_auth_user_id
+        from backend.database.queries import update_order_status_for_provider, get_order_details, create_notification
+        user_id = get_auth_user_id()
+        if not user_id:
+            return jsonify({"success": False, "message": "Not authenticated."}), 401
+        data = request.get_json(silent=True) or {}
+        new_status = data.get("status", "").strip().lower()
+        if not new_status:
+            return jsonify({"success": False, "message": "Status required."}), 400
+
+        success = update_order_status_for_provider(order_id, user_id, new_status)
+        if not success:
+            return jsonify({"success": False, "message": "Unable to update order status."}), 400
+
+        # Send notification to student
+        order = get_order_details(order_id)
+        if order and order.get("student", {}).get("id"):
+            st_id = order["student"]["id"]
+            title = f"Order #{order_id} Updated"
+            msg = f"Your order '{order['service_title']}' status has been updated to: {new_status.replace('_', ' ').capitalize()}."
+            create_notification(st_id, title, msg, "/student/orders.html")
+
+        return jsonify({"success": True, "message": f"Order status updated to {new_status.replace('_', ' ')}."}), 200
+
+    @app.route("/api/provider/orders/<int:order_id>/deliverable", methods=["PATCH", "POST", "PUT"])
+    def provider_order_deliverable_handler(order_id):
+        from backend.routes.requests import get_auth_user_id
+        from backend.database.queries import update_order_deliverable, get_order_details, create_notification
+        user_id = get_auth_user_id()
+        if not user_id:
+            return jsonify({"success": False, "message": "Not authenticated."}), 401
+        data = request.get_json(silent=True) or {}
+        deliv_url = str(data.get("deliverable_url", "")).strip()
+        deliv_note = str(data.get("deliverable_note", "")).strip()
+        if not deliv_url:
+            return jsonify({"success": False, "message": "Deliverable URL / link is required."}), 400
+
+        success = update_order_deliverable(order_id, user_id, deliv_url, deliv_note)
+        if not success:
+            return jsonify({"success": False, "message": "Failed to record deliverable."}), 400
+
+        # Notify student
+        order = get_order_details(order_id)
+        if order and order.get("student", {}).get("id"):
+            st_id = order["student"]["id"]
+            create_notification(
+                st_id,
+                f"Project Completed: Deliverable Ready for Order #{order_id}!",
+                f"Your provider has uploaded deliverables for '{order['service_title']}'. Access: {deliv_url}",
+                "/student/orders.html"
+            )
+
+        return jsonify({
+            "success": True,
+            "message": "Deliverable submitted successfully! Order marked as completed and projects counter updated."
+        }), 200
+
+    @app.route("/api/provider/orders/<int:order_id>/payment", methods=["PATCH", "POST", "PUT"])
+    def provider_order_payment_handler(order_id):
+        from backend.routes.requests import get_auth_user_id
+        from backend.database.queries import update_order_payment_status, get_order_details, create_notification
+        user_id = get_auth_user_id()
+        if not user_id:
+            return jsonify({"success": False, "message": "Not authenticated."}), 401
+        data = request.get_json(silent=True) or {}
+        pay_status = str(data.get("payment_status", "paid")).strip().lower()
+
+        success = update_order_payment_status(order_id, user_id, pay_status)
+        if not success:
+            return jsonify({"success": False, "message": "Failed to update payment status."}), 400
+
+        order = get_order_details(order_id)
+        if order and order.get("student", {}).get("id"):
+            st_id = order["student"]["id"]
+            create_notification(
+                st_id,
+                f"Payment Status Updated for Order #{order_id}",
+                f"Payment for '{order['service_title']}' has been marked as {pay_status.capitalize()}.",
+                "/student/orders.html"
+            )
+
+        return jsonify({"success": True, "message": f"Payment status set to {pay_status}."}), 200
+
+    @app.route("/api/provider/orders/<int:order_id>/payment-reminder", methods=["POST"])
+    def provider_payment_reminder_handler(order_id):
+        from backend.routes.requests import get_auth_user_id
+        from backend.database.queries import get_order_details, create_notification
+        user_id = get_auth_user_id()
+        if not user_id:
+            return jsonify({"success": False, "message": "Not authenticated."}), 401
+
+        order = get_order_details(order_id)
+        if not order:
+            return jsonify({"success": False, "message": "Order not found."}), 404
+
+        st_id = order.get("student", {}).get("id")
+        if not st_id:
+            return jsonify({"success": False, "message": "Student record missing."}), 400
+
+        create_notification(
+            st_id,
+            f"⚠️ Urgent: Payment Reminder for Order #{order_id}",
+            f"Provider '{order['provider']['name']}' requests settlement of ₹{order['amount']:,} for '{order['service_title']}'. Please verify your payment.",
+            "/student/orders.html"
+        )
+        return jsonify({"success": True, "message": f"Payment reminder notification dispatched to {order['student']['name']}!"}), 200
+
+    @app.route("/api/notifications", methods=["GET"])
+    def user_notifications_handler():
+        from backend.routes.requests import get_auth_user_id
+        from backend.database.queries import get_user_notifications
+        user_id = get_auth_user_id()
+        if not user_id:
+            return jsonify({"success": False, "message": "Not authenticated."}), 401
+        notifs = get_user_notifications(user_id)
+        return jsonify({
+            "success": True,
+            "notifications": notifs,
+            "unread_count": sum(1 for n in notifs if not n.get("is_read"))
+        }), 200
+
+    @app.route("/api/notifications/mark-read", methods=["POST"])
+    def user_mark_notifications_read_handler():
+        from backend.routes.requests import get_auth_user_id
+        from backend.database.queries import mark_all_notifications_read
+        user_id = get_auth_user_id()
+        if not user_id:
+            return jsonify({"success": False, "message": "Not authenticated."}), 401
+        mark_all_notifications_read(user_id)
+        return jsonify({"success": True, "message": "Notifications marked as read."}), 200
+
     # Route aliases for provider portfolio, services, certifications, reviews
     @app.route("/api/provider/portfolio", methods=["GET", "POST"])
     def provider_portfolio_alias():
@@ -123,6 +264,11 @@ def create_app():
         from backend.routes.providers import provider_services_handler
         return provider_services_handler()
 
+    @app.route("/api/provider/services/<int:service_id>", methods=["PUT", "DELETE"])
+    def provider_services_detail_alias(service_id):
+        from backend.routes.providers import provider_service_detail_handler
+        return provider_service_detail_handler(service_id)
+
     @app.route("/api/provider/certifications", methods=["GET", "POST"])
     def provider_certifications_alias():
         from backend.routes.providers import provider_certifications_handler
@@ -132,6 +278,35 @@ def create_app():
     def provider_reviews_alias():
         from backend.routes.providers import get_current_provider_reviews
         return get_current_provider_reviews()
+
+    # Route alias for student project requests called by frontend /api/projects/my
+    @app.route("/api/projects/my", methods=["GET"])
+    def projects_my_alias():
+        from backend.routes.requests import get_my_projects
+        return get_my_projects()
+
+    # Route aliases for provider skills called by frontend /api/provider/skills
+    @app.route("/api/provider/skills", methods=["GET", "POST"])
+    def provider_skills_alias():
+        from backend.routes.providers import provider_skills_handler
+        return provider_skills_handler()
+
+    @app.route("/api/provider/skills/<int:skill_id>", methods=["PUT", "DELETE"])
+    def provider_skill_item_alias(skill_id):
+        from backend.routes.providers import provider_skill_item_handler
+        return provider_skill_item_handler(skill_id)
+
+    # Route alias for open student requirements for providers
+    @app.route("/api/provider/requirements", methods=["GET"])
+    def provider_student_requirements_alias():
+        from backend.routes.requests import get_open_student_requirements
+        return get_open_student_requirements()
+
+    # Route alias for provider proposing on student requirement
+    @app.route("/api/provider/propose", methods=["POST"])
+    def provider_propose_alias():
+        from backend.routes.requests import provider_propose_on_requirement
+        return provider_propose_on_requirement()
 
     # Security Headers for production-grade protection
     @app.after_request

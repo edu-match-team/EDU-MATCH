@@ -1,13 +1,31 @@
 from flask import Blueprint, jsonify, request, session
 from backend.database.connection import get_db
 from backend.database.queries import create_requirement, get_requirements_by_student
+from backend.database.supabase_client import (
+    sync_requirement_to_supabase,
+    sync_student_profile_to_supabase
+)
 
 students_bp = Blueprint("students", __name__, url_prefix="/api/students")
 
 
+def get_auth_user_id():
+    user_id = session.get("user_id")
+    if user_id:
+        return user_id
+
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer edumatch_token_"):
+        try:
+            return int(auth_header.split("_")[-1])
+        except ValueError:
+            pass
+    return None
+
+
 @students_bp.route("/profile", methods=["GET", "PUT"])
 def student_profile():
-    user_id = session.get("user_id")
+    user_id = get_auth_user_id()
     if not user_id:
         return jsonify({"success": False, "message": "Not logged in."}), 401
 
@@ -15,7 +33,20 @@ def student_profile():
     if request.method == "GET":
         row = db.execute(
             """
-            SELECT u.id, u.full_name, u.email, u.role, sp.institution, sp.degree, sp.bio, sp.phone, sp.interests
+            SELECT u.id, u.full_name, u.email, u.role,
+                   COALESCE(NULLIF(sp.profile_photo, ''), NULLIF(u.profile_photo, ''), '') as profile_photo,
+                   COALESCE(sp.institution, '') as institution,
+                   COALESCE(sp.degree, '') as degree,
+                   COALESCE(sp.specialization, '') as specialization,
+                   COALESCE(sp.year, '') as year,
+                   COALESCE(sp.skills, '') as skills,
+                   COALESCE(sp.interests, '') as interests,
+                   COALESCE(sp.location, '') as location,
+                   COALESCE(sp.bio, '') as bio,
+                   COALESCE(sp.phone, '') as phone,
+                   COALESCE(sp.github, '') as github,
+                   COALESCE(sp.linkedin, '') as linkedin,
+                   COALESCE(sp.portfolio, '') as portfolio
             FROM users u
             LEFT JOIN student_profiles sp ON u.id = sp.user_id
             WHERE u.id = ?
@@ -26,38 +57,80 @@ def student_profile():
         if not row:
             return jsonify({"success": False, "message": "User not found."}), 404
 
-        return jsonify({"success": True, "profile": dict(row)}), 200
+        p_dict = dict(row)
+        # Convenience aliases for frontend forms
+        p_dict["fullName"] = p_dict["full_name"]
+        p_dict["college"] = p_dict["institution"]
+        p_dict["profilePhoto"] = p_dict["profile_photo"]
+
+        return jsonify({"success": True, "profile": p_dict}), 200
 
     # PUT
     data = request.get_json(silent=True) or {}
-    institution = data.get("institution")
+    full_name = data.get("fullName") or data.get("full_name")
+    institution = data.get("college") or data.get("institution")
     degree = data.get("degree")
+    specialization = data.get("specialization")
+    year = data.get("year")
+    skills = data.get("skills")
+    interests = data.get("interests")
+    location = data.get("location")
     bio = data.get("bio")
     phone = data.get("phone")
-    interests = data.get("interests")
+    github = data.get("github")
+    linkedin = data.get("linkedin")
+    portfolio = data.get("portfolio")
+    profile_photo = data.get("profilePhoto") or data.get("profile_photo")
 
-    # Upsert
+    if full_name:
+        db.execute("UPDATE users SET full_name = ? WHERE id = ?", (str(full_name).strip(), user_id))
+
+    if profile_photo and str(profile_photo).strip():
+        db.execute("UPDATE users SET profile_photo = ? WHERE id = ?", (profile_photo, user_id))
+
+    # Upsert into student_profiles
     db.execute(
         """
-        INSERT INTO student_profiles (user_id, institution, degree, bio, phone, interests)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO student_profiles (user_id, institution, degree, specialization, year, skills, interests, location, bio, phone, github, linkedin, portfolio, profile_photo)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(user_id) DO UPDATE SET
-            institution = COALESCE(excluded.institution, student_profiles.institution),
-            degree = COALESCE(excluded.degree, student_profiles.degree),
-            bio = COALESCE(excluded.bio, student_profiles.bio),
-            phone = COALESCE(excluded.phone, student_profiles.phone),
-            interests = COALESCE(excluded.interests, student_profiles.interests)
+            institution = COALESCE(NULLIF(excluded.institution, ''), student_profiles.institution),
+            degree = COALESCE(NULLIF(excluded.degree, ''), student_profiles.degree),
+            specialization = COALESCE(NULLIF(excluded.specialization, ''), student_profiles.specialization),
+            year = COALESCE(NULLIF(excluded.year, ''), student_profiles.year),
+            skills = COALESCE(NULLIF(excluded.skills, ''), student_profiles.skills),
+            interests = COALESCE(NULLIF(excluded.interests, ''), student_profiles.interests),
+            location = COALESCE(NULLIF(excluded.location, ''), student_profiles.location),
+            bio = COALESCE(NULLIF(excluded.bio, ''), student_profiles.bio),
+            phone = COALESCE(NULLIF(excluded.phone, ''), student_profiles.phone),
+            github = COALESCE(NULLIF(excluded.github, ''), student_profiles.github),
+            linkedin = COALESCE(NULLIF(excluded.linkedin, ''), student_profiles.linkedin),
+            portfolio = COALESCE(NULLIF(excluded.portfolio, ''), student_profiles.portfolio),
+            profile_photo = COALESCE(NULLIF(excluded.profile_photo, ''), student_profiles.profile_photo)
         """,
-        (user_id, institution, degree, bio, phone, interests)
+        (user_id, institution, degree, specialization, year, skills, interests, location, bio, phone, github, linkedin, portfolio, profile_photo)
     )
     db.commit()
 
-    return jsonify({"success": True, "message": "Student profile updated successfully."}), 200
+    # Sync to Supabase
+    try:
+        sync_student_profile_to_supabase(
+            user_id=user_id,
+            institution=institution or "",
+            degree=degree or "",
+            bio=bio or "",
+            phone=phone or "",
+            interests=interests or ""
+        )
+    except Exception:
+        pass
+
+    return jsonify({"success": True, "message": "Student profile updated successfully.", "profile_photo": profile_photo or ""}), 200
 
 
 @students_bp.route("/requirements", methods=["GET", "POST"])
 def student_requirements():
-    user_id = session.get("user_id")
+    user_id = get_auth_user_id()
     if not user_id:
         return jsonify({"success": False, "message": "Not logged in."}), 401
 
@@ -97,6 +170,22 @@ def student_requirements():
         deadline=deadline,
         complexity=complexity
     )
+
+    # Sync to Supabase
+    try:
+        sync_requirement_to_supabase(
+            req_id=req_id,
+            student_id=user_id,
+            title=title,
+            category=category,
+            description=description,
+            skills=skills_str,
+            budget=budget,
+            deadline=deadline,
+            complexity=complexity
+        )
+    except Exception:
+        pass
 
     return jsonify({
         "success": True,

@@ -645,6 +645,45 @@
                                     Student ID: —
                                 </p>
 
+                                <button type="button" id="chatStudentBtn" style="margin-top:14px;width:100%;padding:11px;background:#6c4df6;color:white;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+                                    💬 Open Direct Chat with Student
+                                </button>
+
+                            </div>
+
+                        </section>
+
+                        <!-- Deliverables submission -->
+                        <section class="card" id="deliverablesSection">
+
+                            <div class="card-header">
+                                <h2>Project Deliverables & Submission</h2>
+                            </div>
+
+                            <div class="card-body">
+
+                                <div id="existingDeliverable" style="display:none;margin-bottom:14px;padding:12px;background:#f0fdf4;border-radius:8px;border:1px solid #bbf7d0;">
+                                    <strong style="color:#166534;display:block;margin-bottom:4px;">✓ Deliverable Uploaded:</strong>
+                                    <a id="deliverableLink" href="#" target="_blank" style="color:#2563eb;font-weight:700;word-break:break-all;"></a>
+                                    <p id="deliverableNote" style="font-size:12px;color:#475569;margin-top:6px;"></p>
+                                </div>
+
+                                <form id="deliverableForm">
+                                    <div style="margin-bottom:12px;">
+                                        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Deliverable Link / URL *</label>
+                                        <input type="url" id="deliverableUrlInput" required placeholder="https://github.com/... or Google Drive link" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;">
+                                    </div>
+
+                                    <div style="margin-bottom:14px;">
+                                        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Submission Note & Instructions</label>
+                                        <textarea id="deliverableNoteInput" placeholder="Instructions, setup steps, or project summary" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;min-height:75px;font-family:inherit;"></textarea>
+                                    </div>
+
+                                    <button type="submit" id="submitDeliverableBtn" style="width:100%;padding:12px;background:#16a34a;color:white;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">
+                                        🚀 Submit Deliverable & Complete Order
+                                    </button>
+                                </form>
+
                             </div>
 
                         </section>
@@ -677,10 +716,17 @@
                                 </div>
 
                                 <p class="payment-note">
-                                    Payment information is displayed from the
-                                    server. An order being completed does not
-                                    automatically mean the payment has settled.
+                                    Payment information is synced from the server.
                                 </p>
+
+                                <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px;">
+                                    <button type="button" id="togglePaymentBtn" style="padding:11px;background:#10b981;color:white;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">
+                                        ✓ Toggle Payment Status (Paid / Granted)
+                                    </button>
+                                    <button type="button" id="sendReminderBtn" style="padding:11px;background:#f59e0b;color:white;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">
+                                        ⚠️ Send Payment Reminder Warning to Student
+                                    </button>
+                                </div>
 
                             </div>
 
@@ -1040,6 +1086,21 @@
         elements.transactionId.textContent =
             displayValue(order.transaction_id);
 
+        // Populate deliverables if exists
+        const existDeliv = document.getElementById("existingDeliverable");
+        const delivLink = document.getElementById("deliverableLink");
+        const delivNote = document.getElementById("deliverableNote");
+        if (order.deliverable_url) {
+            existDeliv.style.display = "block";
+            delivLink.href = order.deliverable_url;
+            delivLink.textContent = order.deliverable_url;
+            delivNote.textContent = order.deliverable_note ? `Note: ${order.deliverable_note}` : "";
+            document.getElementById("deliverableUrlInput").value = order.deliverable_url;
+            document.getElementById("deliverableNoteInput").value = order.deliverable_note || "";
+        } else {
+            existDeliv.style.display = "none";
+        }
+
         renderActions(status);
     }
 
@@ -1180,7 +1241,7 @@
         }
     }
 
-    /* Mobile navigation */
+        /* Mobile navigation */
     elements.menuToggle.addEventListener("click", function () {
         elements.sidebar.classList.toggle("open");
     });
@@ -1188,7 +1249,130 @@
     /* Reload the latest server-side order */
     elements.refreshButton.addEventListener("click", loadOrder);
 
-    /* Provider display name */
+    /* Direct Chat with Student */
+    const chatStudentBtn = document.getElementById("chatStudentBtn");
+    if (chatStudentBtn) {
+        chatStudentBtn.addEventListener("click", async function () {
+            if (!currentOrder || !currentOrder.student) {
+                alert("Student information is not available for this order.");
+                return;
+            }
+            const studentId = currentOrder.student.id || currentOrder.student_id;
+            try {
+                // Try initiating conversation via API
+                const startRes = await fetch("http://127.0.0.1:5000/api/chat/start", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + (localStorage.getItem("edumatch_token") || "")
+                    },
+                    body: JSON.stringify({ other_user_id: studentId })
+                });
+                const startData = await startRes.json();
+                if (startData.success && startData.conversation_id) {
+                    window.location.href = `chat.html?conv_id=${startData.conversation_id}`;
+                    return;
+                }
+            } catch (err) {
+                console.warn("Could not start server chat conversation:", err);
+            }
+            window.location.href = `chat.html?student_id=${studentId}&name=${encodeURIComponent(currentOrder.student.name || "Student")}`;
+        });
+    }
+
+    /* Deliverable Submission */
+    const deliverableForm = document.getElementById("deliverableForm");
+    if (deliverableForm) {
+        deliverableForm.addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const url = document.getElementById("deliverableUrlInput").value.trim();
+            const note = document.getElementById("deliverableNoteInput").value.trim();
+            const submitBtn = document.getElementById("submitDeliverableBtn");
+
+            if (!url) {
+                alert("Please enter a deliverable link or file URL.");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = "Submitting deliverable...";
+
+            try {
+                const data = await apiRequest(`/provider/orders/${encodeURIComponent(orderId)}/deliverable`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        deliverable_url: url,
+                        deliverable_note: note
+                    })
+                });
+                showMessage("success", data.message || "Deliverable uploaded and project marked as completed!");
+                await loadOrder();
+            } catch (err) {
+                showMessage("error", err.message || "Failed to submit deliverable.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "🚀 Submit Deliverable & Complete Order";
+            }
+        });
+    }
+
+    /* Payment Status Toggle */
+    const togglePaymentBtn = document.getElementById("togglePaymentBtn");
+    if (togglePaymentBtn) {
+        togglePaymentBtn.addEventListener("click", async function () {
+            if (!currentOrder) return;
+            const currentStatus = (currentOrder.payment_status || "pending").toLowerCase();
+            const nextPaymentStatus = currentStatus === "paid" ? "pending" : "paid";
+
+            const confirmed = window.confirm(
+                `Are you sure you want to change payment status to '${nextPaymentStatus.toUpperCase()}'?`
+            );
+            if (!confirmed) return;
+
+            togglePaymentBtn.disabled = true;
+            try {
+                const data = await apiRequest(`/provider/orders/${encodeURIComponent(orderId)}/payment`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ payment_status: nextPaymentStatus })
+                });
+                showMessage("success", data.message || `Payment marked as ${nextPaymentStatus}.`);
+                await loadOrder();
+            } catch (err) {
+                showMessage("error", err.message || "Failed to update payment status.");
+            } finally {
+                togglePaymentBtn.disabled = false;
+            }
+        });
+    }
+
+    /* Send Payment Reminder Warning Button */
+    const sendReminderBtn = document.getElementById("sendReminderBtn");
+    if (sendReminderBtn) {
+        sendReminderBtn.addEventListener("click", async function () {
+            if (!currentOrder) return;
+            const confirmed = window.confirm(
+                "Send an urgent payment reminder notification to the student?"
+            );
+            if (!confirmed) return;
+
+            sendReminderBtn.disabled = true;
+            try {
+                const data = await apiRequest(`/provider/orders/${encodeURIComponent(orderId)}/payment-reminder`, {
+                    method: "POST"
+                });
+                showMessage("success", data.message || "Payment reminder warning notification sent to student.");
+            } catch (err) {
+                showMessage("error", err.message || "Failed to send payment reminder.");
+            } finally {
+                sendReminderBtn.disabled = false;
+            }
+        });
+    }
+
+    /* Provider display name & avatar */
     const providerName =
         localStorage.getItem("edumatch_provider_name");
 

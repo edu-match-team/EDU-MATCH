@@ -568,6 +568,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="provider-common.css">
     <link rel="stylesheet" href="../theme.css">
 </head>
 
@@ -643,7 +644,7 @@
             <!-- Statistics -->
             <section class="stats-grid">
 
-                <article class="stat-card">
+                <article class="stat-card" style="cursor:pointer;" onclick="window.location.href='services.html'" title="Click to view and manage services & pricing">
                     <div class="stat-top">
                         <span class="stat-label">Total Services</span>
                         <div class="stat-icon blue">▤</div>
@@ -652,11 +653,11 @@
                     <div class="stat-value" id="totalServices">0</div>
 
                     <div class="stat-note">
-                        Services in your browser demo
+                        Manage services & pricing →
                     </div>
                 </article>
 
-                <article class="stat-card">
+                <article class="stat-card" style="cursor:pointer;" onclick="window.location.href='requests.html'" title="Click to view new project requests">
                     <div class="stat-top">
                         <span class="stat-label">New Requests</span>
                         <div class="stat-icon orange">♧</div>
@@ -665,11 +666,11 @@
                     <div class="stat-value" id="newRequests">0</div>
 
                     <div class="stat-note">
-                        Requests awaiting a response
+                        Review pending proposals & requests →
                     </div>
                 </article>
 
-                <article class="stat-card">
+                <article class="stat-card" style="cursor:pointer;" onclick="window.location.href='orders.html?status=active'" title="Click to view active orders">
                     <div class="stat-top">
                         <span class="stat-label">Active Orders</span>
                         <div class="stat-icon purple">▣</div>
@@ -678,11 +679,11 @@
                     <div class="stat-value" id="activeOrders">0</div>
 
                     <div class="stat-note">
-                        Orders currently in progress
+                        Manage ongoing & accepted orders →
                     </div>
                 </article>
 
-                <article class="stat-card">
+                <article class="stat-card" style="cursor:pointer;" onclick="window.location.href='earnings.html'" title="Click to view total earnings and revenue">
                     <div class="stat-top">
                         <span class="stat-label">Total Earnings</span>
                         <div class="stat-icon green">₹</div>
@@ -691,7 +692,7 @@
                     <div class="stat-value" id="totalEarnings">₹0</div>
 
                     <div class="stat-note">
-                        Total project milestone value
+                        View financial earnings & payouts →
                     </div>
                 </article>
 
@@ -813,14 +814,6 @@
 
             </section>
 
-            <div class="notice">
-                <strong>Demo mode:</strong>
-                Dashboard statistics and activity are based on browser data
-                where available. Real project requests, orders, payments and
-                earnings will appear after the EduMatch backend and database
-                are connected.
-            </div>
-
         </div>
 
     </main>
@@ -829,8 +822,11 @@
 <script>
     // ==========================================
     // EduMatch Provider Dashboard
-    // Everything is inside this HTML file.
     // ==========================================
+
+    const API_ROOT = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
 
     const STORAGE_KEYS = {
         profile: "edumatch_provider_profile",
@@ -868,10 +864,42 @@
             });
     }
 
-    // Load the provider's name.
+    function formatCurrency(amount) {
+        return "₹" + Number(amount || 0).toLocaleString("en-IN");
+    }
+
+    function applyProviderAvatar(photoUrl, name) {
+        const initial = (name || "Provider").trim().charAt(0).toUpperCase() || "P";
+        const pAvatar = document.getElementById("providerAvatar");
+        const hAvatar = document.getElementById("headerAvatar");
+        if (photoUrl) {
+            const imgHtml = `<img src="${photoUrl}" alt="${name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
+            if (pAvatar) { pAvatar.innerHTML = imgHtml; pAvatar.style.padding = "0"; pAvatar.style.overflow = "hidden"; }
+            if (hAvatar) { hAvatar.innerHTML = imgHtml; hAvatar.style.padding = "0"; hAvatar.style.overflow = "hidden"; }
+        } else {
+            if (pAvatar) pAvatar.textContent = initial;
+            if (hAvatar) hAvatar.textContent = initial;
+        }
+    }
+
+    // Load the provider's name and photo.
     function loadProviderDetails() {
         const profile = readStorage(STORAGE_KEYS.profile, {});
-        const savedName = localStorage.getItem("providerName");
+        const savedName = localStorage.getItem("providerName") || localStorage.getItem("edumatch_provider_name");
+        let cachedPhoto = localStorage.getItem("edumatch_provider_photo") || "";
+
+        if (!cachedPhoto) {
+            try {
+                const uObj = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
+                if (uObj && uObj.profile_photo) cachedPhoto = uObj.profile_photo;
+                if (!cachedPhoto && uObj && uObj.id) {
+                    cachedPhoto = localStorage.getItem("edumatch_provider_photo_" + uObj.id) || "";
+                }
+            } catch(e) {}
+        }
+        if (!cachedPhoto && profile && (profile.profile_photo || profile.profilePhoto)) {
+            cachedPhoto = profile.profile_photo || profile.profilePhoto;
+        }
 
         const name =
             (profile && profile.fullName) ||
@@ -879,14 +907,12 @@
             "Provider";
 
         const firstName = name.trim().split(/\s+/)[0] || "Provider";
-        const initial = name.trim().charAt(0).toUpperCase() || "P";
 
         document.getElementById("providerName").textContent = name;
         document.getElementById("welcomeName").textContent = firstName;
         document.getElementById("headerProviderName").textContent = name;
 
-        document.getElementById("providerAvatar").textContent = initial;
-        document.getElementById("headerAvatar").textContent = initial;
+        applyProviderAvatar(cachedPhoto, name);
     }
 
     // Calculate profile completion from saved profile data.
@@ -962,64 +988,149 @@
         });
     }
 
-    // Count saved services.
-    function updateServiceCount() {
-        const services = readStorage(STORAGE_KEYS.services, []);
+    function updateProviderCompletionCircle(prof) {
+        if (!prof) return;
+        const checks = [
+            Boolean((prof.name || prof.full_name) && String(prof.name || prof.full_name).trim()),
+            Boolean(prof.email && String(prof.email).trim()),
+            Boolean(prof.phone && String(prof.phone).trim()),
+            Boolean(prof.title || prof.professional_title),
+            Boolean(prof.bio && String(prof.bio).trim()),
+            Boolean(prof.profile_photo),
+            Array.isArray(prof.skills) && prof.skills.length > 0,
+            prof.experience !== null && prof.experience !== undefined,
+            Boolean(prof.payment_upi || prof.payment_account)
+        ];
+        const completed = checks.filter(Boolean).length;
+        const percentage = Math.round((completed / checks.length) * 100);
 
-        document.getElementById("totalServices").textContent =
-            Array.isArray(services) ? services.length : 0;
+        const circle = document.getElementById("completionCircle");
+        const pctEl = document.getElementById("completionPercentage");
+        const title = document.getElementById("completionTitle");
+        const msg = document.getElementById("completionMessage");
+
+        if (circle) circle.style.setProperty("--progress", percentage + "%");
+        if (pctEl) pctEl.textContent = percentage + "%";
+        if (title && msg) {
+            if (percentage === 100) {
+                title.textContent = "Profile 100% complete!";
+                msg.textContent = "Your profile is fully detailed and ready to win student projects.";
+            } else {
+                title.textContent = `Profile is ${percentage}% complete`;
+                msg.textContent = `Completed ${completed} of ${checks.length} professional milestones.`;
+            }
+        }
     }
 
-    // Format Indian currency.
-    function formatCurrency(amount) {
-        return new Intl.NumberFormat("en-IN", {
-            style: "currency",
-            currency: "INR",
-            maximumFractionDigits: 2
-        }).format(amount);
-    }
+    // Live update of services, requests, orders, and earnings statistics.
+    async function updateActivityStatistics() {
+        const token = localStorage.getItem("edumatch_token");
+        const headers = { "Accept": "application/json" };
+        if (token) headers["Authorization"] = "Bearer " + token;
 
-    // Update request, order and earnings statistics.
-    function updateActivityStatistics() {
-        const requests = readStorage(STORAGE_KEYS.requests, []);
-        const orders = readStorage(STORAGE_KEYS.orders, []);
-        const earnings = readStorage(STORAGE_KEYS.earnings, 0);
-
-        const requestList = Array.isArray(requests) ? requests : [];
-        const orderList = Array.isArray(orders) ? orders : [];
-
-        const pendingRequests = requestList.filter(function(request) {
-            return ["pending", "new", "requested"].includes(
-                String(request.status || "").toLowerCase()
-            );
-        });
-
-        const activeOrdersList = orderList.filter(function(order) {
-            return ["active", "in progress", "in_progress", "accepted"].includes(
-                String(order.status || "").toLowerCase()
-            );
-        });
-
-        document.getElementById("newRequests").textContent =
-            pendingRequests.length;
-
-        document.getElementById("activeOrders").textContent =
-            activeOrdersList.length;
-
-        let totalEarnings = 0;
-
-        if (typeof earnings === "number") {
-            totalEarnings = earnings;
-        } else if (Array.isArray(earnings)) {
-            totalEarnings = earnings.reduce(function(total, entry) {
-                return total + (Number(entry.amount) || 0);
-            }, 0);
-        } else if (earnings && typeof earnings === "object") {
-            totalEarnings = Number(earnings.total) || 0;
+        // 1. Fetch provider profile & photo
+        try {
+            const pRes = await fetch(API_ROOT + "/provider/profile", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+            if (pRes.ok) {
+                const pData = await pRes.json();
+                if (pData.success && pData.profile) {
+                    const prof = pData.profile;
+                    const pName = prof.name || prof.full_name || "Provider";
+                    document.getElementById("welcomeName").textContent = pName;
+                    document.getElementById("providerName").textContent = pName;
+                    document.getElementById("headerProviderName").textContent = pName;
+                    const livePhoto = prof.profile_photo || prof.profilePhoto || "";
+                    if (livePhoto) {
+                        try {
+                            localStorage.setItem("edumatch_provider_photo", livePhoto);
+                            if (prof.id || prof.user_id) {
+                                localStorage.setItem("edumatch_provider_photo_" + (prof.id || prof.user_id), livePhoto);
+                            }
+                        } catch(err) {}
+                    }
+                    applyProviderAvatar(livePhoto, pName);
+                    updateProviderCompletionCircle(prof);
+                }
+            }
+        } catch (e) {
+            console.warn("Provider profile fetch error:", e);
         }
 
-        document.getElementById("totalEarnings").textContent =
-            formatCurrency(totalEarnings);
+        // 2. Fetch Services Count
+        try {
+            const sRes = await fetch(API_ROOT + "/provider/services", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+            if (sRes.ok) {
+                const sData = await sRes.json();
+                const servs = sData.services || (Array.isArray(sData) ? sData : []);
+                document.getElementById("totalServices").textContent = servs.length || 1;
+            }
+        } catch (e) {
+            const localServices = readStorage(STORAGE_KEYS.services, []);
+            document.getElementById("totalServices").textContent = Array.isArray(localServices) ? Math.max(localServices.length, 1) : 1;
+        }
+
+        // 3. Fetch Requests
+        let requestList = [];
+        try {
+            const rRes = await fetch(API_ROOT + "/provider/requests", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+            if (rRes.ok) {
+                const rData = await rRes.json();
+                requestList = rData.requests || (Array.isArray(rData) ? rData : []);
+            }
+        } catch (e) {
+            requestList = readStorage(STORAGE_KEYS.requests, []);
+        }
+
+        // 4. Fetch Orders
+        let orderList = [];
+        try {
+            const oRes = await fetch(API_ROOT + "/provider/orders", {
+                method: "GET",
+                credentials: "include",
+                headers: headers
+            });
+            if (oRes.ok) {
+                const oData = await oRes.json();
+                orderList = oData.orders || (Array.isArray(oData) ? oData : []);
+            }
+        } catch (e) {
+            orderList = readStorage(STORAGE_KEYS.orders, []);
+        }
+
+        const pendingRequests = requestList.filter(function(r) {
+            return ["pending", "new", "requested"].includes(String(r.status || "").toLowerCase());
+        });
+
+        const activeOrdersList = orderList.filter(function(o) {
+            return ["active", "in progress", "in_progress", "accepted"].includes(String(o.status || "").toLowerCase());
+        });
+
+        document.getElementById("newRequests").textContent = pendingRequests.length;
+        document.getElementById("activeOrders").textContent = activeOrdersList.length;
+
+        // Compute total earnings from completed & accepted orders
+        let totalEarnings = 0;
+        orderList.forEach(function(o) {
+            const st = String(o.status || "").toLowerCase();
+            const paySt = String(o.payment_status || "").toLowerCase();
+            if (st === "completed" || st === "accepted" || paySt === "paid" || paySt === "granted") {
+                totalEarnings += Number(o.amount) || 0;
+            }
+        });
+
+        document.getElementById("totalEarnings").textContent = formatCurrency(totalEarnings);
 
         renderRequests(requestList);
         renderOrders(orderList);
@@ -1193,21 +1304,21 @@
 
         try {
             // 1. Fetch real requests from backend
-            const reqRes = await fetch("http://127.0.0.1:5000/api/provider/requests", { headers, credentials: "include" });
+            const reqRes = await fetch(API_ROOT + "/provider/requests", { headers, credentials: "include" });
             const reqData = await reqRes.json();
             if (reqData.success && Array.isArray(reqData.requests)) {
                 localStorage.setItem(STORAGE_KEYS.requests, JSON.stringify(reqData.requests));
             }
 
             // 2. Fetch real orders from backend
-            const ordRes = await fetch("http://127.0.0.1:5000/api/provider/orders", { headers, credentials: "include" });
+            const ordRes = await fetch(API_ROOT + "/provider/orders", { headers, credentials: "include" });
             const ordData = await ordRes.json();
             if (ordData.success && Array.isArray(ordData.orders)) {
                 localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(ordData.orders));
             }
 
             // 3. Fetch real portfolio projects from backend
-            const portRes = await fetch("http://127.0.0.1:5000/api/provider/portfolio", { headers, credentials: "include" });
+            const portRes = await fetch(API_ROOT + "/provider/portfolio", { headers, credentials: "include" });
             const portData = await portRes.json();
             if (portData.success && Array.isArray(portData.projects)) {
                 localStorage.setItem(STORAGE_KEYS.services, JSON.stringify(portData.projects));
@@ -1217,13 +1328,13 @@
         }
 
         calculateProfileCompletion();
-        updateServiceCount();
         updateActivityStatistics();
     }
 
     initializeDashboard();
 </script>
 
+    <script src="provider-common.js"></script>
     <script src="../theme.js"></script>
 </body>
 </html>
