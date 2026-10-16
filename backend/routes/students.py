@@ -57,10 +57,34 @@ def fetch_student_profile(target_id: int):
                sp.id as student_profile_id
         FROM users u
         LEFT JOIN student_profiles sp ON u.id = sp.user_id
-        WHERE u.id = ? OR sp.id = ?
+        WHERE u.id = ?
         """,
-        (target_id, target_id)
+        (target_id,)
     ).fetchone()
+    if not row:
+        row = db.execute(
+            """
+            SELECT u.id as user_id, u.full_name, u.email, u.role,
+                   COALESCE(NULLIF(sp.profile_photo, ''), NULLIF(u.profile_photo, ''), '') as profile_photo,
+                   COALESCE(sp.institution, 'University / College') as institution,
+                   COALESCE(sp.degree, 'Bachelor of Computer Applications') as degree,
+                   COALESCE(sp.specialization, '') as specialization,
+                   COALESCE(sp.year, '') as year,
+                   COALESCE(sp.skills, '') as skills,
+                   COALESCE(sp.interests, '') as interests,
+                   COALESCE(sp.location, '') as location,
+                   COALESCE(sp.bio, '') as bio,
+                   COALESCE(sp.phone, '') as phone,
+                   COALESCE(sp.github, '') as github,
+                   COALESCE(sp.linkedin, '') as linkedin,
+                   COALESCE(sp.portfolio, '') as portfolio,
+                   sp.id as student_profile_id
+            FROM student_profiles sp
+            JOIN users u ON u.id = sp.user_id
+            WHERE sp.id = ?
+            """,
+            (target_id,)
+        ).fetchone()
     if not row:
         return None
     p_dict = dict(row)
