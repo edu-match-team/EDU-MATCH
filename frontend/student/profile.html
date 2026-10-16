@@ -840,15 +840,14 @@
                     }
                     if (data.user.email && !document.getElementById("email").value) {
                         document.getElementById("email").value = data.user.email;
-                    }
-                    const cachedPhoto = localStorage.getItem("edumatch_student_photo_" + currentUserId) || localStorage.getItem("edumatch_student_photo") || "";
                     if (data.user.profile_photo) {
                         profilePhoto = data.user.profile_photo;
-                        updatePreview();
-                    } else if (cachedPhoto) {
-                        profilePhoto = cachedPhoto;
-                        updatePreview();
+                    } else if (currentUserId && localStorage.getItem("edumatch_student_photo_" + currentUserId)) {
+                        profilePhoto = localStorage.getItem("edumatch_student_photo_" + currentUserId);
+                    } else {
+                        profilePhoto = "";
                     }
+                    updatePreview();
                 }
             }
         } catch (e) {
@@ -884,6 +883,8 @@
 
                     if (prof.profile_photo || prof.profilePhoto) {
                         profilePhoto = prof.profile_photo || prof.profilePhoto;
+                    } else {
+                        profilePhoto = "";
                     }
 
                     updatePreview();

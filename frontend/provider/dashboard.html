@@ -883,28 +883,23 @@
     }
 
     // Load the provider's name and photo.
-    function loadProviderDetails() {
-        const profile = readStorage(STORAGE_KEYS.profile, {});
-        const savedName = localStorage.getItem("providerName") || localStorage.getItem("edumatch_provider_name");
-        let cachedPhoto = localStorage.getItem("edumatch_provider_photo") || "";
+    function loadProviderDetails(liveProf) {
+        let uObj = {};
+        try {
+            uObj = JSON.parse(localStorage.getItem("eduMatchUser") || localStorage.getItem("edumatch_user") || "{}");
+        } catch(e) {}
 
-        if (!cachedPhoto) {
-            try {
-                const uObj = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
-                if (uObj && uObj.profile_photo) cachedPhoto = uObj.profile_photo;
-                if (!cachedPhoto && uObj && uObj.id) {
-                    cachedPhoto = localStorage.getItem("edumatch_provider_photo_" + uObj.id) || "";
-                }
-            } catch(e) {}
-        }
-        if (!cachedPhoto && profile && (profile.profile_photo || profile.profilePhoto)) {
-            cachedPhoto = profile.profile_photo || profile.profilePhoto;
-        }
+        const profile = liveProf || readStorage(STORAGE_KEYS.profile, {}) || {};
+        const name = (profile && (profile.fullName || profile.full_name || profile.name)) ||
+                     uObj.fullName || uObj.full_name || uObj.name ||
+                     localStorage.getItem("providerName") ||
+                     "Provider";
 
-        const name =
-            (profile && profile.fullName) ||
-            savedName ||
-            "Provider";
+        const uid = uObj.id || (profile && profile.user_id);
+        let cachedPhoto = (profile && (profile.profile_photo || profile.profilePhoto)) ||
+                          uObj.profile_photo ||
+                          (uid ? localStorage.getItem("edumatch_provider_photo_" + uid) : "") ||
+                          "";
 
         const firstName = name.trim().split(/\s+/)[0] || "Provider";
 
@@ -915,111 +910,87 @@
         applyProviderAvatar(cachedPhoto, name);
     }
 
-    // Calculate profile completion from saved profile data.
-    function calculateProfileCompletion() {
-        const profile = readStorage(STORAGE_KEYS.profile, {});
-
-        const skills = readStorage(STORAGE_KEYS.skills, []);
-        const certifications = readStorage(STORAGE_KEYS.certifications, []);
-
-        const checks = [
-            Boolean(profile.fullName && profile.fullName.trim()),
-            Boolean(profile.email && profile.email.trim()),
-            Boolean(profile.phone && profile.phone.trim()),
-            Boolean(profile.location && profile.location.trim()),
-            Boolean(profile.bio && profile.bio.trim()),
-            Boolean(profile.providerType && profile.providerType.trim()),
-            Array.isArray(skills) && skills.length > 0,
-            Array.isArray(certifications) && certifications.length > 0
-        ];
-
-        const completed = checks.filter(Boolean).length;
-        const percentage = Math.round((completed / checks.length) * 100);
-
-        document.getElementById("completionCircle")
-            .style.setProperty("--progress", percentage + "%");
-
-        document.getElementById("completionPercentage").textContent =
-            percentage + "%";
-
-        const title = document.getElementById("completionTitle");
-        const message = document.getElementById("completionMessage");
-
-        if (percentage === 100) {
-            title.textContent = "Profile completed!";
-            message.textContent =
-                "Great work! Your profile has all the tracked information.";
-        } else {
-            title.textContent = "Complete your profile";
-            message.textContent =
-                "You have completed " + completed + " of " +
-                checks.length + " profile items.";
-        }
-
-        const tips = [];
-
-        if (!checks[0] || !checks[1] || !checks[2]) {
-            tips.push("Complete your basic personal information");
-        }
-
-        if (!checks[3] || !checks[4] || !checks[5]) {
-            tips.push("Add your location, bio and provider type");
-        }
-
-        if (!checks[6]) {
-            tips.push("Add your technical skills");
-        }
-
-        if (!checks[7]) {
-            tips.push("Add a professional certification");
-        }
-
-        if (tips.length === 0) {
-            tips.push("Keep your profile and achievements up to date");
-        }
-
-        const tipsList = document.getElementById("completionTips");
-        tipsList.replaceChildren();
-
-        tips.forEach(function(tip) {
-            const item = document.createElement("li");
-            item.textContent = tip;
-            tipsList.appendChild(item);
-        });
+    function getSkillsArray(skills) {
+        if (Array.isArray(skills)) return skills.filter(s => typeof s === "string" && s.trim());
+        if (typeof skills === "string" && skills.trim()) return skills.split(",").map(s => s.trim()).filter(Boolean);
+        return [];
     }
 
-    function updateProviderCompletionCircle(prof) {
-        if (!prof) return;
+    // Calculate profile completion matching provider profile page
+    function calculateProfileCompletion(prof) {
+        if (!prof) {
+            prof = readStorage(STORAGE_KEYS.profile, null);
+        }
+        if (!prof) {
+            try {
+                prof = JSON.parse(localStorage.getItem("edumatch_provider_profile") || "{}");
+            } catch(e) { prof = {}; }
+        }
+
+        const skillsArr = getSkillsArray(prof.skills || readStorage(STORAGE_KEYS.skills, []));
+
         const checks = [
-            Boolean((prof.name || prof.full_name) && String(prof.name || prof.full_name).trim()),
+            Boolean((prof.full_name || prof.name || prof.fullName) && String(prof.full_name || prof.name || prof.fullName).trim()),
             Boolean(prof.email && String(prof.email).trim()),
             Boolean(prof.phone && String(prof.phone).trim()),
-            Boolean(prof.title || prof.professional_title),
+            Boolean(prof.professional_title || prof.title),
+            (prof.experience_years !== null && prof.experience_years !== undefined && prof.experience_years !== "") || (prof.experience !== null && prof.experience !== undefined),
             Boolean(prof.bio && String(prof.bio).trim()),
-            Boolean(prof.profile_photo),
-            Array.isArray(prof.skills) && prof.skills.length > 0,
-            prof.experience !== null && prof.experience !== undefined,
-            Boolean(prof.payment_upi || prof.payment_account)
+            skillsArr.length > 0,
+            Boolean(prof.availability || "available")
         ];
+
         const completed = checks.filter(Boolean).length;
         const percentage = Math.round((completed / checks.length) * 100);
 
         const circle = document.getElementById("completionCircle");
         const pctEl = document.getElementById("completionPercentage");
         const title = document.getElementById("completionTitle");
-        const msg = document.getElementById("completionMessage");
+        const message = document.getElementById("completionMessage");
+        const tipsList = document.getElementById("completionTips");
 
         if (circle) circle.style.setProperty("--progress", percentage + "%");
         if (pctEl) pctEl.textContent = percentage + "%";
-        if (title && msg) {
+
+        if (title && message) {
             if (percentage === 100) {
                 title.textContent = "Profile 100% complete!";
-                msg.textContent = "Your profile is fully detailed and ready to win student projects.";
+                message.textContent = "Great work! All profile information fields are complete.";
             } else {
-                title.textContent = `Profile is ${percentage}% complete`;
-                msg.textContent = `Completed ${completed} of ${checks.length} professional milestones.`;
+                title.textContent = "Complete your profile";
+                message.textContent = "You have completed " + completed + " of " + checks.length + " profile items.";
             }
         }
+
+        if (tipsList) {
+            tipsList.replaceChildren();
+            if (percentage === 100) {
+                const item = document.createElement("li");
+                item.style.color = "#16a34a";
+                item.style.fontWeight = "600";
+                item.textContent = "✓ All profile information fields are complete.";
+                tipsList.appendChild(item);
+                const item2 = document.createElement("li");
+                item2.textContent = "Your profile is verified and active for student matching.";
+                tipsList.appendChild(item2);
+            } else {
+                const milestones = [
+                    { label: "Complete your basic personal information (Name & Email)", done: checks[0] && checks[1] },
+                    { label: "Add your contact phone number", done: checks[2] },
+                    { label: "Add your professional title and bio", done: checks[3] && checks[5] },
+                    { label: "Add your professional experience years", done: checks[4] },
+                    { label: "Add your technical skills", done: checks[6] },
+                    { label: "Set your collaboration availability", done: checks[7] }
+                ];
+                milestones.filter(m => !m.done).forEach(m => {
+                    const item = document.createElement("li");
+                    item.textContent = m.label;
+                    tipsList.appendChild(item);
+                });
+            }
+        }
+
+        return percentage;
     }
 
     // Live update of services, requests, orders, and earnings statistics.
@@ -1053,7 +1024,9 @@
                         } catch(err) {}
                     }
                     applyProviderAvatar(livePhoto, pName);
-                    updateProviderCompletionCircle(prof);
+                    localStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(prof));
+                    localStorage.setItem("edumatch_provider_profile", JSON.stringify(prof));
+                    calculateProfileCompletion(prof);
                 }
             }
         } catch (e) {
@@ -1303,6 +1276,14 @@
         if (token) headers["Authorization"] = "Bearer " + token;
 
         try {
+            // 0. Fetch real provider profile
+            const profRes = await fetch(API_ROOT + "/provider/profile", { headers, credentials: "include" });
+            const profData = await profRes.json();
+            if (profData.success && profData.profile) {
+                localStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(profData.profile));
+                loadProviderDetails(profData.profile);
+            }
+
             // 1. Fetch real requests from backend
             const reqRes = await fetch(API_ROOT + "/provider/requests", { headers, credentials: "include" });
             const reqData = await reqRes.json();

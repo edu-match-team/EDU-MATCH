@@ -107,16 +107,6 @@ $$\text{Total Score} = 0.55 \cdot S + 0.20 \cdot B + 0.15 \cdot A + 0.10 \cdot R
    - **Provider Login:** [http://127.0.0.1:5000/provider/login.html](http://127.0.0.1:5000/provider/login.html)
    - **Admin Login:** [http://127.0.0.1:5000/admin/login.html](http://127.0.0.1:5000/admin/login.html)
 
-### Demo & Production Credentials:
-
-| Role | Username / Email | Password |
-|---|---|---|
-| **Administrator** | `vishwajeet` *(or `vishwajeet@edumatch.edu`)* | `1234vish` |
-| **Student** | `vishu@edumatch.edu` *(or Google Login)* | `Student123!` |
-| **Provider (ML)** | `aarav.ml@edumatch.edu` *(or Google Login)* | `Provider123!` |
-| **Provider (Web)** | `priya.web@edumatch.edu` *(or Google Login)* | `Provider123!` |
-
----
 
 ### Option 2: React + Vite Frontend (Modern SPA)
 

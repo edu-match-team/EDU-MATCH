@@ -693,15 +693,13 @@
         (function initNavStudentAvatar() {
             const uAvatar = document.getElementById("userAvatar");
             if (!uAvatar) return;
-            let photo = localStorage.getItem("edumatch_student_photo") || localStorage.getItem("eduMatchUserPhoto") || "";
-            let name = localStorage.getItem("studentName") || localStorage.getItem("eduMatchUserName") || "Student";
-            if (!photo) {
-                try {
-                    const u = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
-                    if (u.profile_photo) photo = u.profile_photo;
-                    if (u.fullName || u.full_name) name = u.fullName || u.full_name;
-                } catch(e) {}
-            }
+            let u = {};
+            try {
+                u = JSON.parse(localStorage.getItem("eduMatchUser") || localStorage.getItem("edumatch_user") || "{}");
+            } catch(e) {}
+            let name = u.fullName || u.full_name || u.name || localStorage.getItem("eduMatchUserName") || localStorage.getItem("studentName") || "Student";
+            const uid = u.id || u.user_id;
+            let photo = u.profile_photo || (uid ? localStorage.getItem("edumatch_student_photo_" + uid) : "") || "";
             if (photo) {
                 uAvatar.innerHTML = `<img src="${photo}" alt="${name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;">`;
             } else {

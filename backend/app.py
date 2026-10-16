@@ -31,19 +31,20 @@ def create_app():
     )
     app.config.from_object(Config)
 
-    # Allow CORS from local origins including Vite (5173), Flask (5000), Live Server (5500)
+    # Allow CORS from local origins and devtunnels
     CORS(
         app,
         resources={
             r"/api/*": {
                 "origins": [
-                    "http://127.0.0.1:5000",
-                    "http://localhost:5000",
-                    "http://127.0.0.1:5173",
-                    "http://localhost:5173",
-                    "http://127.0.0.1:5500",
-                    "http://localhost:5500"
-                ]
+                    r"https?://127\.0\.0\.1(:\d+)?",
+                    r"https?://localhost(:\d+)?",
+                    r"https?://.*\.devtunnels\.ms(:\d+)?",
+                    r"https?://.*\.loca\.lt(:\d+)?",
+                    r"https?://.*\.ngrok-free\.app(:\d+)?"
+                ],
+                "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Authorization", "X-User-Id", "Accept"]
             }
         },
         supports_credentials=True
@@ -107,6 +108,17 @@ def create_app():
             })
         return jsonify({"success": True, "orders": orders}), 200
 
+    @app.route("/api/provider/earnings", methods=["GET"])
+    @app.route("/provider/earnings", methods=["GET"])
+    def provider_earnings_alias():
+        from backend.routes.providers import provider_earnings
+        return provider_earnings()
+
+    @app.route("/api/provider/transactions", methods=["GET"])
+    @app.route("/provider/transactions", methods=["GET"])
+    def provider_transactions_alias():
+        from backend.routes.providers import provider_transactions
+        return provider_transactions()
     @app.route("/api/provider/orders/<int:order_id>", methods=["GET"])
     def provider_order_detail_handler(order_id):
         from backend.database.queries import get_order_details
@@ -230,12 +242,20 @@ def create_app():
         from backend.database.queries import get_user_notifications
         user_id = get_auth_user_id()
         if not user_id:
-            return jsonify({"success": False, "message": "Not authenticated."}), 401
+            q_id = request.args.get("user_id")
+            if q_id and q_id.isdigit():
+                user_id = int(q_id)
+
+        if not user_id:
+            return jsonify({"success": True, "notifications": [], "unread_count": 0, "total": 0}), 200
+
         notifs = get_user_notifications(user_id)
+        unread = sum(1 for n in notifs if not n.get("is_read"))
         return jsonify({
             "success": True,
             "notifications": notifs,
-            "unread_count": sum(1 for n in notifs if not n.get("is_read"))
+            "unread_count": unread,
+            "total": len(notifs)
         }), 200
 
     @app.route("/api/notifications/mark-read", methods=["POST"])
@@ -244,9 +264,21 @@ def create_app():
         from backend.database.queries import mark_all_notifications_read
         user_id = get_auth_user_id()
         if not user_id:
-            return jsonify({"success": False, "message": "Not authenticated."}), 401
-        mark_all_notifications_read(user_id)
-        return jsonify({"success": True, "message": "Notifications marked as read."}), 200
+            data = request.get_json(silent=True) or {}
+            user_id = data.get("user_id")
+        if not user_id:
+            q_id = request.args.get("user_id")
+            if q_id and q_id.isdigit():
+                user_id = int(q_id)
+
+        if user_id:
+            mark_all_notifications_read(int(user_id))
+
+        return jsonify({
+            "success": True,
+            "message": "All notifications marked as read.",
+            "unread_count": 0
+        }), 200
 
     # Route aliases for provider portfolio, services, certifications, reviews
     @app.route("/api/provider/portfolio", methods=["GET", "POST"])
@@ -334,6 +366,8 @@ def create_app():
         target = frontend_dir / path
         if target.is_file():
             return send_from_directory(str(frontend_dir), path)
+        if (frontend_dir / f"{path}.html").is_file():
+            return send_from_directory(str(frontend_dir), f"{path}.html")
         if (target / "index.html").is_file():
             return send_from_directory(str(target), "index.html")
         return jsonify({

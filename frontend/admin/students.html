@@ -84,9 +84,7 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
     <a class="nav-link" href="providers.html">Providers</a>
     <a class="nav-link" href="services.html">Services</a>
     <a class="nav-link" href="orders.html">Orders</a>
-    <a class="nav-link" href="disputes.html">Disputes</a>
     <a class="nav-link" href="reports.html">Reports</a>
-    <a class="nav-link" href="settings.html">Settings</a>
     <h4>Account</h4>
     <a class="nav-link" href="#" id="logoutButton">Logout</a>
 </aside>
@@ -165,7 +163,9 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
 </div>
 
 <script>
-const API = "http://127.0.0.1:5000/api";
+const API = window.location.protocol.startsWith("http")
+    ? (window.location.origin + "/api")
+    : "http://127.0.0.1:5000/api";
 const rows = document.getElementById("studentRows");
 const message = document.getElementById("message");
 let students = [];
@@ -181,7 +181,9 @@ function esc(value){
 }
 
 function statusOf(student){
-    return String(student.status || "unknown").toLowerCase();
+    if (student.status) return String(student.status).toLowerCase();
+    if (student.is_active === 0 || student.is_active === false) return "suspended";
+    return "active";
 }
 
 function studentName(student){
@@ -266,7 +268,14 @@ async function loadStudents(){
         }
 
         students = data.students;
-        setStats();
+        if (data.stats) {
+            document.getElementById("total").textContent = data.stats.total;
+            document.getElementById("active").textContent = data.stats.active;
+            document.getElementById("pending").textContent = data.stats.pending || 0;
+            document.getElementById("suspended").textContent = data.stats.suspended;
+        } else {
+            setStats();
+        }
         render();
 
     }catch(error){
@@ -324,6 +333,7 @@ function render(){
                 <button class="view" data-action="view" data-id="${esc(id)}">View</button>
                 ${canSuspend ? `<button class="suspend" data-action="suspend" data-id="${esc(id)}">Suspend</button>` : ""}
                 ${canActivate ? `<button class="activate" data-action="activate" data-id="${esc(id)}">Activate</button>` : ""}
+                <button class="suspend" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5;" data-action="delete" data-id="${esc(id)}">Delete</button>
             </td>`;
 
         rows.appendChild(tr);
@@ -349,13 +359,22 @@ async function viewStudent(id){
         box.innerHTML = `
         <div class="details">
             <div class="detail"><small>Student ID</small><p>${esc(s.id ?? s.student_id ?? id)}</p></div>
-            <div class="detail"><small>Status</small><p>${esc(s.status || "Unknown")}</p></div>
+            <div class="detail"><small>Status</small><p><span class="badge ${statusOf(s)}">${statusOf(s).toUpperCase()}</span></p></div>
             <div class="detail"><small>Full Name</small><p>${esc(studentName(s))}</p></div>
             <div class="detail"><small>Email</small><p>${esc(s.email || "Not available")}</p></div>
             <div class="detail"><small>Phone</small><p>${esc(s.phone || "Not provided")}</p></div>
-            <div class="detail"><small>Joined</small><p>${esc(dateText(s.created_at))}</p></div>
-            <div class="detail"><small>College / University</small><p>${esc(s.college || s.university || "Not provided")}</p></div>
-            <div class="detail"><small>Course</small><p>${esc(s.course || "Not provided")}</p></div>
+            <div class="detail"><small>Joined Date</small><p>${esc(dateText(s.created_at))}</p></div>
+            <div class="detail"><small>College / University</small><p>${esc(s.institution || s.college || s.university || "University")}</p></div>
+            <div class="detail"><small>Degree / Specialization</small><p>${esc(s.degree || "BCA AI & Data Science")} ${s.specialization ? `(${esc(s.specialization)})` : ""}</p></div>
+            ${s.skills ? `<div class="detail" style="grid-column:1/-1;"><small>Skills</small><p>${esc(s.skills)}</p></div>` : ""}
+        </div>
+        <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:10px;">
+            ${statusOf(s) === "active" ? `
+                <button class="suspend" onclick="changeStatus(${s.id}, 'suspend')">Suspend Account</button>
+            ` : `
+                <button class="activate" onclick="changeStatus(${s.id}, 'activate')">Activate Account</button>
+            `}
+            <button class="suspend" style="background:#ef4444; color:white; border-color:#dc2626;" onclick="deleteStudentAccount(${s.id})">Delete Student</button>
         </div>`;
     }catch(error){
         box.textContent = error.message;
@@ -396,7 +415,20 @@ rows.addEventListener("click", event => {
 
     if(action === "view") viewStudent(id);
     if(action === "suspend" || action === "activate") changeStatus(id, action);
+    if(action === "delete") deleteStudentAccount(id);
 });
+
+async function deleteStudentAccount(id){
+    if(!confirm("Are you sure you want to permanently delete this student account? This cannot be undone.")) return;
+    try{
+        await request("/admin/users/" + encodeURIComponent(id), { method:"DELETE" });
+        alert("Student account permanently deleted.");
+        document.getElementById("modal").classList.remove("open");
+        await loadStudents();
+    }catch(error){
+        alert("Could not delete student: " + error.message);
+    }
+}
 
 document.getElementById("search").addEventListener("input", render);
 document.getElementById("status").addEventListener("change", render);

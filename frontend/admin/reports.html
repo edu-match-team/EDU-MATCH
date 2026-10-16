@@ -324,6 +324,35 @@ tbody tr:last-child td {
     h1 {
         font-size: 24px;
     }
+    .btn-sm {
+        padding: 6px 11px;
+        font-size: 12px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+    .btn-sm:hover { opacity: 0.85; }
+    .btn-action-suspend { background: #f59e0b; color: white; }
+    .btn-action-unsuspend { background: #10b981; color: white; }
+    .btn-action-delete { background: #ef4444; color: white; }
+    .btn-action-dismiss { background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
+    .badge-role {
+        font-size: 11px;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+    .badge-role.student { background: #e0f2fe; color: #0369a1; }
+    .badge-role.provider { background: #fef3c7; color: #b45309; }
+    .severity-high { color: #dc2626; font-weight: bold; background: #fee2e2; padding: 3px 8px; border-radius: 6px; font-size: 11px; display: inline-block; }
+    .severity-medium { color: #d97706; font-weight: bold; background: #fef3c7; padding: 3px 8px; border-radius: 6px; font-size: 11px; display: inline-block; }
 }
 </style>
     <link rel="stylesheet" href="../theme.css">
@@ -342,9 +371,7 @@ tbody tr:last-child td {
         <a class="nav-link" href="providers.html">Providers</a>
         <a class="nav-link" href="services.html">Services</a>
         <a class="nav-link" href="orders.html">Orders</a>
-        <a class="nav-link" href="disputes.html">Disputes</a>
         <a class="nav-link active" href="reports.html">Reports</a>
-        <a class="nav-link" href="settings.html">Settings</a>
 
         <div class="nav-title">Account</div>
         <a class="nav-link" href="#" id="logoutButton">Logout</a>
@@ -450,32 +477,65 @@ tbody tr:last-child td {
             </div>
         </section>
 
+        <!-- Flagged Accounts & Moderation Section -->
+        <section class="section">
+            <div class="section-head">
+                <div>
+                    <h2>Flagged Accounts & Platform Moderation</h2>
+                    <span class="subtitle">Direct actions to suspend or delete accounts based on recorded report flags</span>
+                </div>
+                <span id="flagCountBadge" class="status" style="background:#fee2e2;color:#991b1b">0 Flags</span>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Flag Reason</th>
+                            <th>Severity</th>
+                            <th>Account Status</th>
+                            <th>Moderation Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="moderationBody">
+                        <tr>
+                            <td colspan="6" class="message">Loading flagged reports...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
         <section class="section">
             <div class="section-head">
                 <h2>Report Status</h2>
             </div>
 
             <div id="reportStatus" class="message">
-                No report has been generated yet.
+                Ready to generate report.
             </div>
         </section>
 
         <p class="footer-note">
-            Reports must be calculated by the backend from stored database
-            records. Payment totals should come from verified payment records,
-            not merely from order prices.
+            Reports are verified directly against the EduMatch SQLite database and include real-time moderation flags.
         </p>
 
     </main>
 </div>
 
 <script>
-const API = "http://127.0.0.1:5000/api";
+const API = window.location.protocol.startsWith("http")
+    ? (window.location.origin + "/api")
+    : "http://127.0.0.1:5000/api";
 
 const token = localStorage.getItem("edumatch_token");
+const currentUser = JSON.parse(localStorage.getItem("edumatch_user") || "{}");
 
 const notice = document.getElementById("notice");
 const reportBody = document.getElementById("reportBody");
+const moderationBody = document.getElementById("moderationBody");
 const reportStatus = document.getElementById("reportStatus");
 
 let currentReport = null;
@@ -493,6 +553,9 @@ function escapeHTML(value) {
 function showNotice(message, type = "error") {
     notice.className = "notice " + type;
     notice.textContent = message;
+    if (type === "success") {
+        setTimeout(clearNotice, 4000);
+    }
 }
 
 function clearNotice() {
@@ -500,23 +563,24 @@ function clearNotice() {
     notice.textContent = "";
 }
 
-async function apiRequest(path) {
-    if (!token) {
-        throw new Error("Admin session not found. Please log in first.");
-    }
+async function apiRequest(path, options = {}) {
+    const headers = {
+        "Accept": "application/json",
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(token ? { "Authorization": "Bearer " + token } : {}),
+        ...(currentUser && currentUser.id ? { "X-User-Id": String(currentUser.id) } : {}),
+        ...options.headers
+    };
 
     const response = await fetch(API + path, {
-        headers: {
-            "Authorization": "Bearer " + token,
-            "Accept": "application/json"
-        }
+        ...options,
+        headers
     });
 
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-        throw new Error(data.message || data.error ||
-            `Request failed (${response.status}).`);
+        throw new Error(data.message || data.error || `Request failed (${response.status}).`);
     }
 
     return data;
@@ -531,7 +595,6 @@ function getDateFilters() {
     }
 
     const params = new URLSearchParams();
-
     if (start) params.set("start_date", start);
     if (end) params.set("end_date", end);
 
@@ -554,31 +617,109 @@ function renderStats(data) {
     const stats = data.stats || {};
 
     const cards = [
-        {
-            label: "Total Students",
-            value: stats.total_students
-        },
-        {
-            label: "Total Providers",
-            value: stats.total_providers
-        },
-        {
-            label: "Total Services",
-            value: stats.total_services
-        },
-        {
-            label: "Total Orders",
-            value: stats.total_orders
-        }
+        { label: "Total Students", value: stats.total_students },
+        { label: "Total Providers", value: stats.total_providers },
+        { label: "Total Services", value: stats.total_services },
+        { label: "Total Orders", value: stats.total_orders }
     ];
 
     document.getElementById("statsGrid").innerHTML = cards.map(card => `
         <div class="card">
             <div class="card-label">${escapeHTML(card.label)}</div>
             <div class="card-value">${escapeHTML(formatValue(card.value))}</div>
-            <div class="card-note">From the backend report</div>
+            <div class="card-note">Live platform data</div>
         </div>
     `).join("");
+}
+
+function renderModerationReports(reports) {
+    const badge = document.getElementById("flagCountBadge");
+    if (!reports || !reports.length) {
+        badge.textContent = "0 Flags";
+        badge.style.background = "#e5f7ee";
+        badge.style.color = "#126b49";
+        moderationBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="message">No active moderation flags found. Platform running cleanly!</td>
+            </tr>
+        `;
+        return;
+    }
+
+    badge.textContent = `${reports.length} Flags`;
+    badge.style.background = "#fee2e2";
+    badge.style.color = "#991b1b";
+
+    moderationBody.innerHTML = reports.map(r => {
+        const isSuspended = r.status === "suspended" || r.is_active === 0;
+        const suspendBtnText = isSuspended ? "✓ Activate" : "🛑 Suspend";
+        const suspendBtnClass = isSuspended ? "btn-action-unsuspend" : "btn-action-suspend";
+
+        return `
+            <tr>
+                <td>
+                    <strong>${escapeHTML(r.reported_user_name)}</strong>
+                    <div style="font-size:12px;color:var(--muted)">${escapeHTML(r.reported_user_email)} (ID: ${r.reported_user_id})</div>
+                </td>
+                <td>
+                    <span class="badge-role ${escapeHTML(r.role)}">${escapeHTML(r.role)}</span>
+                </td>
+                <td>
+                    <div><strong>${escapeHTML(r.type || "Flag")}</strong></div>
+                    <div style="font-size:12px;color:#4b5563">${escapeHTML(r.reason)}</div>
+                </td>
+                <td>
+                    <span class="${r.severity === 'High' ? 'severity-high' : 'severity-medium'}">
+                        ${escapeHTML(r.severity)}
+                    </span>
+                </td>
+                <td>
+                    <span class="status ${isSuspended ? 'failed' : ''}">
+                        ${isSuspended ? 'Suspended' : 'Active'}
+                    </span>
+                </td>
+                <td>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                        <button class="btn-sm ${suspendBtnClass}" onclick="handleReportAction(${r.id}, 'suspend', ${r.reported_user_id})">
+                            ${suspendBtnText}
+                        </button>
+                        <button class="btn-sm btn-action-delete" onclick="handleReportAction(${r.id}, 'delete', ${r.reported_user_id})">
+                            🗑️ Delete
+                        </button>
+                        <button class="btn-sm btn-action-dismiss" onclick="handleReportAction(${r.id}, 'dismiss', ${r.reported_user_id})">
+                            ✕ Dismiss
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+async function handleReportAction(reportId, action, userId) {
+    if (action === "delete") {
+        if (!confirm("Are you sure you want to permanently DELETE this user account? All their profile data and associated records will be removed. This cannot be undone.")) {
+            return;
+        }
+    } else if (action === "suspend") {
+        if (!confirm("Change the active / suspended status for this account?")) {
+            return;
+        }
+    }
+
+    clearNotice();
+
+    try {
+        const res = await apiRequest(`/admin/reports/${reportId}/action`, {
+            method: "POST",
+            body: JSON.stringify({ action, user_id: userId })
+        });
+
+        showNotice(res.message || `Action ${action} executed successfully.`, "success");
+        await generateReport();
+    } catch (err) {
+        showNotice("Action failed: " + err.message, "error");
+    }
 }
 
 function renderReport(data, type) {
@@ -592,8 +733,7 @@ function renderReport(data, type) {
         payments: "Payment Report"
     };
 
-    document.getElementById("reportHeading").textContent =
-        labels[type] || "Platform Report";
+    document.getElementById("reportHeading").textContent = labels[type] || "Platform Report";
 
     const start = document.getElementById("startDate").value;
     const end = document.getElementById("endDate").value;
@@ -601,12 +741,11 @@ function renderReport(data, type) {
     document.getElementById("reportPeriod").textContent =
         start || end
             ? `${start || "Beginning"} to ${end || "Today"}`
-            : "All available dates";
+            : "All recorded dates";
 
     const metrics = data.metrics;
 
-    if (!metrics || typeof metrics !== "object" ||
-        Array.isArray(metrics)) {
+    if (!metrics || typeof metrics !== "object" || Array.isArray(metrics)) {
         reportBody.innerHTML = `
             <tr>
                 <td colspan="3" class="message">
@@ -614,9 +753,7 @@ function renderReport(data, type) {
                 </td>
             </tr>
         `;
-
-        reportStatus.textContent =
-            "The report format needs to be checked against the backend API.";
+        reportStatus.textContent = "Metrics not available.";
         return;
     }
 
@@ -633,27 +770,24 @@ function renderReport(data, type) {
     } else {
         reportBody.innerHTML = entries.map(([key, value]) => `
             <tr>
-                <td>${escapeHTML(key.replaceAll("_", " "))}</td>
-                <td>${escapeHTML(formatValue(
-                    typeof value === "object"
-                        ? JSON.stringify(value)
-                        : value
-                ))}</td>
-                <td>Calculated from the selected report data.</td>
+                <td><strong>${escapeHTML(key.replaceAll("_", " "))}</strong></td>
+                <td><span style="font-weight:700;color:var(--brand)">${escapeHTML(formatValue(typeof value === "object" ? JSON.stringify(value) : value))}</span></td>
+                <td>Calculated from verified platform database records.</td>
             </tr>
         `).join("");
     }
 
-    reportStatus.textContent =
-        `Report received successfully. ${entries.length} metric(s) returned.`;
+    reportStatus.textContent = `Report generated successfully with ${entries.length} metric(s).`;
 }
 
 async function generateReport() {
     clearNotice();
 
     const button = document.getElementById("generateButton");
-    button.disabled = true;
-    button.textContent = "Generating...";
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Generating...";
+    }
 
     try {
         const type = document.getElementById("reportType").value;
@@ -662,27 +796,25 @@ async function generateReport() {
         const params = new URLSearchParams(dateQuery);
         params.set("type", type);
 
-        const data = await apiRequest(
-            "/admin/reports?" + params.toString()
-        );
+        const data = await apiRequest("/admin/reports?" + params.toString());
 
         renderStats(data);
         renderReport(data, type);
+        renderModerationReports(data.reports);
 
     } catch (error) {
         showNotice(error.message);
-        reportStatus.textContent =
-            "Report could not be loaded. Check the backend connection and API route.";
+        reportStatus.textContent = "Report could not be loaded. Please ensure the backend server is active.";
     } finally {
-        button.disabled = false;
-        button.textContent = "Generate";
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Generate";
+        }
     }
 }
 
 function exportCSV() {
-    if (!currentReport ||
-        !currentReport.metrics ||
-        typeof currentReport.metrics !== "object") {
+    if (!currentReport || !currentReport.metrics || typeof currentReport.metrics !== "object") {
         showNotice("Generate a report before exporting it.");
         return;
     }
@@ -691,9 +823,7 @@ function exportCSV() {
         ["Metric", "Value"],
         ...Object.entries(currentReport.metrics).map(([key, value]) => [
             key,
-            typeof value === "object"
-                ? JSON.stringify(value)
-                : String(value ?? "")
+            typeof value === "object" ? JSON.stringify(value) : String(value ?? "")
         ])
     ];
 
@@ -702,47 +832,33 @@ function exportCSV() {
         return `"${safeValue}"`;
     }).join(",")).join("\r\n");
 
-    const blob = new Blob([csv], {
-        type: "text/csv;charset=utf-8;"
-    });
-
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
-    link.download =
-        "edumatch-" +
-        document.getElementById("reportType").value +
-        "-report.csv";
+    link.download = "edumatch-" + document.getElementById("reportType").value + "-report.csv";
 
     document.body.appendChild(link);
     link.click();
     link.remove();
 
     URL.revokeObjectURL(url);
-    showNotice("CSV exported from the report currently loaded.", "success");
+    showNotice("CSV exported successfully.", "success");
 }
 
-document.getElementById("generateButton")
-    .addEventListener("click", generateReport);
+document.getElementById("generateButton").addEventListener("click", generateReport);
+document.getElementById("refreshButton").addEventListener("click", generateReport);
+document.getElementById("exportButton").addEventListener("click", exportCSV);
 
-document.getElementById("refreshButton")
-    .addEventListener("click", generateReport);
+document.getElementById("logoutButton").addEventListener("click", event => {
+    event.preventDefault();
+    localStorage.removeItem("edumatch_token");
+    window.location.href = "login.html";
+});
 
-document.getElementById("exportButton")
-    .addEventListener("click", exportCSV);
-
-document.getElementById("logoutButton")
-    .addEventListener("click", event => {
-        event.preventDefault();
-        localStorage.removeItem("edumatch_token");
-        window.location.href = "login.html";
-    });
-
-if (!token) {
-    showNotice("Please log in through the admin login page.");
-    reportStatus.textContent = "Admin authentication is required.";
-}
+// Automatically generate initial report on load
+generateReport();
 </script>
     <script src="../theme.js"></script>
 </body>

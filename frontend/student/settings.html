@@ -746,14 +746,12 @@
                 console.warn("Could not fetch remote profile, loaded from localStorage cache.", e);
             }
 
-            // Also check localStorage photo
-            const localPhoto = localStorage.getItem("edumatch_student_photo") || localStorage.getItem("eduMatchUserPhoto");
+            const uid = storedUser.id || storedUser.user_id;
+            const localPhoto = uid ? (localStorage.getItem("edumatch_student_photo_" + uid) || "") : "";
             if (localPhoto && !currentProfilePhoto) {
                 currentProfilePhoto = localPhoto;
-                updateAvatarDisplay(currentProfilePhoto, fullName);
-            } else if (!currentProfilePhoto) {
-                updateAvatarDisplay("", fullName);
             }
+            updateAvatarDisplay(currentProfilePhoto || "", fullName);
 
             loadPreferences();
         }

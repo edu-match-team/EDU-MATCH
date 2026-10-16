@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms and Conditions | EduMatch</title>
+    <meta name="description" content="EduMatch Terms and Conditions: Rules, academic integrity policies, provider standards, and student guidelines for the EduMatch collaboration platform.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --purple: #6d28d9;
+            --purple-light: #7c3aed;
+            --purple-hover: #5b21b6;
+            --purple-bg: rgba(109, 40, 217, 0.12);
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --nav-bg: rgba(15, 23, 42, 0.85);
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-blue: #3b82f6;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+        }
+
+        body.light-mode {
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --nav-bg: rgba(255, 255, 255, 0.9);
+            --purple-bg: rgba(109, 40, 217, 0.08);
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.65;
+            transition: background-color 0.25s, color 0.25s;
+            overflow-x: hidden;
+        }
+
+        /* Top Bar */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            background: var(--nav-bg);
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .brand span {
+            color: var(--purple-light);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-outline {
+            border-color: var(--card-border);
+            color: var(--text);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--purple-light);
+            color: var(--purple-light);
+        }
+
+        .btn-primary {
+            background: var(--purple);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--purple-hover);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* Hero Header */
+        .hero {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--purple-bg);
+            color: var(--purple-light);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            border: 1px solid rgba(124, 58, 237, 0.2);
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: var(--text-muted);
+            font-size: 16px;
+            max-width: 650px;
+            margin: 0 auto 16px;
+        }
+
+        .effective-date {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        /* Quick Pillars Card Grid */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .pillar-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--purple-light);
+        }
+
+        .pillar-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .pillar-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .pillar-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Table of Contents */
+        .toc-box {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 48px;
+        }
+
+        .toc-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toc-link {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: var(--purple-bg);
+            color: var(--purple-light);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .toc-link:hover {
+            background: var(--purple);
+            color: white;
+            border-color: var(--purple);
+        }
+
+        /* Content Sections */
+        .terms-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow);
+            scroll-margin-top: 90px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .section-num {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--purple);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .terms-section p {
+            color: var(--text-muted);
+            font-size: 14.5px;
+            margin-bottom: 14px;
+            line-height: 1.7;
+        }
+
+        .terms-section ul {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .terms-section ul li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .terms-section ul li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--purple-light);
+            font-weight: 800;
+        }
+
+        /* Callout Box */
+        .callout {
+            border-left: 4px solid var(--purple-light);
+            background: var(--purple-bg);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 18px 0;
+            font-size: 13.5px;
+            color: var(--text);
+        }
+
+        .callout strong {
+            color: var(--purple-light);
+        }
+
+        .callout-warning {
+            border-left-color: var(--accent-amber);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .callout-warning strong {
+            color: var(--accent-amber);
+        }
+
+        /* Bottom Actions */
+        .bottom-actions {
+            text-align: center;
+            padding: 40px 20px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            margin-top: 40px;
+        }
+
+        .bottom-actions h3 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .bottom-actions p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .action-btns {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            font-size: 13px;
+            border-top: 1px solid var(--card-border);
+            margin-top: 60px;
+        }
+
+        .footer a {
+            color: var(--purple-light);
+            text-decoration: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 28px;
+            }
+            .terms-section {
+                padding: 22px 18px;
+            }
+            .section-title {
+                font-size: 17px;
+            }
+            .header-inner {
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STICKY TOP NAV -->
+    <header class="header">
+        <div class="header-inner">
+            <a href="index.html" class="brand">
+                edu<span>match</span>
+            </a>
+
+            <div class="nav-actions">
+                <button class="btn btn-outline" onclick="history.length > 1 ? history.back() : window.location.href='index.html'">
+                    ← Back
+                </button>
+                <a href="student/register.html" class="btn btn-primary">
+                    Student Signup
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- HERO SECTION -->
+        <div class="hero">
+            <div class="badge">
+                🛡️ Platform Policy & Governance
+            </div>
+            <h1>EduMatch Terms & Conditions</h1>
+            <p>
+                Welcome to EduMatch. Please read these terms carefully before accessing our student marketplace, requesting academic project mentorship, or providing development services.
+            </p>
+            <div class="effective-date">
+                <span><strong>Effective Date:</strong> October 2026</span>
+                <span>•</span>
+                <span><strong>Version:</strong> 2.4 (DSA Edition)</span>
+            </div>
+        </div>
+
+        <!-- FOUR CORE PILLARS -->
+        <div class="pillars-grid">
+            <div class="pillar-card">
+                <span class="pillar-icon">🎓</span>
+                <div class="pillar-title">Academic Integrity</div>
+                <div class="pillar-desc">Mentorship and guided project development designed to uphold university ethical guidelines.</div>
+            </div>
+            <div class="pillar-card">
+                <span class="pillar-icon">🔒</span>
+                <div class="pillar-title">IP Protection</div>
+                <div class="pillar-desc">Students retain 100% intellectual property ownership of delivered custom code upon settlement.</div>
+            </div>
+            <div class="pillar-card">
+                <span class="pillar-icon">⚡</span>
+                <div class="pillar-title">Algorithmic Match</div>
+                <div class="pillar-desc">Unbiased, merit-driven matchmaking powered by custom heaps, graphs, and search tries.</div>
+            </div>
+            <div class="pillar-card">
+                <span class="pillar-icon">🤝</span>
+                <div class="pillar-title">Fair Collaboration</div>
+                <div class="pillar-desc">Transparent milestone pricing, clear deliverables, and responsive platform dispute mediation.</div>
+            </div>
+        </div>
+
+        <!-- QUICK TABLE OF CONTENTS -->
+        <div class="toc-box">
+            <div class="toc-title">
+                📑 Quick Table of Contents
+            </div>
+            <div class="toc-links">
+                <a href="#acceptance" class="toc-link">1. Acceptance of Terms</a>
+                <a href="#accounts" class="toc-link">2. Accounts & Eligibility</a>
+                <a href="#students" class="toc-link">3. Student Responsibilities</a>
+                <a href="#providers" class="toc-link">4. Provider Standards</a>
+                <a href="#academic-integrity" class="toc-link">5. Academic Integrity Policy</a>
+                <a href="#payments" class="toc-link">6. Pricing & Milestones</a>
+                <a href="#intellectual-property" class="toc-link">7. Intellectual Property</a>
+                <a href="#disputes" class="toc-link">8. Disputes & Resolution</a>
+                <a href="#termination" class="toc-link">9. Termination</a>
+                <a href="#contact" class="toc-link">10. Contact & Support</a>
+            </div>
+        </div>
+
+        <!-- 1. ACCEPTANCE OF TERMS -->
+        <section id="acceptance" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">1</div>
+                <h2 class="section-title">Acceptance of Terms</h2>
+            </div>
+            <p>
+                By creating an account, registering as a student or service provider, accessing the EduMatch website, or utilizing the platform's API and matchmaking services, you confirm that you have read, understood, and agree to be bound by these Terms and Conditions.
+            </p>
+            <p>
+                If you do not agree with any part of these terms, you must discontinue your use of EduMatch immediately. Continued use of our portal constitutes affirmative acceptance of any subsequent updates or modifications made to this agreement.
+            </p>
+        </section>
+
+        <!-- 2. ACCOUNTS & ELIGIBILITY -->
+        <section id="accounts" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">2</div>
+                <h2 class="section-title">Account Registration & Security</h2>
+            </div>
+            <p>
+                To utilize the EduMatch matching engine and project collaboration tools, users must register for an authorized account:
+            </p>
+            <ul>
+                <li>You must be at least 16 years of age or enrolled in a recognized secondary or higher education institution.</li>
+                <li>You agree to provide true, accurate, current, and complete information during registration and keep your profile updated.</li>
+                <li>You are solely responsible for maintaining the confidentiality of your login credentials, passwords, and API tokens.</li>
+                <li>Multiple accounts, identity spoofing, or creating accounts to circumvent previous suspensions is strictly prohibited.</li>
+            </ul>
+            <div class="callout">
+                <strong>Security Reminder:</strong> EduMatch will never solicit your password through unsolicited chat, email, or third-party messaging services. Notify support immediately if you suspect unauthorized account access.
+            </div>
+        </section>
+
+        <!-- 3. STUDENT RESPONSIBILITIES -->
+        <section id="students" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">3</div>
+                <h2 class="section-title">Student Responsibilities & Project Requests</h2>
+            </div>
+            <p>
+                Students utilize EduMatch to discover qualified mentors, project guides, and developers. When creating requirements or placing orders:
+            </p>
+            <ul>
+                <li><strong>Clear Scope Definition:</strong> Requirement posts must contain genuine project parameters, technology stacks, deadlines, and fair budget expectations.</li>
+                <li><strong>Respectful Communication:</strong> All messaging across our real-time chat must remain courteous, professional, and free of harassment.</li>
+                <li><strong>Prompt Milestone Reviews:</strong> When a provider delivers code, project documentation, or a milestone artifact, students must inspect and provide constructive feedback within 5 business days.</li>
+            </ul>
+        </section>
+
+        <!-- 4. PROVIDER STANDARDS -->
+        <section id="providers" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">4</div>
+                <h2 class="section-title">Provider & Mentor Professional Standards</h2>
+            </div>
+            <p>
+                Project Providers and Technical Mentors represent the foundation of quality across EduMatch. Providers agree to adhere to the following benchmarks:
+            </p>
+            <ul>
+                <li><strong>Honest Skill Representation:</strong> Providers must only claim proficiency in technologies, languages, and frameworks they genuinely possess.</li>
+                <li><strong>Deliverable Quality:</strong> Code deliverables must be runnable, clean, documented, and accompanied by execution instructions.</li>
+                <li><strong>On-Time Delivery:</strong> In the event of an unavoidable delay, providers must communicate with the student at least 24 hours prior to the agreed milestone deadline.</li>
+                <li><strong>No Malicious Code:</strong> Delivering spyware, ransomware, backdoors, or malicious scripts results in immediate permanent ban and legal escalation.</li>
+            </ul>
+        </section>
+
+        <!-- 5. ACADEMIC INTEGRITY -->
+        <section id="academic-integrity" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">5</div>
+                <h2 class="section-title">Academic Integrity & Ethical Guidelines</h2>
+            </div>
+            <p>
+                EduMatch was conceived as an educational platform to connect students with experienced software engineers, data scientists, and peer mentors to facilitate learning, technical guidance, and collaborative project development.
+            </p>
+            <div class="callout callout-warning">
+                <strong>Important Ethical Notice:</strong> EduMatch promotes guided learning, architectural walkthroughs, debugging assistance, and prototype coaching. Students remain solely responsible for understanding the software they submit to their colleges or universities and adhering to their institution's specific honor code and academic integrity regulations.
+            </div>
+            <ul>
+                <li>Providers are encouraged to provide code comments, architectural diagrams, and video explanations to ensure the student understands the underlying concepts.</li>
+                <li>EduMatch explicitly forbids impersonation in live examinations, academic assessments, or prohibited unauthorized third-party exam completion.</li>
+            </ul>
+        </section>
+
+        <!-- 6. PRICING & MILESTONES -->
+        <section id="payments" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">6</div>
+                <h2 class="section-title">Pricing, Settlement & Milestone Agreements</h2>
+            </div>
+            <p>
+                EduMatch facilitates transparent and fair financial collaboration between students and providers:
+            </p>
+            <ul>
+                <li><strong>Agreed Budgets:</strong> Project pricing is established upon offer acceptance and cannot be arbitrarily inflated mid-development without scope modification.</li>
+                <li><strong>Milestone Progression:</strong> Projects follow progressive statuses: <code>Pending</code> → <code>Accepted</code> → <code>In Progress</code> → <code>Delivered</code> → <code>Completed</code>.</li>
+                <li><strong>Reminders & Settlement:</strong> Providers may initiate payment reminders upon full milestone fulfillment. Students agree to settle verified deliverables in a timely manner.</li>
+            </ul>
+        </section>
+
+        <!-- 7. INTELLECTUAL PROPERTY -->
+        <section id="intellectual-property" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">7</div>
+                <h2 class="section-title">Intellectual Property & Code Ownership</h2>
+            </div>
+            <p>
+                Ownership rights for work produced on the EduMatch platform are defined as follows:
+            </p>
+            <ul>
+                <li><strong>Custom Project Code:</strong> Upon complete settlement of the agreed project fees, the student receives full, perpetual ownership and copyright to the custom code created specifically for their order.</li>
+                <li><strong>Pre-Existing Tools & Libraries:</strong> Open-source packages, third-party libraries, and pre-existing provider frameworks remain subject to their original licenses (e.g., MIT, Apache 2.0, GNU).</li>
+                <li><strong>EduMatch Platform Assets:</strong> The EduMatch brand, matching algorithms, user interface, and proprietary software remain the exclusive property of EduMatch.</li>
+            </ul>
+        </section>
+
+        <!-- 8. DISPUTES & MEDIATION -->
+        <section id="disputes" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">8</div>
+                <h2 class="section-title">Dispute Resolution & Platform Mediation</h2>
+            </div>
+            <p>
+                In the rare instance that a student and provider cannot reach mutual agreement regarding project specifications or deliverable completeness:
+            </p>
+            <ul>
+                <li>Either party may open a formal ticket via the <strong>Dispute Resolution Center</strong> within the portal.</li>
+                <li>EduMatch platform administrators will inspect the initial project requirements, chat logs, code commits, and milestone timestamps.</li>
+                <li>Both parties agree to participate in platform mediation in good faith before seeking external legal remedies.</li>
+            </ul>
+        </section>
+
+        <!-- 9. TERMINATION -->
+        <section id="termination" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">9</div>
+                <h2 class="section-title">Termination & Account Suspension</h2>
+            </div>
+            <p>
+                EduMatch reserves the right to suspend or terminate accounts without prior notice in cases of:
+            </p>
+            <ul>
+                <li>Repeated violations of these Terms and Conditions.</li>
+                <li>Verified fraudulent activity, payment manipulation, or identity theft.</li>
+                <li>Abusive, discriminatory, or harassing behavior towards students, providers, or platform staff.</li>
+            </ul>
+        </section>
+
+        <!-- 10. CONTACT & SUPPORT -->
+        <section id="contact" class="terms-section">
+            <div class="section-header">
+                <div class="section-num">10</div>
+                <h2 class="section-title">Contact & Platform Inquiries</h2>
+            </div>
+            <p>
+                If you have questions regarding these Terms and Conditions, or need clarification regarding academic compliance or platform rules, our support team is available to assist you:
+            </p>
+            <ul>
+                <li><strong>Official Email:</strong> support@edumatch.edu</li>
+                <li><strong>Lead Developer & Creator:</strong> Vishwajeet Rawat & Team (BCA AI & Data Science)</li>
+                <li><strong>Technical Desk:</strong> EduMatch Campus Collaboration Network, Delhi NCR, India</li>
+            </ul>
+        </section>
+
+        <!-- BOTTOM RETURN ACTION -->
+        <div class="bottom-actions">
+            <h3>Ready to Get Started?</h3>
+            <p>Join thousands of students and mentors building real-world projects today.</p>
+            <div class="action-btns">
+                <a href="student/register.html" class="btn btn-primary" style="padding: 12px 24px; font-size: 14px;">
+                    Create Student Account →
+                </a>
+                <a href="provider/register.html" class="btn btn-outline" style="padding: 12px 24px; font-size: 14px;">
+                    Become a Project Provider →
+                </a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>© 2026 EduMatch Platform. All rights reserved. Connecting students with technical expertise.</p>
+        <p style="margin-top: 8px;">
+            <a href="index.html">Home</a> •
+            <a href="student/login.html">Student Portal</a> •
+            <a href="provider/login.html">Provider Portal</a> •
+            <a href="terms.html">Terms & Conditions</a>
+        </p>
+    </footer>
+
+    <script src="theme.js"></script>
+</body>
+</html>

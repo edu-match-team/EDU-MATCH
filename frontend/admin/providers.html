@@ -86,9 +86,7 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
     <a class="nav-link active" href="providers.html">Providers</a>
     <a class="nav-link" href="services.html">Services</a>
     <a class="nav-link" href="orders.html">Orders</a>
-    <a class="nav-link" href="disputes.html">Disputes</a>
     <a class="nav-link" href="reports.html">Reports</a>
-    <a class="nav-link" href="settings.html">Settings</a>
     <h4>Account</h4>
     <a class="nav-link" href="#" id="logoutButton">Logout</a>
 </aside>
@@ -168,7 +166,9 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
 </div>
 
 <script>
-const API = "http://127.0.0.1:5000/api";
+const API = window.location.protocol.startsWith("http")
+    ? (window.location.origin + "/api")
+    : "http://127.0.0.1:5000/api";
 const rows = document.getElementById("providerRows");
 const message = document.getElementById("message");
 let providers = [];
@@ -184,7 +184,9 @@ function esc(value){
 }
 
 function statusOf(provider){
-    return String(provider.status || "unknown").toLowerCase();
+    if (provider.status) return String(provider.status).toLowerCase();
+    if (provider.is_active === 0 || provider.is_active === false) return "suspended";
+    return "active";
 }
 
 function personName(provider){
@@ -266,7 +268,14 @@ async function loadProviders(){
         }
 
         providers = data.providers;
-        setStats();
+        if (data.stats) {
+            document.getElementById("total").textContent = data.stats.total;
+            document.getElementById("active").textContent = data.stats.active;
+            document.getElementById("pending").textContent = data.stats.pending || 0;
+            document.getElementById("suspended").textContent = data.stats.suspended;
+        } else {
+            setStats();
+        }
         render();
 
     }catch(error){
@@ -326,6 +335,7 @@ function render(){
                 <button class="view" data-action="view" data-id="${esc(id)}">View</button>
                 ${canSuspend ? `<button class="suspend" data-action="suspend" data-id="${esc(id)}">Suspend</button>` : ""}
                 ${canActivate ? `<button class="activate" data-action="activate" data-id="${esc(id)}">Activate</button>` : ""}
+                <button class="suspend" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5;" data-action="delete" data-id="${esc(id)}">Delete</button>
             </td>`;
         rows.appendChild(tr);
     });
@@ -349,16 +359,26 @@ async function viewProvider(id){
         box.innerHTML = `
         <div class="details">
             <div class="detail"><small>Provider ID</small><p>${esc(p.id ?? p.provider_id ?? id)}</p></div>
-            <div class="detail"><small>Status</small><p>${esc(p.status || "Unknown")}</p></div>
+            <div class="detail"><small>Status</small><p><span class="badge ${statusOf(p)}">${statusOf(p).toUpperCase()}</span></p></div>
             <div class="detail"><small>Name</small><p>${esc(personName(p))}</p></div>
             <div class="detail"><small>Email</small><p>${esc(p.email || "Not available")}</p></div>
             <div class="detail"><small>Phone</small><p>${esc(p.phone || "Not available")}</p></div>
-            <div class="detail"><small>Professional Title</small><p>${esc(p.professional_title || p.title || "Not provided")}</p></div>
-            <div class="detail"><small>Experience (years)</small><p>${esc(p.experience_years ?? "Not provided")}</p></div>
-            <div class="detail"><small>Joined</small><p>${esc(dateText(p.created_at))}</p></div>
+            <div class="detail"><small>Professional Title</small><p>${esc(p.title || p.professional_title || "Mentor & Developer")}</p></div>
+            <div class="detail"><small>Category</small><p>${esc(p.category || "Software Engineering")}</p></div>
+            <div class="detail"><small>Rating</small><p>⭐ ${esc(p.rating ?? 5.0)} / 5.0</p></div>
+            <div class="detail"><small>Starting Price</small><p>₹${esc(p.starting_price ?? 1500)}</p></div>
+            <div class="detail"><small>Joined Date</small><p>${esc(dateText(p.created_at))}</p></div>
         </div>
-        <div class="description"><strong>Skills</strong><p>${esc(skillsText(p))}</p></div>
-        <div class="description"><strong>Biography</strong><p>${esc(p.bio || "No biography provided.")}</p></div>`;
+        <div class="description" style="margin-top:12px;"><strong>Skills / Expertise</strong><p>${esc(skillsText(p))}</p></div>
+        <div class="description" style="margin-top:12px;"><strong>Biography</strong><p>${esc(p.bio || "No biography provided.")}</p></div>
+        <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:10px;">
+            ${statusOf(p) === "active" ? `
+                <button class="suspend" onclick="changeStatus(${p.id}, 'suspend')">Suspend Account</button>
+            ` : `
+                <button class="activate" onclick="changeStatus(${p.id}, 'activate')">Activate Account</button>
+            `}
+            <button class="suspend" style="background:#ef4444; color:white; border-color:#dc2626;" onclick="deleteProviderAccount(${p.id})">Delete Provider</button>
+        </div>`;
     }catch(error){
         box.textContent = error.message;
     }
@@ -400,7 +420,20 @@ rows.addEventListener("click", event => {
 
     if(action === "view") viewProvider(id);
     if(action === "suspend" || action === "activate") changeStatus(id, action);
+    if(action === "delete") deleteProviderAccount(id);
 });
+
+async function deleteProviderAccount(id){
+    if(!confirm("Are you sure you want to permanently delete this provider account? This cannot be undone.")) return;
+    try{
+        await request("/admin/users/" + encodeURIComponent(id), { method:"DELETE" });
+        alert("Provider account permanently deleted.");
+        document.getElementById("modal").classList.remove("open");
+        await loadProviders();
+    }catch(error){
+        alert("Could not delete provider: " + error.message);
+    }
+}
 
 document.getElementById("search").addEventListener("input", render);
 document.getElementById("status").addEventListener("change", render);

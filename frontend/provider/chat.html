@@ -260,6 +260,11 @@
             grid-template-columns: 330px 1fr;
             height: calc(100vh - 64px);
             overflow: hidden;
+            transition: grid-template-columns 0.25s ease;
+        }
+
+        .chat-workspace.show-profile {
+            grid-template-columns: 300px 1fr 340px;
         }
 
         /* CONVERSATIONS PANE */
@@ -876,6 +881,209 @@
             font-weight: 700;
         }
 
+        /* STUDENT PROFILE DRAWER */
+        .student-profile-pane {
+            background: #ffffff;
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+            z-index: 6;
+        }
+
+        .profile-pane-header {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fdfcff;
+        }
+
+        .profile-pane-header h3 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--navy);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .profile-pane-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .profile-icon-btn {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .profile-icon-btn:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .profile-pane-body {
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .student-profile-card {
+            text-align: center;
+            padding: 18px 12px;
+            background: linear-gradient(180deg, #f8f7ff 0%, #ffffff 100%);
+            border-radius: 14px;
+            border: 1px solid #ede9fe;
+        }
+
+        .student-profile-big-avatar {
+            width: 76px;
+            height: 76px;
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            background: #EDE9FE;
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(108,77,246,0.18);
+        }
+
+        .student-profile-big-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-profile-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--navy);
+            margin-bottom: 4px;
+        }
+
+        .student-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            background: #e0e7ff;
+            color: #4338ca;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .profile-section-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .profile-info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 12.5px;
+        }
+
+        .profile-info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            color: #334155;
+            background: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .profile-info-item .icon {
+            font-size: 14px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .profile-skills-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .profile-skill-chip {
+            background: #f1f5f9;
+            color: #334155;
+            padding: 4px 9px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }
+
+        .profile-links-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .profile-social-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--navy);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .profile-social-link:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .profile-updated-toast {
+            display: none;
+            background: #dcfce7;
+            border: 1px solid #86efac;
+            color: #15803d;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+            animation: fadeIn 0.2s ease;
+        }
+
         /* Responsive */
         @media (max-width: 900px) {
             .sidebar {
@@ -1005,6 +1213,9 @@
                     </div>
 
                     <div class="chat-header-actions" id="chatHeaderActions" style="display:none;">
+                        <button type="button" class="chat-tool-btn" id="toggleProfileBtn" title="View Student Live Profile">
+                            👤 Student Profile
+                        </button>
                         <button type="button" class="chat-tool-btn primary" id="shareDeliverableBtn">
                             📦 Submit Deliverable
                         </button>
@@ -1063,6 +1274,106 @@
                 </form>
 
             </div>
+
+            <!-- RIGHTMOST: STUDENT LIVE PROFILE DRAWER -->
+            <aside class="student-profile-pane" id="studentProfilePane" style="display:none;">
+                <div class="profile-pane-header">
+                    <h3><span>👤</span> Student Profile</h3>
+                    <div class="profile-pane-actions">
+                        <button type="button" class="profile-icon-btn" id="refreshStudentProfileBtn" title="Fetch latest updates from student profile">
+                            🔄 Refresh
+                        </button>
+                        <button type="button" class="profile-icon-btn" id="closeProfilePaneBtn" title="Close Profile View">
+                            ✕
+                        </button>
+                    </div>
+                </div>
+
+                <div class="profile-pane-body" id="studentProfileContent">
+                    <div id="profileUpdatedToast" class="profile-updated-toast">
+                        ✓ Profile details refreshed from server!
+                    </div>
+
+                    <div class="student-profile-card">
+                        <div class="student-profile-big-avatar" id="paneStudentAvatar">S</div>
+                        <h4 class="student-profile-name" id="paneStudentName">Student</h4>
+                        <div class="student-badge-pill">🎓 Verified Student</div>
+                        <p id="paneStudentHeadline" style="font-size:12px; color:var(--text-muted); line-height:1.4;">Active Academic Inquirer</p>
+                    </div>
+
+                    <div>
+                        <div class="profile-section-title">🏛️ Academic Details</div>
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item">
+                                <span class="icon">🏫</span>
+                                <div>
+                                    <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">INSTITUTION</div>
+                                    <div id="paneStudentInstitution" style="font-weight:600;">Not specified</div>
+                                </div>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="icon">🎓</span>
+                                <div>
+                                    <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">DEGREE & BRANCH</div>
+                                    <div id="paneStudentDegree" style="font-weight:600;">Not specified</div>
+                                </div>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="icon">📅</span>
+                                <div>
+                                    <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">YEAR OF STUDY</div>
+                                    <div id="paneStudentYear" style="font-weight:600;">Not specified</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="profile-section-title">✉️ Contact Information</div>
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item">
+                                <span class="icon">📧</span>
+                                <div style="min-width:0; overflow:hidden;">
+                                    <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">EMAIL</div>
+                                    <div id="paneStudentEmail" style="font-weight:600; text-overflow:ellipsis; overflow:hidden;">student@edumatch.edu</div>
+                                </div>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="icon">📱</span>
+                                <div>
+                                    <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">PHONE</div>
+                                    <div id="paneStudentPhone" style="font-weight:600;">Not provided</div>
+                                </div>
+                            </div>
+                            <div class="profile-info-item">
+                                <span class="icon">📍</span>
+                                <div>
+                                    <div style="font-size:10.5px; color:var(--text-muted); font-weight:700;">LOCATION</div>
+                                    <div id="paneStudentLocation" style="font-weight:600;">Not provided</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="paneBioSection" style="display:none;">
+                        <div class="profile-section-title">📝 Bio & Goals</div>
+                        <div id="paneStudentBio" style="font-size:12px; color:#475569; line-height:1.6; background:#f8fafc; padding:10px 12px; border-radius:8px; border:1px solid #f1f5f9;">
+                        </div>
+                    </div>
+
+                    <div id="paneSkillsSection" style="display:none;">
+                        <div class="profile-section-title">⚡ Skills & Interests</div>
+                        <div class="profile-skills-wrap" id="paneSkillsWrap">
+                        </div>
+                    </div>
+
+                    <div id="paneLinksSection" style="display:none;">
+                        <div class="profile-section-title">🔗 Portfolios & Profiles</div>
+                        <div class="profile-links-row" id="paneLinksWrap">
+                        </div>
+                    </div>
+                </div>
+            </aside>
 
         </div>
 
@@ -1154,8 +1465,8 @@
             if (!isNaN(lastPart) && Number(lastPart) > 0) return Number(lastPart);
         }
         try {
-            const u = JSON.parse(localStorage.getItem("edumatch_user") || "{}");
-            if (u && u.id) return Number(u.id);
+            const u = JSON.parse(localStorage.getItem("eduMatchUser") || localStorage.getItem("edumatch_user") || "{}");
+            if (u && (u.id || u.user_id)) return Number(u.id || u.user_id);
         } catch(e) {}
         return null;
     }
@@ -1247,6 +1558,36 @@
                 if (matched) {
                     selectConversation(matched);
                     return;
+                } else {
+                    try {
+                        const startRes = await fetch(`${API_BASE}/chat/start`, {
+                            method: "POST",
+                            headers: getAuthHeaders(),
+                            credentials: "include",
+                            body: JSON.stringify({ other_user_id: Number(reqStudentId), student_id: Number(reqStudentId) })
+                        });
+                        if (startRes.ok) {
+                            const startData = await startRes.json();
+                            if (startData.conversation_id) {
+                                const refetch = await fetch(`${API_BASE}/provider/conversations`, {
+                                    headers: getAuthHeaders(),
+                                    credentials: "include"
+                                });
+                                if (refetch.ok) {
+                                    const rData = await refetch.json();
+                                    conversations = rData.conversations || [];
+                                    renderConversationsList();
+                                    const newMatched = conversations.find(c => String(c.id) === String(startData.conversation_id));
+                                    if (newMatched) {
+                                        selectConversation(newMatched);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    } catch(err) {
+                        console.warn("Failed to auto-start chat with student:", err);
+                    }
                 }
             }
 
@@ -1321,6 +1662,30 @@
         if (c) selectConversation(c);
     };
 
+    let isProfilePaneOpen = window.innerWidth > 1024;
+
+    function toggleStudentProfile(forceOpen) {
+        if (typeof forceOpen === "boolean") {
+            isProfilePaneOpen = forceOpen;
+        } else {
+            isProfilePaneOpen = !isProfilePaneOpen;
+        }
+        const workspace = document.querySelector(".chat-workspace");
+        const profilePane = document.getElementById("studentProfilePane");
+        const toggleBtn = document.getElementById("toggleProfileBtn");
+        if (workspace && profilePane) {
+            if (isProfilePaneOpen) {
+                workspace.classList.add("show-profile");
+                profilePane.style.display = "flex";
+                if (toggleBtn) toggleBtn.classList.add("primary");
+            } else {
+                workspace.classList.remove("show-profile");
+                profilePane.style.display = "none";
+                if (toggleBtn) toggleBtn.classList.remove("primary");
+            }
+        }
+    }
+
     function selectConversation(c) {
         activeConvId = c.id;
         activeStudent = c;
@@ -1338,11 +1703,152 @@
         document.getElementById("chatHeaderActions").style.display = "flex";
         document.getElementById("messageForm").style.display = "flex";
 
+        // Initialize Student Profile Drawer
+        if (c.student_profile || c.other_user) {
+            updateStudentProfilePane(c.student_profile || c.other_user);
+        } else if (c.other_user_id) {
+            fetchLatestStudentProfile(c.other_user_id);
+        }
+
+        if (window.innerWidth > 1024) {
+            toggleStudentProfile(true);
+        }
+
         loadActiveMessages();
 
         // Start live polling every 3.5 seconds
         if (pollTimer) clearInterval(pollTimer);
         pollTimer = setInterval(loadActiveMessages, 3500);
+    }
+
+    // Fetch up-to-date student profile from API
+    async function fetchLatestStudentProfile(studentId) {
+        if (!studentId) return;
+        try {
+            const res = await fetch(`${API_BASE}/students/profile/${studentId}`, {
+                headers: getAuthHeaders(),
+                credentials: "include"
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.profile) {
+                    updateStudentProfilePane(data.profile);
+                }
+            }
+        } catch(err) {
+            console.warn("Fetch student profile error:", err);
+        }
+    }
+
+    // Refresh student profile manually with toast feedback
+    async function refreshStudentProfile() {
+        if (!activeStudent || !activeStudent.other_user_id) return;
+        const btn = document.getElementById("refreshStudentProfileBtn");
+        if (btn) btn.innerHTML = "⏳ Updating...";
+        await fetchLatestStudentProfile(activeStudent.other_user_id);
+        if (btn) btn.innerHTML = "🔄 Refresh";
+        const toast = document.getElementById("profileUpdatedToast");
+        if (toast) {
+            toast.style.display = "block";
+            setTimeout(() => { toast.style.display = "none"; }, 3000);
+        }
+    }
+
+    // Update the Student Profile Drawer UI
+    function updateStudentProfilePane(prof) {
+        if (!prof) return;
+        const name = prof.full_name || prof.name || activeStudent?.other_user_name || "Student";
+        const photo = prof.photo || prof.profile_photo || activeStudent?.other_user_photo || "";
+        const institution = prof.institution || "Not specified";
+        const degree = [prof.degree, prof.specialization].filter(Boolean).join(" - ") || "Not specified";
+        const year = prof.year ? (String(prof.year).toLowerCase().includes("year") ? String(prof.year) : (prof.year + " Year")) : "Not specified";
+        const email = prof.email || "Not specified";
+        const phone = prof.phone || "Not specified";
+        const location = prof.location || "Not specified";
+        const bio = prof.bio || "";
+        const skills = prof.skills_list || (typeof prof.skills === "string" ? prof.skills.split(",").map(s => s.trim()).filter(Boolean) : []);
+        const github = prof.github || "";
+        const linkedin = prof.linkedin || "";
+        const portfolio = prof.portfolio || "";
+
+        // Avatar & Name
+        const avatarEl = document.getElementById("paneStudentAvatar");
+        if (avatarEl) {
+            if (photo) {
+                avatarEl.innerHTML = `<img src="${photo}" alt="${name}">`;
+            } else {
+                avatarEl.textContent = name.charAt(0).toUpperCase();
+            }
+        }
+        const nameEl = document.getElementById("paneStudentName");
+        if (nameEl) nameEl.textContent = name;
+
+        const headlineEl = document.getElementById("paneStudentHeadline");
+        if (headlineEl) {
+            headlineEl.textContent = institution !== "Not specified" ? `${institution} · ${degree}` : "Active Academic Inquirer";
+        }
+
+        // Academic Details
+        const instEl = document.getElementById("paneStudentInstitution");
+        if (instEl) instEl.textContent = institution;
+        const degEl = document.getElementById("paneStudentDegree");
+        if (degEl) degEl.textContent = degree;
+        const yearEl = document.getElementById("paneStudentYear");
+        if (yearEl) yearEl.textContent = year;
+
+        // Contact Details
+        const emailEl = document.getElementById("paneStudentEmail");
+        if (emailEl) emailEl.textContent = email;
+        const phoneEl = document.getElementById("paneStudentPhone");
+        if (phoneEl) phoneEl.textContent = phone;
+        const locEl = document.getElementById("paneStudentLocation");
+        if (locEl) locEl.textContent = location;
+
+        // Bio
+        const bioSec = document.getElementById("paneBioSection");
+        const bioEl = document.getElementById("paneStudentBio");
+        if (bioSec && bioEl) {
+            if (bio) {
+                bioEl.textContent = bio;
+                bioSec.style.display = "block";
+            } else {
+                bioSec.style.display = "none";
+            }
+        }
+
+        // Skills
+        const skillsSec = document.getElementById("paneSkillsSection");
+        const skillsWrap = document.getElementById("paneSkillsWrap");
+        if (skillsSec && skillsWrap) {
+            if (skills.length > 0) {
+                skillsWrap.innerHTML = skills.map(s => `<span class="profile-skill-chip">${escapeHtml(s)}</span>`).join("");
+                skillsSec.style.display = "block";
+            } else {
+                skillsSec.style.display = "none";
+            }
+        }
+
+        // Links
+        const linksSec = document.getElementById("paneLinksSection");
+        const linksWrap = document.getElementById("paneLinksWrap");
+        if (linksSec && linksWrap) {
+            let linksHtml = "";
+            if (github) {
+                linksHtml += `<a href="${escapeHtml(github)}" target="_blank" rel="noopener" class="profile-social-link"><span>🐙</span> GitHub Profile ↗</a>`;
+            }
+            if (linkedin) {
+                linksHtml += `<a href="${escapeHtml(linkedin)}" target="_blank" rel="noopener" class="profile-social-link"><span>💼</span> LinkedIn Profile ↗</a>`;
+            }
+            if (portfolio) {
+                linksHtml += `<a href="${escapeHtml(portfolio)}" target="_blank" rel="noopener" class="profile-social-link"><span>🌐</span> Portfolio Website ↗</a>`;
+            }
+            if (linksHtml) {
+                linksWrap.innerHTML = linksHtml;
+                linksSec.style.display = "block";
+            } else {
+                linksSec.style.display = "none";
+            }
+        }
     }
 
     // Load messages for selected conversation
@@ -1359,6 +1865,10 @@
             const data = await res.json();
             if (data.current_user && data.current_user.id) {
                 currentUserId = Number(data.current_user.id);
+            }
+
+            if (data.other_user) {
+                updateStudentProfilePane(data.other_user);
             }
 
             renderMessagesFeed(data.messages || []);
@@ -1386,7 +1896,10 @@
         feed.innerHTML = `
             <div class="date-divider"><span>Today</span></div>
             ${messages.map(m => {
-                const isMine = myId !== null && String(m.sender_id) === String(myId);
+                // Provider view: Provider messages on RIGHT (sent), Student messages on LEFT (received)
+                const isFromProvider = (m.sender_role === "provider") || (m.sender_role !== "student" && (m.is_mine !== undefined ? Boolean(m.is_mine) : (myId !== null && String(m.sender_id) === String(myId))));
+                const rolePrefix = isFromProvider ? "Provider: " : "Student: ";
+                const senderLabel = isFromProvider ? "Provider" : escapeHtml(m.sender_name || activeStudent?.other_user_name || "Student");
                 const time = formatTime(m.created_at);
                 const isDeleted = m.is_deleted || m.message === "🚫 This message was deleted";
                 const isDeliv = !isDeleted && m.message && m.message.includes("[PROJECT_DELIVERABLE]");
@@ -1402,13 +1915,14 @@
                         const photoSrc = photoMatch[1].trim();
                         const caption = photoMatch[2].trim();
                         bubbleContent = `
+                            <div style="font-weight:700; font-size:11px; margin-bottom:4px; opacity:0.85;">${rolePrefix}Photo</div>
                             <div style="margin-bottom:${caption ? '8px' : '0'};">
                                 <img src="${photoSrc}" alt="Project Photo" style="max-width:100%; max-height:280px; border-radius:10px; display:block; object-fit:contain; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.12);" onclick="window.open(this.src, '_blank')">
                             </div>
                             ${caption ? `<div style="font-size:13px; line-height:1.5;">${escapeHtml(caption)}</div>` : ''}
                         `;
                     } else {
-                        bubbleContent = escapeHtml(m.message);
+                        bubbleContent = escapeHtml(rolePrefix + m.message);
                     }
                 } else if (isDeliv) {
                     try {
@@ -1417,7 +1931,7 @@
                         bubbleContent = `
                             <div class="deliverable-card-bubble">
                                 <div class="deliverable-badge-row">
-                                    <span class="deliv-tag">📦 Project Deliverable</span>
+                                    <span class="deliv-tag">📦 Provider: Project Deliverable</span>
                                     <span style="font-size:11px; color:#6d28d9; font-weight:700;">Completed</span>
                                 </div>
                                 <div class="deliv-title">${escapeHtml(p.title || "Project Deliverable")}</div>
@@ -1428,21 +1942,22 @@
                             </div>
                         `;
                     } catch {
-                        bubbleContent = escapeHtml(m.message);
+                        bubbleContent = escapeHtml(rolePrefix + m.message);
                     }
                 } else {
-                    bubbleContent = escapeHtml(m.message);
+                    bubbleContent = escapeHtml(rolePrefix + m.message);
                 }
 
                 return `
-                    <div class="message-row ${isMine ? 'sent' : 'received'}">
+                    <div class="message-row ${isFromProvider ? 'sent' : 'received'}">
+                        <span style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:3px; ${isFromProvider ? 'text-align:right;' : 'text-align:left;'}">${senderLabel}</span>
                         <div class="bubble-wrapper">
-                            ${!isDeleted ? `<button type="button" class="msg-actions-trigger" title="Delete message" onclick="window.triggerDeleteMessage(${m.id}, ${isMine})">🗑️</button>` : ''}
+                            ${!isDeleted ? `<button type="button" class="msg-actions-trigger" title="Delete message" onclick="window.triggerDeleteMessage(${m.id}, ${isFromProvider})">🗑️</button>` : ''}
                             <div class="message-bubble">${bubbleContent}</div>
                         </div>
                         <div class="message-meta">
                             <span>${time}</span>
-                            ${isMine ? '<span>✓✓</span>' : ''}
+                            ${isFromProvider ? '<span style="color:#a78bfa; font-weight:bold;">✓✓</span>' : ''}
                         </div>
                     </div>
                 `;
@@ -1714,10 +2229,28 @@
     // Search filter
     document.getElementById("convSearchInput").addEventListener("input", renderConversationsList);
 
-    // Sidebar Mobile Toggle
-    document.getElementById("menuToggle").addEventListener("click", () => {
-        document.getElementById("sidebar").classList.toggle("open");
-    });
+    // Student Profile Drawer Listeners
+    const toggleProfileBtn = document.getElementById("toggleProfileBtn");
+    if (toggleProfileBtn) {
+        toggleProfileBtn.addEventListener("click", () => toggleStudentProfile());
+    }
+
+    const closeProfilePaneBtn = document.getElementById("closeProfilePaneBtn");
+    if (closeProfilePaneBtn) {
+        closeProfilePaneBtn.addEventListener("click", () => toggleStudentProfile(false));
+    }
+
+    const refreshStudentProfileBtn = document.getElementById("refreshStudentProfileBtn");
+    if (refreshStudentProfileBtn) {
+        refreshStudentProfileBtn.addEventListener("click", refreshStudentProfile);
+    }
+
+    const menuToggle = document.getElementById("menuToggle");
+    if (menuToggle) {
+        menuToggle.addEventListener("click", () => {
+            document.getElementById("sidebar")?.classList.toggle("open");
+        });
+    }
 
     // Initialize
     loadProviderInfo();

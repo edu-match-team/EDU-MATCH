@@ -33,4 +33,4 @@ configure_admin.py
 verify_e2e.py
 .playwright-mcp/
 backend/database/*.db
-
+cloudflared.exe

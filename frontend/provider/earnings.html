@@ -680,7 +680,9 @@
      * This page does not create fake transactions or earnings.
      */
 
-    const API_BASE_URL = "http://127.0.0.1:5000/api";
+    const API_BASE_URL = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
 
     const elements = {
         sidebar: document.getElementById("sidebar"),
@@ -780,6 +782,16 @@
             headers["Authorization"] = "Bearer " + token;
         }
 
+        try {
+            const rawUser = localStorage.getItem("edumatch_user") || localStorage.getItem("eduMatchUser");
+            if (rawUser) {
+                const u = JSON.parse(rawUser);
+                if (u && u.id) {
+                    headers["X-User-Id"] = String(u.id);
+                }
+            }
+        } catch (_) {}
+
         const response = await fetch(API_BASE_URL + endpoint, {
             method: "GET",
             headers: headers,
@@ -795,8 +807,7 @@
 
             if (response.status === 404) {
                 throw new Error(
-                    "The earnings API has not been implemented at " +
-                    endpoint + ". Create the Flask backend endpoint first."
+                    "The requested endpoint was not found: " + endpoint
                 );
             }
 

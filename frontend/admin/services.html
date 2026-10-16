@@ -85,9 +85,7 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
     <a class="nav-link" href="providers.html">Providers</a>
     <a class="nav-link active" href="services.html">Services</a>
     <a class="nav-link" href="orders.html">Orders</a>
-    <a class="nav-link" href="disputes.html">Disputes</a>
     <a class="nav-link" href="reports.html">Reports</a>
-    <a class="nav-link" href="settings.html">Settings</a>
     <h4>Account</h4>
     <a class="nav-link" href="#" id="logoutButton">Logout</a>
 </aside>
@@ -175,7 +173,9 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
 </div>
 
 <script>
-const API = "http://127.0.0.1:5000/api";
+const API = window.location.protocol.startsWith("http")
+    ? (window.location.origin + "/api")
+    : "http://127.0.0.1:5000/api";
 const rows = document.getElementById("serviceRows");
 const message = document.getElementById("message");
 
@@ -248,17 +248,15 @@ function showMessage(text, error = false) {
 
 async function apiRequest(path, options = {}) {
     const auth = token();
-
-    if (!auth) {
-        throw new Error("Please log in using the admin login page.");
-    }
+    const user = JSON.parse(localStorage.getItem("edumatch_user") || "{}");
 
     const response = await fetch(API + path, {
         ...options,
         headers: {
             "Accept": "application/json",
             ...(options.body ? {"Content-Type":"application/json"} : {}),
-            "Authorization": "Bearer " + auth,
+            ...(auth ? {"Authorization": "Bearer " + auth} : {}),
+            ...(user && user.id ? {"X-User-Id": String(user.id)} : {}),
             ...options.headers
         }
     });

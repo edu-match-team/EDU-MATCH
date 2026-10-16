@@ -885,8 +885,10 @@
         const providerList = document.getElementById("providerList");
         const resultCount = document.getElementById("resultCount");
 
-        // Parse query params if redirected from requirement post
+        // Parse query params if redirected from dashboard or requirement post
         const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("q")) searchInput.value = urlParams.get("q");
+        if (urlParams.get("search")) searchInput.value = urlParams.get("search");
         if (urlParams.get("skill")) skillFilter.value = urlParams.get("skill");
         if (urlParams.get("category")) categoryFilter.value = urlParams.get("category");
         if (urlParams.get("budget")) budgetFilter.value = urlParams.get("budget");
@@ -1215,7 +1217,7 @@
             submitBtn.textContent = "Sending Order Request...";
 
             try {
-                const res = await fetch("http://127.0.0.1:5000/api/requests", {
+                const res = await fetch(API_BASE + "/requests", {
                     method: "POST",
                     credentials: "include",
                     headers: {

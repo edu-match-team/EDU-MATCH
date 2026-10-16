@@ -847,7 +847,9 @@
           It does not create accounts locally or generate fake users.
         */
 
-        const API_BASE_URL = "http://127.0.0.1:5000/api";
+        const API_BASE_URL = window.location.protocol.startsWith("http")
+            ? (window.location.origin + "/api")
+            : "http://127.0.0.1:5000/api";
 
         const registerForm = document.getElementById("registerForm");
         const registerButton = document.getElementById("registerButton");
@@ -1159,6 +1161,18 @@
                 */
 
                 registerForm.reset();
+
+                // Clear any leftover previous user keys
+                localStorage.removeItem("edumatch_student_photo");
+                localStorage.removeItem("eduMatchUserPhoto");
+                localStorage.removeItem("studentName");
+                localStorage.removeItem("providerName");
+                localStorage.removeItem("edumatch_provider_photo");
+                localStorage.removeItem("edumatch_provider_name");
+                localStorage.removeItem("edumatch_provider_profile");
+                localStorage.removeItem("edumatch_token");
+                localStorage.removeItem("eduMatchUser");
+                localStorage.removeItem("edumatch_user");
 
                 passwordStrength.textContent = "";
                 passwordStrength.className = "password-strength";

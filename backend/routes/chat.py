@@ -12,16 +12,28 @@ chat_bp = Blueprint("chat", __name__)
 
 
 def get_authenticated_user_id():
-    user_id = session.get("user_id")
-    if user_id:
-        return user_id
-
     auth_header = request.headers.get("Authorization", "")
     if auth_header.startswith("Bearer edumatch_token_"):
         try:
             return int(auth_header.split("_")[-1])
         except ValueError:
             pass
+    elif auth_header.startswith("Bearer "):
+        token_val = auth_header.split(" ", 1)[1].strip()
+        parts = token_val.split("_")
+        try:
+            return int(parts[-1])
+        except (ValueError, IndexError):
+            pass
+
+    x_uid = request.headers.get("X-User-Id", "").strip()
+    if x_uid.isdigit():
+        return int(x_uid)
+
+    user_id = session.get("user_id")
+    if user_id:
+        return user_id
+
     return None
 
 
@@ -39,12 +51,18 @@ def list_conversations():
     for c in raw_convs:
         u_row = db.execute(
             """
-            SELECT COALESCE(
-                NULLIF(u.profile_photo, ''),
-                NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
-                NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
-                ''
-            ) AS photo
+            SELECT u.id, u.full_name, u.email, u.role,
+                   COALESCE(
+                       NULLIF(u.profile_photo, ''),
+                       NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
+                       NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
+                       ''
+                   ) AS photo,
+                   COALESCE((SELECT institution FROM student_profiles WHERE user_id = u.id), '') AS institution,
+                   COALESCE((SELECT degree FROM student_profiles WHERE user_id = u.id), '') AS degree,
+                   COALESCE((SELECT skills FROM student_profiles WHERE user_id = u.id), '') AS skills,
+                   COALESCE((SELECT bio FROM student_profiles WHERE user_id = u.id), '') AS bio,
+                   COALESCE((SELECT phone FROM student_profiles WHERE user_id = u.id), '') AS phone
             FROM users u WHERE u.id = ?
             """,
             (c["other_user_id"],)
@@ -52,6 +70,25 @@ def list_conversations():
         photo = u_row["photo"] if u_row else ""
         formatted.append({
             "id": c["id"],
+            "conversation_id": c["id"],
+            "other_user_id": c["other_user_id"],
+            "other_user_name": c["other_user_name"],
+            "other_user_role": c["other_user_role"].capitalize(),
+            "other_user_photo": photo,
+            "student_profile": {
+                "id": c["other_user_id"],
+                "full_name": c["other_user_name"],
+                "name": c["other_user_name"],
+                "photo": photo,
+                "profile_photo": photo,
+                "institution": u_row["institution"] if u_row else "",
+                "college": u_row["institution"] if u_row else "",
+                "degree": u_row["degree"] if u_row else "",
+                "skills": u_row["skills"] if u_row else "",
+                "bio": u_row["bio"] if u_row else "",
+                "phone": u_row["phone"] if u_row else "",
+                "email": u_row["email"] if u_row else ""
+            } if u_row and u_row["role"] == "student" else None,
             "participant": {
                 "id": c["other_user_id"],
                 "name": c["other_user_name"],
@@ -105,17 +142,38 @@ def start_conversation():
         return jsonify({"success": False, "message": "Invalid recipient user ID."}), 400
 
     db = get_db()
-    # Check if target_id is actually a provider_profiles.id
-    if "provider_id" in data or not get_user_by_id(target_id):
+    # Check if target_id is directly a user in users table
+    target = get_user_by_id(target_id)
+    if not target:
+        # Check if target_id was a provider_profiles.id
         p_row = db.execute("SELECT user_id FROM provider_profiles WHERE id = ?", (target_id,)).fetchone()
         if p_row:
             target_id = p_row["user_id"]
+            target = get_user_by_id(target_id)
+    if not target:
+        # Check if target_id was a student_profiles.id
+        s_row = db.execute("SELECT user_id FROM student_profiles WHERE id = ?", (target_id,)).fetchone()
+        if s_row:
+            target_id = s_row["user_id"]
+            target = get_user_by_id(target_id)
 
-    target = get_user_by_id(target_id)
     if not target:
         return jsonify({"success": False, "message": "User not found."}), 404
 
     conv_id = get_or_create_conversation(user_id, target_id)
+    u_photo = db.execute(
+        """
+        SELECT COALESCE(
+            NULLIF(u.profile_photo, ''),
+            NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
+            NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
+            ''
+        ) AS photo
+        FROM users u WHERE u.id = ?
+        """,
+        (target["id"],)
+    ).fetchone()
+
     return jsonify({
         "success": True,
         "conversation_id": conv_id,
@@ -123,7 +181,7 @@ def start_conversation():
             "id": target["id"],
             "name": target["full_name"],
             "role": target["role"],
-            "photo": target["profile_photo"] if "profile_photo" in target.keys() else ""
+            "photo": u_photo["photo"] if u_photo else ""
         }
     }), 200
 
@@ -141,6 +199,8 @@ def conversation_messages(conv_id):
     if not c or (c["user1_id"] != user_id and c["user2_id"] != user_id):
         return jsonify({"success": False, "message": "Unauthorized conversation access."}), 403
 
+    other_user_id = c["user2_id"] if c["user1_id"] == user_id else c["user1_id"]
+
     if request.method == "GET":
         raw_msgs = get_messages(conv_id, user_id)
         formatted = []
@@ -150,15 +210,51 @@ def conversation_messages(conv_id):
                 "conversation_id": m["conversation_id"],
                 "sender_id": m["sender_id"],
                 "sender_name": m["sender_name"],
+                "sender_role": m.get("sender_role", ""),
                 "sender_photo": m.get("sender_photo", ""),
+                "is_mine": (m["sender_id"] == user_id),
                 "message": m["message_text"],
                 "is_deleted": m.get("is_deleted", False),
                 "created_at": m["created_at"]
             })
+
+        other_row = db.execute(
+            """
+            SELECT u.id, u.full_name, u.email, u.role,
+                   COALESCE(
+                       NULLIF(u.profile_photo, ''),
+                       NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
+                       NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
+                       ''
+                   ) as photo,
+                   COALESCE((SELECT institution FROM student_profiles WHERE user_id = u.id), '') AS institution,
+                   COALESCE((SELECT degree FROM student_profiles WHERE user_id = u.id), '') AS degree,
+                   COALESCE((SELECT specialization FROM student_profiles WHERE user_id = u.id), '') AS specialization,
+                   COALESCE((SELECT year FROM student_profiles WHERE user_id = u.id), '') AS year,
+                   COALESCE((SELECT skills FROM student_profiles WHERE user_id = u.id), '') AS skills,
+                   COALESCE((SELECT location FROM student_profiles WHERE user_id = u.id), '') AS location,
+                   COALESCE((SELECT bio FROM student_profiles WHERE user_id = u.id), '') AS bio,
+                   COALESCE((SELECT phone FROM student_profiles WHERE user_id = u.id), '') AS phone,
+                   COALESCE((SELECT github FROM student_profiles WHERE user_id = u.id), '') AS github,
+                   COALESCE((SELECT linkedin FROM student_profiles WHERE user_id = u.id), '') AS linkedin,
+                   COALESCE((SELECT portfolio FROM student_profiles WHERE user_id = u.id), '') AS portfolio
+            FROM users u WHERE u.id = ?
+            """,
+            (other_user_id,)
+        ).fetchone()
+
+        other_dict = dict(other_row) if other_row else {}
+        if other_dict:
+            other_dict["name"] = other_dict["full_name"]
+            other_dict["profile_photo"] = other_dict["photo"]
+            raw_s = other_dict.get("skills") or ""
+            other_dict["skills_list"] = [s.strip() for s in raw_s.split(",") if s.strip()] if isinstance(raw_s, str) else []
+
         return jsonify({
             "success": True,
             "messages": formatted,
-            "current_user": {"id": user_id}
+            "current_user": {"id": user_id},
+            "other_user": other_dict
         }), 200
 
     # POST send message

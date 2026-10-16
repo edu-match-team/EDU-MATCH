@@ -163,7 +163,11 @@
                     const photo = prof.profile_photo || "";
 
                     localStorage.setItem("edumatch_provider_name", name);
-                    if (photo) localStorage.setItem("edumatch_provider_photo", photo);
+                    if (photo) {
+                        localStorage.setItem("edumatch_provider_photo", photo);
+                    } else {
+                        localStorage.removeItem("edumatch_provider_photo");
+                    }
 
                     const nameEl = document.getElementById("sidebarProviderName") || document.getElementById("providerName");
                     if (nameEl) nameEl.textContent = name;

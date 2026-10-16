@@ -1667,6 +1667,8 @@
         const payload = {
             full_name: name,
 
+            email: document.getElementById("email") ? document.getElementById("email").value.trim() : "",
+
             phone: document.getElementById("phone")
                 .value.trim(),
 
@@ -1719,15 +1721,14 @@
                 );
             }
 
-            /*
-              Prefer the profile returned by the backend.
-              If the backend only returns a success message,
-              reload the authoritative record from the server.
-            */
-
             if (data.profile) {
                 displayProfile(data.profile);
                 fillForm(data.profile);
+                try {
+                    localStorage.setItem("edumatch_provider_profile", JSON.stringify(data.profile));
+                    localStorage.setItem("edumatch_provider_name", data.profile.full_name || data.profile.name || name);
+                    localStorage.setItem("providerName", data.profile.full_name || data.profile.name || name);
+                } catch(e) {}
             } else {
                 await loadProfile();
             }

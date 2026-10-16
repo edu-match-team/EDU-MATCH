@@ -268,35 +268,41 @@
 
         .message.sent {
             align-self: flex-end;
+            align-items: flex-end;
         }
 
         .message.received {
             align-self: flex-start;
+            align-items: flex-start;
         }
 
         .sender {
-            font-size: 12px;
+            font-size: 11.5px;
+            font-weight: 700;
             color: var(--muted);
+            margin-bottom: 2px;
         }
 
         .bubble {
-            padding: 13px 16px;
-            font-size: 14px;
-            line-height: 1.6;
+            padding: 12px 16px;
+            font-size: 13.5px;
+            line-height: 1.55;
             overflow-wrap: anywhere;
             white-space: pre-wrap;
             border-radius: 14px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            display: inline-block;
         }
 
         .received .bubble {
             background: var(--white);
+            color: #1e293b;
             border: 1px solid var(--border);
             border-top-left-radius: 3px;
         }
 
         .sent .bubble {
-            background: var(--primary);
+            background: linear-gradient(135deg, #5145e5 0%, #4338ca 100%);
             color: var(--white);
             border-top-right-radius: 3px;
         }
@@ -536,6 +542,9 @@
                 <div class="project-label" id="projectLabel">
                     No project selected
                 </div>
+                <a href="#" id="viewProviderProfileBtn" style="display:none; padding:7px 12px; border-radius:8px; background:#ede9fe; color:#5145e5; font-size:12px; font-weight:700; text-decoration:none; align-items:center; gap:5px;" target="_blank">
+                    👤 View Profile
+                </a>
                 <button type="button" id="clearChatBtn" title="Clear this chat history" style="display:none; background:#fee2e2; border:1px solid #fca5a5; color:#dc2626; border-radius:8px; padding:7px 12px; font-size:12px; font-weight:700; cursor:pointer;">
                     🗑️ Clear Chat
                 </button>
@@ -941,6 +950,7 @@ function getAuthUserId() {
 }
 
 function messageIsMine(message) {
+    if (message && message.is_mine !== undefined) return Boolean(message.is_mine);
     const myId = getAuthUserId();
     return myId !== null &&
         message.sender_id !== undefined &&
@@ -975,17 +985,16 @@ function renderMessages(messages) {
 
     messages.forEach(message => {
 
-        const mine = messageIsMine(message);
+        // Student view: Student messages on RIGHT (sent), Provider messages on LEFT (received)
+        const isFromStudent = (message.sender_role === "student") || (message.sender_role !== "provider" && messageIsMine(message));
+        const rolePrefix = isFromStudent ? "Student: " : "Provider: ";
 
         const row = document.createElement("div");
-        row.className = "message " + (mine ? "sent" : "received");
+        row.className = "message " + (isFromStudent ? "sent" : "received");
 
         const sender = document.createElement("span");
         sender.className = "sender";
-
-        sender.textContent = mine
-            ? "You"
-            : (message.sender_name || "Conversation participant");
+        sender.textContent = isFromStudent ? "Student" : (message.sender_name || "Provider");
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
@@ -997,13 +1006,14 @@ function renderMessages(messages) {
                 const photoSrc = photoMatch[1].trim();
                 const caption = photoMatch[2].trim();
                 bubble.innerHTML = `
+                    <div style="font-weight:700; font-size:12px; margin-bottom:4px; opacity:0.85;">${rolePrefix}Photo</div>
                     <div style="margin-bottom:${caption ? '8px' : '0'};">
                         <img src="${photoSrc}" alt="Project Photo" style="max-width:100%; max-height:280px; border-radius:10px; display:block; object-fit:contain; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,0.12);" onclick="window.open(this.src, '_blank')">
                     </div>
                     ${caption ? `<div style="font-size:13px; line-height:1.5;">${escapeHTML(caption)}</div>` : ''}
                 `;
             } else {
-                bubble.textContent = msgText;
+                bubble.textContent = rolePrefix + msgText;
             }
         } else if (msgText.includes("[PROJECT_DELIVERABLE]")) {
             try {
@@ -1015,7 +1025,7 @@ function renderMessages(messages) {
                 bubble.style.borderRadius = "12px";
                 bubble.style.padding = "14px";
                 bubble.innerHTML = `
-                    <div style="font-size:11px; font-weight:800; color:#6d28d9; margin-bottom:5px; text-transform:uppercase;">📦 Shared Project Deliverable / File</div>
+                    <div style="font-size:11px; font-weight:800; color:#6d28d9; margin-bottom:5px; text-transform:uppercase;">📦 Provider: Shared Deliverable</div>
                     <div style="font-size:15px; font-weight:700; color:#1e1b4b; margin-bottom:6px;">${escapeHTML(proj.title || "Project File")}</div>
                     ${proj.notes ? `<div style="font-size:12px; color:#475569; margin-bottom:10px; line-height:1.5;">${escapeHTML(proj.notes)}</div>` : ''}
                     <a href="${proj.link}" target="_blank" rel="noopener" style="display:inline-block; background:#6d28d9; color:white; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:700; text-decoration:none;">
@@ -1023,10 +1033,10 @@ function renderMessages(messages) {
                     </a>
                 `;
             } catch(e) {
-                bubble.textContent = msgText;
+                bubble.textContent = rolePrefix + msgText;
             }
         } else {
-            bubble.textContent = msgText;
+            bubble.textContent = rolePrefix + msgText;
         }
 
         const footer = document.createElement("div");
@@ -1036,6 +1046,16 @@ function renderMessages(messages) {
         time.className = "message-time";
         time.textContent = formatTime(message.created_at);
         footer.appendChild(time);
+
+        if (mine) {
+            const ticks = document.createElement("span");
+            ticks.style.fontSize = "11px";
+            ticks.style.color = "#818cf8";
+            ticks.style.fontWeight = "bold";
+            ticks.style.marginLeft = "3px";
+            ticks.textContent = "✓✓";
+            footer.appendChild(ticks);
+        }
 
         if (message.id && !message.is_deleted && message.message !== "🚫 This message was deleted") {
             const delBtn = document.createElement("button");
@@ -1324,6 +1344,16 @@ async function selectConversation(id, updateSidebar = true) {
         selected.project_title ||
         selected.service_title ||
         "Project conversation";
+
+    const viewProfBtn = document.getElementById("viewProviderProfileBtn");
+    if (viewProfBtn) {
+        if (participant.id) {
+            viewProfBtn.href = `provider-profile.html?id=${participant.id}`;
+            viewProfBtn.style.display = "inline-flex";
+        } else {
+            viewProfBtn.style.display = "none";
+        }
+    }
 
     const clearBtn = document.getElementById("clearChatBtn");
     if (clearBtn) clearBtn.style.display = "inline-block";

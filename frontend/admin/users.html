@@ -84,9 +84,7 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
     <a class="nav-link" href="providers.html">Providers</a>
     <a class="nav-link" href="services.html">Services</a>
     <a class="nav-link" href="orders.html">Orders</a>
-    <a class="nav-link" href="disputes.html">Disputes</a>
     <a class="nav-link" href="reports.html">Reports</a>
-    <a class="nav-link" href="settings.html">Settings</a>
     <h4>Account</h4>
     <a class="nav-link" href="#" id="logoutButton">Logout</a>
 </aside>
@@ -175,9 +173,10 @@ th{background:#fafbff;color:#6b7280;font-size:11px;text-transform:uppercase}
         <div id="details"></div>
     </div>
 </div>
-
 <script>
-const API = "http://127.0.0.1:5000/api";
+const API = window.location.protocol.startsWith("http")
+    ? (window.location.origin + "/api")
+    : "http://127.0.0.1:5000/api";
 const rows = document.getElementById("userRows");
 const message = document.getElementById("message");
 
@@ -206,7 +205,9 @@ function getRole(user) {
 }
 
 function getStatus(user) {
-    return String(user.status || "unknown").toLowerCase();
+    if (user.status) return String(user.status).toLowerCase();
+    if (user.is_active === 0 || user.is_active === false) return "suspended";
+    return "active";
 }
 
 function formatDate(value) {
@@ -375,6 +376,9 @@ function renderUsers() {
                     <button class="activate" data-action="activate"
                             data-id="${escapeHTML(id)}">Activate</button>
                 ` : ""}
+
+                <button class="suspend" style="background:#fee2e2;color:#b91c1c;border-color:#fca5a5;" data-action="delete"
+                        data-id="${escapeHTML(id)}">Delete</button>
             </td>
         `;
 
@@ -432,13 +436,64 @@ async function viewUser(id) {
 
                 <div class="detail">
                     <small>Status</small>
-                    <p>${escapeHTML(user.status || "Unknown")}</p>
+                    <p><span class="badge ${getStatus(user)}">${getStatus(user).toUpperCase()}</span></p>
                 </div>
 
                 <div class="detail">
-                    <small>Registered</small>
+                    <small>Registered Date</small>
                     <p>${escapeHTML(formatDate(user.created_at))}</p>
                 </div>
+
+                ${user.institution ? `
+                <div class="detail">
+                    <small>Institution / College</small>
+                    <p>${escapeHTML(user.institution)}</p>
+                </div>` : ""}
+
+                ${user.degree ? `
+                <div class="detail">
+                    <small>Degree / Specialization</small>
+                    <p>${escapeHTML(user.degree)} ${user.specialization ? `(${escapeHTML(user.specialization)})` : ""}</p>
+                </div>` : ""}
+
+                ${user.title ? `
+                <div class="detail">
+                    <small>Professional Title</small>
+                    <p>${escapeHTML(user.title)}</p>
+                </div>` : ""}
+
+                ${user.category ? `
+                <div class="detail">
+                    <small>Category</small>
+                    <p>${escapeHTML(user.category)}</p>
+                </div>` : ""}
+
+                ${user.starting_price !== undefined ? `
+                <div class="detail">
+                    <small>Starting Price</small>
+                    <p>₹${escapeHTML(user.starting_price)}</p>
+                </div>` : ""}
+
+                ${user.rating !== undefined ? `
+                <div class="detail">
+                    <small>Rating</small>
+                    <p>⭐ ${escapeHTML(user.rating)} / 5.0</p>
+                </div>` : ""}
+
+                ${user.skills ? `
+                <div class="detail" style="grid-column:1/-1;">
+                    <small>Skills</small>
+                    <p>${escapeHTML(user.skills)}</p>
+                </div>` : ""}
+            </div>
+
+            <div style="margin-top:24px; padding-top:16px; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:10px;">
+                ${getStatus(user) === "active" ? `
+                    <button class="suspend" onclick="changeStatus(${user.id}, 'suspend')">Suspend Account</button>
+                ` : `
+                    <button class="activate" onclick="changeStatus(${user.id}, 'activate')">Activate Account</button>
+                `}
+                <button class="suspend" style="background:#ef4444; color:white; border-color:#dc2626;" onclick="deleteUserAccount(${user.id})">Delete User</button>
             </div>
         `;
 
@@ -489,7 +544,25 @@ rows.addEventListener("click", event => {
     if (action === "suspend" || action === "activate") {
         changeStatus(id, action);
     }
+
+    if (action === "delete") {
+        deleteUserAccount(id);
+    }
 });
+
+async function deleteUserAccount(id) {
+    if (!confirm("Are you sure you want to permanently delete this account? This cannot be undone.")) {
+        return;
+    }
+    try {
+        await apiRequest("/admin/users/" + encodeURIComponent(id), { method: "DELETE" });
+        alert("User account permanently deleted.");
+        document.getElementById("modal").classList.remove("open");
+        await loadUsers();
+    } catch (error) {
+        alert("Could not delete user: " + error.message);
+    }
+}
 
 document.getElementById("search").addEventListener("input", renderUsers);
 document.getElementById("role").addEventListener("change", renderUsers);

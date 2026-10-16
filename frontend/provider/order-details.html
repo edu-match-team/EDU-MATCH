@@ -790,7 +790,9 @@
      * Never rely on the frontend alone to authorize an order action.
      */
 
-    const API_BASE_URL = "http://127.0.0.1:5000/api";
+    const API_BASE_URL = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
 
     const elements = {
         sidebar: document.getElementById("sidebar"),
@@ -1260,7 +1262,7 @@
             const studentId = currentOrder.student.id || currentOrder.student_id;
             try {
                 // Try initiating conversation via API
-                const startRes = await fetch("http://127.0.0.1:5000/api/chat/start", {
+                const startRes = await fetch(`${API_BASE_URL}/chat/start`, {
                     method: "POST",
                     credentials: "include",
                     headers: {

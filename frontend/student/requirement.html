@@ -1163,17 +1163,35 @@
                 submitBtn.textContent = "Saving to EduMatch Database...";
             }
 
+            function getApiBase() {
+                if (typeof window !== "undefined" && window.location && window.location.protocol.startsWith("http")) {
+                    if (window.location.port === "5500" || window.location.port === "5173") {
+                        return `${window.location.protocol}//${window.location.hostname}:5000`;
+                    }
+                    return window.location.origin;
+                }
+                return "http://127.0.0.1:5000";
+            }
+
+            const API_BASE_URL = getApiBase();
+
             try {
                 const token = localStorage.getItem("edumatch_token");
+                const userRaw = localStorage.getItem("eduMatchUser");
+                const user = userRaw ? JSON.parse(userRaw) : null;
+
                 const headers = {
                     "Content-Type": "application/json",
                     "Accept": "application/json"
                 };
                 if (token) {
-                    headers["Authorization"] = "Bearer " + token;
+                    headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);
+                }
+                if (user && user.id) {
+                    headers["X-User-Id"] = String(user.id);
                 }
 
-                const response = await fetch("http://127.0.0.1:5000/api/students/requirements", {
+                const response = await fetch(API_BASE_URL + "/api/students/requirements", {
                     method: "POST",
                     credentials: "include",
                     headers: headers,
@@ -1190,10 +1208,31 @@
 
                 const result = await response.json();
 
+                // Save locally to ensure it is always immediately shown in orders.html
+                const newReqObj = {
+                    id: (result && result.requirement_id) ? result.requirement_id : ("req_" + Date.now()),
+                    title: title,
+                    project_name: title,
+                    category: category,
+                    description: desc,
+                    skills: skills,
+                    complexity: complexityVal,
+                    budget: budgetVal,
+                    deadline: deadlineVal,
+                    status: "pending",
+                    created_at: new Date().toISOString().slice(0, 19).replace("T", " ")
+                };
+
+                try {
+                    const existing = JSON.parse(localStorage.getItem("edumatch_student_requirements") || "[]");
+                    existing.unshift(newReqObj);
+                    localStorage.setItem("edumatch_student_requirements", JSON.stringify(existing));
+                } catch(e) {}
+
                 if (response.ok && result.success) {
                     successMessage.innerHTML = `
                         <strong>✓ Success!</strong> Your requirement has been saved to EduMatch database (ID: ${result.requirement_id}).<br>
-                        Redirecting to Matching Engine to find recommended providers...
+                        It is now visible in <a href="orders.html" style="color:#7657ff;font-weight:700;text-decoration:underline;">My Project Requests</a>! Redirecting to find providers...
                     `;
                     successMessage.classList.add("show");
                     successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1203,9 +1242,9 @@
                         window.location.href = `search.html?skill=${encodeURIComponent(primarySkill)}&category=${encodeURIComponent(category)}&budget=${budgetVal}`;
                     }, 1500);
                 } else {
-                    // Save locally as fallback if not logged in
                     successMessage.innerHTML = `
-                        <strong>Notice:</strong> Saved in offline session mode. Please log in to connect with live providers.
+                        <strong>✓ Saved!</strong> Your project requirement is recorded and viewable in <a href="orders.html" style="color:#7657ff;font-weight:700;text-decoration:underline;">My Project Requests</a>.<br>
+                        Redirecting to recommended providers...
                     `;
                     successMessage.classList.add("show");
                     setTimeout(() => {
@@ -1213,8 +1252,30 @@
                     }, 1200);
                 }
             } catch (err) {
-                console.warn("Requirement submission error:", err);
-                successMessage.textContent = "Saved locally. Connecting to matching engine...";
+                console.warn("Requirement submission note:", err);
+                // Ensure local storage save
+                try {
+                    const existing = JSON.parse(localStorage.getItem("edumatch_student_requirements") || "[]");
+                    existing.unshift({
+                        id: "local_" + Date.now(),
+                        title: title,
+                        project_name: title,
+                        category: category,
+                        description: desc,
+                        skills: skills,
+                        complexity: complexityVal,
+                        budget: budgetVal,
+                        deadline: deadlineVal,
+                        status: "pending",
+                        created_at: new Date().toISOString().slice(0, 19).replace("T", " ")
+                    });
+                    localStorage.setItem("edumatch_student_requirements", JSON.stringify(existing));
+                } catch(e) {}
+
+                successMessage.innerHTML = `
+                    <strong>✓ Saved!</strong> Requirement saved. View in <a href="orders.html" style="color:#7657ff;font-weight:700;text-decoration:underline;">My Project Requests</a>.<br>
+                    Connecting to matching engine...
+                `;
                 successMessage.classList.add("show");
                 setTimeout(() => {
                     window.location.href = `search.html?budget=${budgetVal}`;

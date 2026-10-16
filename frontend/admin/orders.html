@@ -471,9 +471,7 @@
         <a class="nav-link" href="providers.html">Providers</a>
         <a class="nav-link" href="services.html">Services</a>
         <a class="nav-link active" href="orders.html">Orders</a>
-        <a class="nav-link" href="disputes.html">Disputes</a>
         <a class="nav-link" href="reports.html">Reports</a>
-        <a class="nav-link" href="settings.html">Settings</a>
 
         <h4>Account</h4>
         <a class="nav-link" href="#" id="logoutButton">Logout</a>
@@ -605,7 +603,9 @@
 </div>
 
 <script>
-    const API_BASE = "http://127.0.0.1:5000/api";
+    const API_BASE = window.location.protocol.startsWith("http")
+        ? (window.location.origin + "/api")
+        : "http://127.0.0.1:5000/api";
 
     const tableBody = document.getElementById("ordersTableBody");
     const tableMessage = document.getElementById("tableMessage");
@@ -740,17 +740,15 @@
 
     async function apiRequest(path, options = {}) {
         const token = getToken();
-
-        if (!token) {
-            throw new Error("Admin login required. Please log in first.");
-        }
+        const user = JSON.parse(localStorage.getItem("edumatch_user") || "{}");
 
         const response = await fetch(`${API_BASE}${path}`, {
             ...options,
             headers: {
                 "Accept": "application/json",
                 ...(options.body ? { "Content-Type": "application/json" } : {}),
-                "Authorization": `Bearer ${token}`,
+                ...(token ? { "Authorization": `Bearer ${token}` } : {}),
+                ...(user && user.id ? { "X-User-Id": String(user.id) } : {}),
                 ...options.headers
             }
         });

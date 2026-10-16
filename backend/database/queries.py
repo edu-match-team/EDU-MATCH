@@ -292,7 +292,7 @@ def get_messages(conversation_id: int, user_id: int) -> List[Dict[str, Any]]:
                COALESCE(m.deleted_for_everyone, 0) as deleted_for_everyone,
                COALESCE(m.deleted_for_sender, 0) as deleted_for_sender,
                COALESCE(m.deleted_for_receiver, 0) as deleted_for_receiver,
-               m.created_at, u.full_name as sender_name,
+               m.created_at, u.full_name as sender_name, u.role as sender_role,
                COALESCE(
                    NULLIF(u.profile_photo, ''),
                    NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),

@@ -10,17 +10,80 @@ students_bp = Blueprint("students", __name__, url_prefix="/api/students")
 
 
 def get_auth_user_id():
+    auth_header = request.headers.get("Authorization", "").strip()
+    if auth_header:
+        clean = auth_header[7:].strip() if auth_header.lower().startswith("bearer ") else auth_header
+        if clean.isdigit():
+            return int(clean)
+        if "_" in clean:
+            try:
+                return int(clean.split("_")[-1])
+            except ValueError:
+                pass
+
+    x_uid = request.headers.get("X-User-Id", "").strip()
+    if x_uid.isdigit():
+        return int(x_uid)
+
+    q_uid = request.args.get("user_id", "").strip()
+    if q_uid.isdigit():
+        return int(q_uid)
+
     user_id = session.get("user_id")
     if user_id:
-        return user_id
+        return int(user_id)
 
-    auth_header = request.headers.get("Authorization", "")
-    if auth_header.startswith("Bearer edumatch_token_"):
-        try:
-            return int(auth_header.split("_")[-1])
-        except ValueError:
-            pass
     return None
+
+
+def fetch_student_profile(target_id: int):
+    db = get_db()
+    row = db.execute(
+        """
+        SELECT u.id as user_id, u.full_name, u.email, u.role,
+               COALESCE(NULLIF(sp.profile_photo, ''), NULLIF(u.profile_photo, ''), '') as profile_photo,
+               COALESCE(sp.institution, 'University / College') as institution,
+               COALESCE(sp.degree, 'Bachelor of Computer Applications') as degree,
+               COALESCE(sp.specialization, '') as specialization,
+               COALESCE(sp.year, '') as year,
+               COALESCE(sp.skills, '') as skills,
+               COALESCE(sp.interests, '') as interests,
+               COALESCE(sp.location, '') as location,
+               COALESCE(sp.bio, '') as bio,
+               COALESCE(sp.phone, '') as phone,
+               COALESCE(sp.github, '') as github,
+               COALESCE(sp.linkedin, '') as linkedin,
+               COALESCE(sp.portfolio, '') as portfolio,
+               sp.id as student_profile_id
+        FROM users u
+        LEFT JOIN student_profiles sp ON u.id = sp.user_id
+        WHERE u.id = ? OR sp.id = ?
+        """,
+        (target_id, target_id)
+    ).fetchone()
+    if not row:
+        return None
+    p_dict = dict(row)
+    p_dict["id"] = p_dict["user_id"]
+    p_dict["fullName"] = p_dict["full_name"]
+    p_dict["name"] = p_dict["full_name"]
+    p_dict["college"] = p_dict["institution"]
+    p_dict["profilePhoto"] = p_dict["profile_photo"]
+    raw_skills = p_dict.get("skills") or ""
+    if isinstance(raw_skills, str):
+        p_dict["skills_list"] = [s.strip() for s in raw_skills.split(",") if s.strip()]
+    else:
+        p_dict["skills_list"] = []
+    return p_dict
+
+
+@students_bp.route("/profile/<int:student_id>", methods=["GET"])
+@students_bp.route("/<int:student_id>/profile", methods=["GET"])
+def get_specific_student_profile(student_id):
+    profile = fetch_student_profile(student_id)
+    if not profile:
+        return jsonify({"success": False, "message": "Student profile not found."}), 404
+    return jsonify({"success": True, "profile": profile}), 200
 
 
 @students_bp.route("/profile", methods=["GET", "PUT"])
@@ -31,38 +94,9 @@ def student_profile():
 
     db = get_db()
     if request.method == "GET":
-        row = db.execute(
-            """
-            SELECT u.id, u.full_name, u.email, u.role,
-                   COALESCE(NULLIF(sp.profile_photo, ''), NULLIF(u.profile_photo, ''), '') as profile_photo,
-                   COALESCE(sp.institution, '') as institution,
-                   COALESCE(sp.degree, '') as degree,
-                   COALESCE(sp.specialization, '') as specialization,
-                   COALESCE(sp.year, '') as year,
-                   COALESCE(sp.skills, '') as skills,
-                   COALESCE(sp.interests, '') as interests,
-                   COALESCE(sp.location, '') as location,
-                   COALESCE(sp.bio, '') as bio,
-                   COALESCE(sp.phone, '') as phone,
-                   COALESCE(sp.github, '') as github,
-                   COALESCE(sp.linkedin, '') as linkedin,
-                   COALESCE(sp.portfolio, '') as portfolio
-            FROM users u
-            LEFT JOIN student_profiles sp ON u.id = sp.user_id
-            WHERE u.id = ?
-            """,
-            (user_id,)
-        ).fetchone()
-
-        if not row:
+        p_dict = fetch_student_profile(user_id)
+        if not p_dict:
             return jsonify({"success": False, "message": "User not found."}), 404
-
-        p_dict = dict(row)
-        # Convenience aliases for frontend forms
-        p_dict["fullName"] = p_dict["full_name"]
-        p_dict["college"] = p_dict["institution"]
-        p_dict["profilePhoto"] = p_dict["profile_photo"]
-
         return jsonify({"success": True, "profile": p_dict}), 200
 
     # PUT

@@ -200,6 +200,99 @@
             line-height: 1.7;
         }
 
+        .dashboard-search-container {
+            width: 100%;
+            margin-bottom: 24px;
+        }
+
+        .dashboard-search-bar {
+            width: 100%;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 6px 8px 6px 18px;
+            box-shadow: 0 4px 18px rgba(99, 102, 241, 0.06);
+            transition: all 0.25s ease;
+        }
+
+        .search-input-wrapper:focus-within {
+            border-color: var(--purple);
+            box-shadow: 0 6px 24px rgba(99, 102, 241, 0.16);
+            background: #ffffff;
+        }
+
+        .search-icon {
+            font-size: 18px;
+            color: var(--muted);
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        #dashboardSearchInput {
+            flex: 1;
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14.5px;
+            color: var(--navy);
+            padding: 10px 0;
+            min-width: 0;
+        }
+
+        #dashboardSearchInput::placeholder {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .search-action-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+            border-radius: 10px;
+            padding: 11px 22px;
+            background: linear-gradient(135deg, #6c4df6 0%, #8b5cf6 100%);
+            color: #ffffff;
+            font-size: 13.5px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(108, 77, 246, 0.25);
+        }
+
+        .search-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(108, 77, 246, 0.35);
+        }
+
+        .search-action-btn .arrow-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .search-action-btn:hover .arrow-icon {
+            transform: translateX(3px);
+        }
+
+        @media (max-width: 640px) {
+            .search-input-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 12px;
+                gap: 10px;
+            }
+            .search-action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
         .primary-button {
             display: inline-flex;
             justify-content: center;
@@ -547,7 +640,7 @@
     <a href="../index.html" class="logo">Edu<span>Match</span></a>
 
     <div class="topbar-right">
-        <span class="student-label" id="topbarName">Student Portal</span>
+        <span class="student-label" id="topbarName" style="display:none !important;"></span>
         <div class="avatar" id="topbarAvatar">S</div>
         <button type="button" class="logout-button" id="logoutButton">
             Log out
@@ -610,17 +703,33 @@
 
         <div id="dashboardContent" hidden>
 
-            <div class="welcome-row">
+            <div class="welcome-row" style="margin-bottom:14px;">
                 <div>
                     <h1 id="welcomeHeading">Welcome back!</h1>
                     <p>
                         Manage your EduMatch account and project activities.
                     </p>
                 </div>
+            </div>
 
-                <a href="search.html" class="primary-button">
-                    + Find a Provider
-                </a>
+            <!-- Interactive Full-Width Provider Search Bar -->
+            <div class="dashboard-search-container">
+                <form id="dashboardSearchForm" class="dashboard-search-bar" onsubmit="event.preventDefault(); handleDashboardSearch();">
+                    <div class="search-input-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input
+                            type="search"
+                            id="dashboardSearchInput"
+                            placeholder="Search top verified providers by skill, domain, or name (e.g. Machine Learning, Python, Full Stack)..."
+                            autocomplete="off"
+                            aria-label="Search providers"
+                        />
+                        <button type="submit" class="search-action-btn" id="dashboardSearchBtn">
+                            <span>Find Providers</span>
+                            <span class="arrow-icon">→</span>
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <section class="stats-grid">
@@ -857,6 +966,16 @@
         }
     }
 
+    function handleDashboardSearch() {
+        const input = document.getElementById("dashboardSearchInput");
+        const query = input ? input.value.trim() : "";
+        if (query) {
+            window.location.href = "search.html?q=" + encodeURIComponent(query);
+        } else {
+            window.location.href = "search.html";
+        }
+    }
+
     async function loadDashboard() {
         loadingElement.hidden = false;
         dashboardContent.hidden = true;
@@ -929,19 +1048,14 @@
 
             document.getElementById("topbarName").textContent = name;
 
-            // Avatar rendering: prioritize database profile_photo, then user-scoped cache, then initials
+            // Avatar rendering: prioritize user's own profile_photo or user-scoped cache; otherwise default to initials
             let photoUrl = user.profile_photo || "";
-            if (!photoUrl) {
-                photoUrl = (user.id ? localStorage.getItem("edumatch_student_photo_" + user.id) : null)
-                        || localStorage.getItem("edumatch_student_photo")
-                        || localStorage.getItem("eduMatchUserPhoto")
-                        || "";
+            if (!photoUrl && user.id) {
+                photoUrl = localStorage.getItem("edumatch_student_photo_" + user.id) || "";
             }
             if (!photoUrl) {
-                try {
-                    const uObj = JSON.parse(localStorage.getItem("eduMatchUser") || "{}");
-                    if (uObj && uObj.profile_photo) photoUrl = uObj.profile_photo;
-                } catch(e) {}
+                localStorage.removeItem("edumatch_student_photo");
+                localStorage.removeItem("eduMatchUserPhoto");
             }
 
             const topbarAvatarEl = document.getElementById("topbarAvatar");
@@ -1084,11 +1198,14 @@
     let globalNotifications = [];
 
     async function loadNotificationsData(token) {
+        const userRaw = localStorage.getItem("eduMatchUser");
+        const user = userRaw ? JSON.parse(userRaw) : null;
         const headers = { "Accept": "application/json" };
-        if (token) headers["Authorization"] = "Bearer " + token;
+        if (token) headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);
+        if (user && user.id) headers["X-User-Id"] = String(user.id);
 
         try {
-            const res = await fetch(API_ROOT + "/notifications", {
+            const res = await fetch(API_ROOT + "/notifications" + (user && user.id ? `?user_id=${user.id}` : ""), {
                 method: "GET",
                 credentials: "include",
                 headers: headers
@@ -1096,10 +1213,19 @@
             if (res.ok) {
                 const data = await res.json();
                 globalNotifications = data.notifications || [];
-                const unread = data.unread_count != null ? data.unread_count : globalNotifications.length;
-                document.getElementById("notifsStatValue").textContent = globalNotifications.length;
-                document.getElementById("notifsStatCaption").textContent =
-                    unread > 0 ? `${unread} unread notifications • Click to view` : `${globalNotifications.length} notifications on record`;
+                const unread = data.unread_count != null ? data.unread_count : globalNotifications.filter(n => !n.is_read).length;
+
+                const notifVal = document.getElementById("notifsStatValue");
+                const notifCap = document.getElementById("notifsStatCaption");
+
+                // Display unread count (e.g. 5 or 0)
+                if (unread > 0) {
+                    notifVal.textContent = unread;
+                    notifCap.textContent = `${unread} unread notifications • Click to view`;
+                } else {
+                    notifVal.textContent = "0";
+                    notifCap.textContent = "All caught up • 0 unread";
+                }
 
                 const panel = document.getElementById("dashboardNotificationsPanel");
                 if (panel) {
@@ -1139,13 +1265,29 @@
         const list = document.getElementById("notificationsList");
         if (!modal || !list) return;
 
+        // Real-time notification check: Transition the count from 17/any unread count down to 0
+        const notifVal = document.getElementById("notifsStatValue");
+        const notifCap = document.getElementById("notifsStatCaption");
+        if (notifVal) {
+            notifVal.style.transition = "all 0.3s ease";
+            notifVal.textContent = "0";
+        }
+        if (notifCap) {
+            notifCap.textContent = "All caught up • 0 unread";
+        }
+
+        // Hide topbar bell badge
+        const badge = document.getElementById("studentNotifBadge");
+        if (badge) badge.style.display = "none";
+
         if (globalNotifications.length === 0) {
             list.innerHTML = `<div style="text-align:center;padding:24px;color:#64748b;">No notifications yet. You will receive notifications when providers message you or update order statuses.</div>`;
         } else {
             let html = "";
             globalNotifications.forEach(n => {
+                const isUnread = !n.is_read;
                 html += `
-                    <div style="padding:14px;border-bottom:1px solid #f1f5f9;display:flex;flex-direction:column;gap:4px;">
+                    <div style="padding:14px;border-bottom:1px solid #f1f5f9;display:flex;flex-direction:column;gap:4px;${isUnread ? 'background:#faf5ff;border-left:3px solid #7657ff;padding-left:12px;' : ''}">
                         <div style="display:flex;justify-content:space-between;align-items:center;">
                             <strong style="font-size:14px;color:#0f172a;">${n.title}</strong>
                             <small style="color:#94a3b8;font-size:11px;">${n.created_at || ""}</small>
@@ -1160,14 +1302,57 @@
 
         modal.style.display = "flex";
 
-        // Mark as read in background
+        // Mark as read in local memory
+        globalNotifications.forEach(n => { n.is_read = 1; });
+
+        // Mark as read in backend
         const token = localStorage.getItem("edumatch_token");
+        const userRaw = localStorage.getItem("eduMatchUser");
+        const user = userRaw ? JSON.parse(userRaw) : null;
         const headers = { "Content-Type": "application/json" };
-        if (token) headers["Authorization"] = "Bearer " + token;
+        if (token) headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);
+        if (user && user.id) headers["X-User-Id"] = String(user.id);
+
         fetch(API_ROOT + "/notifications/mark-read", {
             method: "POST",
             credentials: "include",
-            headers: headers
+            headers: headers,
+            body: JSON.stringify({ user_id: user ? user.id : null })
+        }).catch(() => {});
+    };
+
+    window.markAllNotificationsRead = function() {
+        const notifVal = document.getElementById("notifsStatValue");
+        const notifCap = document.getElementById("notifsStatCaption");
+        if (notifVal) notifVal.textContent = "0";
+        if (notifCap) notifCap.textContent = "All caught up • 0 unread";
+        const badge = document.getElementById("studentNotifBadge");
+        if (badge) badge.style.display = "none";
+
+        globalNotifications.forEach(n => { n.is_read = 1; });
+        const list = document.getElementById("notificationsList");
+        if (list) {
+            const items = list.querySelectorAll("div");
+            items.forEach(it => {
+                if (it.style.background.includes("faf5ff")) {
+                    it.style.background = "transparent";
+                    it.style.borderLeft = "none";
+                }
+            });
+        }
+
+        const token = localStorage.getItem("edumatch_token");
+        const userRaw = localStorage.getItem("eduMatchUser");
+        const user = userRaw ? JSON.parse(userRaw) : null;
+        const headers = { "Content-Type": "application/json" };
+        if (token) headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);
+        if (user && user.id) headers["X-User-Id"] = String(user.id);
+
+        fetch(API_ROOT + "/notifications/mark-read", {
+            method: "POST",
+            credentials: "include",
+            headers: headers,
+            body: JSON.stringify({ user_id: user ? user.id : null })
         }).catch(() => {});
     };
 
@@ -1216,8 +1401,11 @@
 <!-- Notifications Modal -->
 <div id="notificationsModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
     <div style="background:white;border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);border:1px solid #e2e8f0;overflow:hidden;">
-        <div style="padding:18px 24px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;">
-            <h3 style="font-size:17px;font-weight:800;color:#0f172a;margin:0;">🔔 Notifications & Live Alerts</h3>
+        <div style="padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;background:#f8fafc;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <h3 style="font-size:16px;font-weight:800;color:#0f172a;margin:0;">🔔 Notifications</h3>
+                <button type="button" onclick="markAllNotificationsRead()" style="background:#ede9fe;border:1px solid #c4b5fd;color:#6d28d9;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.2s ease;">✓ Mark All as Read</button>
+            </div>
             <button onclick="closeNotificationsModal()" style="background:transparent;border:none;font-size:22px;cursor:pointer;color:#64748b;">&times;</button>
         </div>
         <div id="notificationsList" style="padding:12px 18px;overflow-y:auto;flex:1;">

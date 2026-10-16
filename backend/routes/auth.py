@@ -257,6 +257,7 @@ def login():
     ).fetchone()
 
     photo = full_user["profile_photo"] if full_user and full_user["profile_photo"] else ""
+    real_name = full_user["full_name"] if full_user else user["full_name"]
 
     return jsonify({
         "success": True,
@@ -264,7 +265,9 @@ def login():
         "token": f"edumatch_token_{user['id']}",
         "user": {
             "id": user["id"],
-            "fullName": user["full_name"],
+            "fullName": real_name,
+            "full_name": real_name,
+            "name": real_name,
             "email": user["email"],
             "role": user["role"],
             "profile_photo": photo
@@ -274,14 +277,28 @@ def login():
 
 @auth_bp.route("/me", methods=["GET"])
 def current_user():
-    user_id = session.get("user_id")
-    if not user_id:
-        auth_header = request.headers.get("Authorization", "")
-        if auth_header.startswith("Bearer edumatch_token_"):
+    # Priority 1: Bearer token in Authorization header
+    user_id = None
+    auth_header = request.headers.get("Authorization", "").strip()
+    if auth_header:
+        clean = auth_header[7:].strip() if auth_header.lower().startswith("bearer ") else auth_header
+        if clean.isdigit():
+            user_id = int(clean)
+        elif "_" in clean:
             try:
-                user_id = int(auth_header.split("_")[-1])
+                user_id = int(clean.split("_")[-1])
             except ValueError:
                 pass
+
+    # Priority 2: X-User-Id header
+    if not user_id:
+        x_uid = request.headers.get("X-User-Id", "").strip()
+        if x_uid.isdigit():
+            user_id = int(x_uid)
+
+    # Priority 3: Session cookie
+    if not user_id:
+        user_id = session.get("user_id")
 
     if not user_id:
         return jsonify({"success": False, "message": "Not logged in."}), 401
@@ -305,11 +322,16 @@ def current_user():
         session.clear()
         return jsonify({"success": False, "message": "Session invalid or expired."}), 401
 
+    # Keep session synced with verified token
+    session["user_id"] = user["id"]
+
     return jsonify({
         "success": True,
         "user": {
             "id": user["id"],
             "fullName": user["full_name"],
+            "full_name": user["full_name"],
+            "name": user["full_name"],
             "email": user["email"],
             "role": user["role"],
             "profile_photo": user["profile_photo"] or ""

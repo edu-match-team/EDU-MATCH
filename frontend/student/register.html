@@ -702,7 +702,7 @@
 
                         <span>
                             I agree to the
-                            <a href="#" id="termsLink">Terms and Conditions</a>
+                            <a href="../terms.html" target="_blank" id="termsLink">Terms and Conditions</a>
                             and understand the EduMatch account rules.
                         </span>
                     </label>
@@ -745,8 +745,17 @@
         const message = document.getElementById("message");
         const registerButton = document.getElementById("registerButton");
 
-        // Flask registration endpoint.
-        const REGISTER_API = "http://127.0.0.1:5000/api/auth/register";
+        // Dynamic Flask registration endpoint.
+        function getApiBase() {
+            if (window.location.protocol.startsWith("http")) {
+                if (window.location.port === "5500" || window.location.port === "5173") {
+                    return window.location.protocol + "//" + window.location.hostname + ":5000";
+                }
+                return window.location.origin;
+            }
+            return "http://127.0.0.1:5000";
+        }
+        const REGISTER_API = getApiBase() + "/api/auth/register";
 
         // Show messages to the user.
         function showMessage(text, type) {
@@ -808,15 +817,8 @@
             strengthText.textContent = level.text;
         });
 
-        // The terms page does not exist yet.
-        document.getElementById("termsLink").addEventListener("click", function (event) {
-            event.preventDefault();
-
-            showMessage(
-                "The Terms and Conditions page has not been created yet.",
-                "info"
-            );
-        });
+        // Open terms in new tab safely without blocking
+        document.getElementById("termsLink").setAttribute("href", "../terms.html");
 
         // Connect the registration form to the real Flask backend.
         registerForm.addEventListener("submit", async function (event) {
@@ -900,9 +902,36 @@
                 }
 
                 showMessage(
-                    result.message || "Your student account has been created successfully.",
+                    (result.message || "Your student account has been created successfully.") + " Redirecting to dashboard...",
                     "success"
                 );
+
+                // Clear all previous user/session/photo keys to guarantee a clean slate
+                localStorage.removeItem("edumatch_student_photo");
+                localStorage.removeItem("eduMatchUserPhoto");
+                localStorage.removeItem("studentName");
+                localStorage.removeItem("providerName");
+                localStorage.removeItem("edumatch_provider_photo");
+                localStorage.removeItem("edumatch_provider_name");
+                localStorage.removeItem("edumatch_provider_profile");
+
+                if (result.token) {
+                    localStorage.setItem("edumatch_token", result.token);
+                }
+                if (result.user) {
+                    const uName = result.user.fullName || result.user.full_name || result.user.name || "Student";
+                    localStorage.setItem("eduMatchUser", JSON.stringify(result.user));
+                    localStorage.setItem("edumatch_user", JSON.stringify(result.user));
+                    localStorage.setItem("currentUser", JSON.stringify(result.user));
+                    localStorage.setItem("eduMatchUserName", uName);
+                    localStorage.setItem("studentName", uName);
+                    if (result.user.profile_photo) {
+                        localStorage.setItem("edumatch_student_photo_" + result.user.id, result.user.profile_photo);
+                        localStorage.setItem("edumatch_student_photo", result.user.profile_photo);
+                    } else if (result.user.id) {
+                        localStorage.removeItem("edumatch_student_photo_" + result.user.id);
+                    }
+                }
 
                 registerForm.reset();
 
@@ -910,14 +939,15 @@
                 strengthBar.style.width = "0%";
                 strengthText.textContent = "";
 
-                // Registration succeeded only after the backend confirmed it.
-                // Do not store passwords or treat localStorage as authentication.
+                setTimeout(function () {
+                    window.location.href = "dashboard.html";
+                }, 1200);
 
             } catch (error) {
                 console.error("Registration request failed:", error);
 
                 showMessage(
-                    "Could not connect to the EduMatch server. Make sure the Flask backend is running at http://127.0.0.1:5000, then try again.",
+                    "Could not connect to the EduMatch server. Please ensure your device is connected to the internet and try again.",
                     "error"
                 );
 

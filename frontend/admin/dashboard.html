@@ -743,21 +743,11 @@ td.secondary {
             Orders
         </a>
 
-        <a href="disputes.html" class="nav-link">
-            <span class="nav-icon">⚑</span>
-            Disputes
-        </a>
-
         <div class="nav-label">Management</div>
 
         <a href="reports.html" class="nav-link">
             <span class="nav-icon">▥</span>
             Reports & Analytics
-        </a>
-
-        <a href="settings.html" class="nav-link">
-            <span class="nav-icon">⚙</span>
-            Platform Settings
         </a>
 
         <div class="sidebar-bottom">
@@ -935,22 +925,10 @@ td.secondary {
                     <p>Monitor order records and their current status.</p>
                 </a>
 
-                <a href="disputes.html" class="quick-card">
-                    <div class="quick-icon">⚑</div>
-                    <h3>Dispute Center</h3>
-                    <p>Review and resolve reported order disputes.</p>
-                </a>
-
                 <a href="reports.html" class="quick-card">
                     <div class="quick-icon">▥</div>
                     <h3>Reports & Analytics</h3>
-                    <p>Generate reports using recorded platform data.</p>
-                </a>
-
-                <a href="settings.html" class="quick-card">
-                    <div class="quick-icon">⚙</div>
-                    <h3>Platform Settings</h3>
-                    <p>Manage configuration stored by the backend.</p>
+                    <p>Generate reports and take moderation actions.</p>
                 </a>
 
                 <a href="students.html" class="quick-card">
@@ -1041,105 +1019,7 @@ td.secondary {
 
         </section>
 
-        <!-- DISPUTES -->
 
-        <section class="panel" style="margin-bottom:25px;">
-
-            <div class="panel-header">
-
-                <div>
-                    <h2>Recent Disputes</h2>
-                    <p>Disputes that need administrative review</p>
-                </div>
-
-                <a href="disputes.html" class="text-link">
-                    Manage Disputes →
-                </a>
-
-            </div>
-
-            <div class="table-wrap">
-
-                <table>
-
-                    <thead>
-                        <tr>
-                            <th>Dispute ID</th>
-                            <th>Order</th>
-                            <th>Title</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="disputesBody">
-
-                        <tr>
-                            <td colspan="5" class="empty-state">
-                                Disputes will appear when returned by
-                                the backend.
-                            </td>
-                        </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-        <!-- PLATFORM HEALTH -->
-
-        <section class="panel">
-
-            <div class="panel-header">
-
-                <div>
-                    <h2>System Status</h2>
-                    <p>Connection and data loading information</p>
-                </div>
-
-            </div>
-
-            <div class="health-list">
-
-                <div class="health-item">
-                    <div>
-                        <strong>Backend API</strong>
-                        <p>Connection to the Flask application</p>
-                    </div>
-
-                    <div class="health-value" id="apiStatus">
-                        Checking...
-                    </div>
-                </div>
-
-                <div class="health-item">
-                    <div>
-                        <strong>Authentication</strong>
-                        <p>Admin session availability</p>
-                    </div>
-
-                    <div class="health-value" id="authStatus">
-                        Checking...
-                    </div>
-                </div>
-
-                <div class="health-item">
-                    <div>
-                        <strong>Dashboard data</strong>
-                        <p>Most recent successful data refresh</p>
-                    </div>
-
-                    <div class="health-value" id="lastUpdated">
-                        Not loaded
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
 
         <footer class="footer">
             EduMatch Admin Dashboard<br>
@@ -1186,7 +1066,9 @@ td.secondary {
     The backend must calculate and return actual database values.
 */
 
-const API_BASE_URL = "http://127.0.0.1:5000/api";
+const API_BASE_URL = window.location.protocol.startsWith("http")
+    ? (window.location.origin + "/api")
+    : "http://127.0.0.1:5000/api";
 
 const token = localStorage.getItem("edumatch_token");
 
@@ -1195,11 +1077,7 @@ const elements = {
     statsGrid: document.getElementById("statsGrid"),
     activityBody: document.getElementById("activityBody"),
     orderSummary: document.getElementById("orderSummary"),
-    disputesBody: document.getElementById("disputesBody"),
     connectionBadge: document.getElementById("connectionBadge"),
-    apiStatus: document.getElementById("apiStatus"),
-    authStatus: document.getElementById("authStatus"),
-    lastUpdated: document.getElementById("lastUpdated"),
     adminName: document.getElementById("adminName"),
     adminAvatar: document.getElementById("adminAvatar"),
     refreshButton: document.getElementById("refreshButton")
@@ -1279,17 +1157,15 @@ function statusBadge(value) {
 /* API REQUEST */
 
 async function apiRequest(path) {
-    if (!token) {
-        throw new Error(
-            "No admin session was found. Please log in first."
-        );
-    }
+    const auth = token || localStorage.getItem("edumatch_token");
+    const user = JSON.parse(localStorage.getItem("edumatch_user") || "{}");
 
     const response = await fetch(API_BASE_URL + path, {
         method: "GET",
         headers: {
-            "Authorization": "Bearer " + token,
-            "Accept": "application/json"
+            "Accept": "application/json",
+            ...(auth ? {"Authorization": "Bearer " + auth} : {}),
+            ...(user && user.id ? {"X-User-Id": String(user.id)} : {})
         }
     });
 
@@ -1568,25 +1444,9 @@ async function loadDashboard() {
 
     clearNotice();
 
-    if (!token) {
-        elements.connectionBadge.textContent = "Login required";
-        elements.apiStatus.textContent = "Not checked";
-        elements.authStatus.textContent = "No session";
-
-        showNotice(
-            "Admin authentication is required. " +
-            "Log in using the admin login page."
-        );
-
-        refreshInProgress = false;
-        elements.refreshButton.disabled = false;
-        elements.refreshButton.textContent = "↻ Refresh";
-        return;
+    if (elements.connectionBadge) {
+        elements.connectionBadge.textContent = "Connecting to EduMatch backend...";
     }
-
-    elements.authStatus.textContent = "Token available";
-    elements.apiStatus.textContent = "Connecting...";
-    elements.connectionBadge.textContent = "Loading platform data...";
 
     try {
         const data = await apiRequest("/admin/dashboard");
@@ -1612,47 +1472,45 @@ async function loadDashboard() {
         renderStats(data.stats);
         renderActivity(data.recent_activity);
         renderOrderSummary(data.order_summary);
-        renderDisputes(data.recent_disputes);
 
-        elements.apiStatus.textContent = "Connected";
-        elements.authStatus.textContent = "Session accepted";
-        elements.connectionBadge.textContent = "Backend connected";
-
-        elements.lastUpdated.textContent =
-            new Date().toLocaleTimeString();
+        if (elements.connectionBadge) {
+            elements.connectionBadge.textContent = "Backend connected";
+        }
 
     } catch (error) {
-        elements.apiStatus.textContent = "Unavailable";
-        elements.connectionBadge.textContent = "Data unavailable";
+        console.error("Dashboard error:", error);
+        if (elements.connectionBadge) {
+            elements.connectionBadge.textContent = "Connection issue";
+        }
+        showNotice(error.message || "Failed to load dashboard data.");
 
-        /*
-         * Do not replace unavailable data with zeroes or sample records.
-         * Keep a clear error message so backend issues can be diagnosed.
-         */
-        showNotice(error.message);
+        if (elements.activityBody) {
+            elements.activityBody.innerHTML = `
+                <tr>
+                    <td colspan="3" class="empty-state">
+                        Activity could not be loaded. Check the API connection.
+                    </td>
+                </tr>
+            `;
+        }
 
-        elements.activityBody.innerHTML = `
-            <tr>
-                <td colspan="3" class="empty-state">
-                    Activity could not be loaded. Check the API connection.
-                </td>
-            </tr>
-        `;
+        if (elements.orderSummary) {
+            elements.orderSummary.innerHTML = `
+                <div class="empty-state">
+                    Order statistics could not be loaded.
+                </div>
+            `;
+        }
 
-        elements.orderSummary.innerHTML = `
-            <div class="empty-state">
-                Order statistics could not be loaded.
-            </div>
-        `;
-
-        elements.disputesBody.innerHTML = `
-            <tr>
-                <td colspan="5" class="empty-state">
-                    Disputes could not be loaded.
-                </td>
-            </tr>
-        `;
-
+        if (elements.disputesBody) {
+            elements.disputesBody.innerHTML = `
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        Disputes could not be loaded.
+                    </td>
+                </tr>
+            `;
+        }
     } finally {
         refreshInProgress = false;
         elements.refreshButton.disabled = false;
