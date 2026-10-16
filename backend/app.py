@@ -19,6 +19,10 @@ from backend.routes.students import students_bp
 from backend.routes.requests import requests_bp
 from backend.routes.chat import chat_bp
 from backend.routes.admin import admin_bp
+from backend.routes.reports import reports_bp
+from backend.routes.reviews import reviews_bp
+from backend.routes.skills import skills_bp
+from backend.routes.services import services_bp
 
 
 def create_app():
@@ -61,6 +65,10 @@ def create_app():
     app.register_blueprint(requests_bp)
     app.register_blueprint(chat_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(reports_bp)
+    app.register_blueprint(reviews_bp)
+    app.register_blueprint(skills_bp)
+    app.register_blueprint(services_bp)
 
     # Route alias for provider registration called by frontend /api/provider/register
     @app.route("/api/provider/register", methods=["POST"])
