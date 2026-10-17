@@ -311,6 +311,44 @@ def conversation_messages(conv_id):
 
     msg = add_message(conv_id, user_id, text)
 
+    # If provider submitted a deliverable in chat, auto-complete the active collaboration request
+    if "[PROJECT_DELIVERABLE]" in text:
+        try:
+            import json
+            from backend.routes.matching import invalidate_matching_cache
+            raw_deliv = text.split("[PROJECT_DELIVERABLE]", 1)[1].strip()
+            deliv_data = json.loads(raw_deliv)
+            deliv_link = deliv_data.get("link") or deliv_data.get("url") or ""
+            deliv_notes = deliv_data.get("notes") or deliv_data.get("description") or ""
+
+            # Update latest active collaboration request between these users
+            active_req = db.execute("""
+                SELECT id, requirement_id, project_title FROM collaboration_requests 
+                WHERE ((provider_id = ? AND student_id = ?) OR (provider_id = ? AND student_id = ?))
+                  AND status IN ('in_progress', 'accepted', 'pending')
+                ORDER BY id DESC LIMIT 1
+            """, (user_id, other_user_id, other_user_id, user_id)).fetchone()
+
+            if active_req:
+                db.execute("""
+                    UPDATE collaboration_requests 
+                    SET status = 'completed', deliverable_url = ?, deliverable_note = ?, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                """, (deliv_link, deliv_notes, active_req["id"]))
+
+                if active_req["requirement_id"]:
+                    db.execute("UPDATE requirements SET status = 'completed' WHERE id = ?", (active_req["requirement_id"],))
+
+                db.execute("""
+                    UPDATE provider_profiles 
+                    SET completed_projects = completed_projects + 1 
+                    WHERE user_id = ?
+                """, (user_id,))
+                db.commit()
+                invalidate_matching_cache()
+        except Exception as e:
+            print(f"[Deliverable Autocomplete Error]: {e}")
+
     # Trigger instant notification to recipient
     other_user_id = c["user2_id"] if c["user1_id"] == user_id else c["user1_id"]
     try:

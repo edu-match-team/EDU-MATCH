@@ -11,6 +11,20 @@ matching_bp = Blueprint("matching", __name__, url_prefix="/api/matching")
 match_lru_cache = LRUCache(capacity=64)
 
 
+def invalidate_matching_cache():
+    """
+    Instantly clear LRU cache so new services, provider profile changes,
+    or pricing updates reflect in real-time across find provider searches.
+    """
+    match_lru_cache.clear()
+
+
+@matching_bp.route("/cache/clear", methods=["POST"])
+def clear_matching_cache():
+    invalidate_matching_cache()
+    return jsonify({"success": True, "message": "Matching cache cleared."}), 200
+
+
 @matching_bp.route("/find-matches", methods=["POST"])
 def find_matches():
     data = request.get_json(silent=True) or {}

@@ -102,17 +102,24 @@ def create_app():
         if not user_id:
             return jsonify({"success": False, "message": "Not authenticated."}), 401
         all_reqs = get_requests_for_provider(user_id)
-        # Orders are accepted/in-progress/completed collaboration requests
         orders = []
         for r in all_reqs:
             orders.append({
                 "id": r["id"],
-                "service_title": r["project_title"],
-                "student": {"name": r.get("student_name", "Student")},
-                "amount": r["offered_budget"],
-                "created_at": r["created_at"],
-                "delivery_date": r["updated_at"],
-                "status": r["status"]
+                "service_title": r.get("project_title") or "Project Order",
+                "project_title": r.get("project_title") or "Project Order",
+                "student": {
+                    "id": r.get("student_id"),
+                    "name": r.get("student_name") or "Student",
+                    "email": r.get("student_email") or ""
+                },
+                "amount": r.get("offered_budget") or 0,
+                "created_at": r.get("created_at") or "",
+                "delivery_date": r.get("updated_at") or "",
+                "status": r.get("status") or "pending",
+                "payment_status": r.get("payment_status") or "unpaid",
+                "deliverable_url": r.get("deliverable_url") or "",
+                "deliverable_note": r.get("deliverable_note") or ""
             })
         return jsonify({"success": True, "orders": orders}), 200
 
@@ -127,6 +134,7 @@ def create_app():
     def provider_transactions_alias():
         from backend.routes.providers import provider_transactions
         return provider_transactions()
+
     @app.route("/api/provider/orders/<int:order_id>", methods=["GET"])
     def provider_order_detail_handler(order_id):
         from backend.database.queries import get_order_details
@@ -137,8 +145,8 @@ def create_app():
 
     @app.route("/api/provider/orders/<int:order_id>/status", methods=["PATCH", "PUT"])
     def provider_order_status_handler(order_id):
-        from backend.routes.requests import get_auth_user_id
-        from backend.database.queries import update_order_status_for_provider, get_order_details, create_notification
+        from backend.routes.requests import get_auth_user_id, invalidate_matching_cache
+        from backend.database.queries import update_order_status_for_provider, get_order_details, create_notification, get_db
         user_id = get_auth_user_id()
         if not user_id:
             return jsonify({"success": False, "message": "Not authenticated."}), 401
@@ -147,12 +155,36 @@ def create_app():
         if not new_status:
             return jsonify({"success": False, "message": "Status required."}), 400
 
+        # Provider accepting order moves directly to in_progress
+        if new_status in ("accepted", "in_progress"):
+            new_status = "in_progress"
+
         success = update_order_status_for_provider(order_id, user_id, new_status)
         if not success:
             return jsonify({"success": False, "message": "Unable to update order status."}), 400
 
-        # Send notification to student
+        # Close corresponding requirement if in_progress or completed
+        db = get_db()
         order = get_order_details(order_id)
+        if order:
+            req_id = order.get("requirement", {}).get("id") or order.get("requirement_id")
+            if not req_id and order.get("project_title"):
+                match_r = db.execute(
+                    "SELECT id FROM requirements WHERE student_id = ? AND LOWER(title) = LOWER(?) LIMIT 1",
+                    (order.get("student", {}).get("id"), order.get("project_title"))
+                ).fetchone()
+                req_id = match_r["id"] if match_r else None
+
+            if req_id:
+                if new_status == "in_progress":
+                    db.execute("UPDATE requirements SET status = 'in_progress' WHERE id = ?", (req_id,))
+                elif new_status == "completed":
+                    db.execute("UPDATE requirements SET status = 'completed' WHERE id = ?", (req_id,))
+            db.commit()
+
+        invalidate_matching_cache()
+
+        # Send notification to student
         if order and order.get("student", {}).get("id"):
             st_id = order["student"]["id"]
             title = f"Order #{order_id} Updated"
@@ -163,8 +195,8 @@ def create_app():
 
     @app.route("/api/provider/orders/<int:order_id>/deliverable", methods=["PATCH", "POST", "PUT"])
     def provider_order_deliverable_handler(order_id):
-        from backend.routes.requests import get_auth_user_id
-        from backend.database.queries import update_order_deliverable, get_order_details, create_notification
+        from backend.routes.requests import get_auth_user_id, invalidate_matching_cache
+        from backend.database.queries import update_order_deliverable, get_order_details, create_notification, get_db
         user_id = get_auth_user_id()
         if not user_id:
             return jsonify({"success": False, "message": "Not authenticated."}), 401
@@ -178,8 +210,19 @@ def create_app():
         if not success:
             return jsonify({"success": False, "message": "Failed to record deliverable."}), 400
 
-        # Notify student
+        # Mark parent requirement as completed
+        db = get_db()
         order = get_order_details(order_id)
+        if order and order.get("project_title"):
+            db.execute(
+                "UPDATE requirements SET status = 'completed' WHERE student_id = ? AND LOWER(title) = LOWER(?)",
+                (order.get("student", {}).get("id"), order.get("project_title"))
+            )
+            db.commit()
+
+        invalidate_matching_cache()
+
+        # Notify student
         if order and order.get("student", {}).get("id"):
             st_id = order["student"]["id"]
             create_notification(

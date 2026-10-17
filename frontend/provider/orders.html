@@ -715,7 +715,12 @@
     }
 
     async function apiRequest(endpoint) {
-        const token = localStorage.getItem("edumatch_token");
+        const token = localStorage.getItem("edumatch_token") || localStorage.getItem("token") || "";
+        let uid = "";
+        try {
+            const u = JSON.parse(localStorage.getItem("edumatch_user") || localStorage.getItem("eduMatchUser") || "{}");
+            uid = u.id || u.user_id || "";
+        } catch(e) {}
 
         const headers = {
             "Accept": "application/json"
@@ -723,6 +728,9 @@
 
         if (token) {
             headers["Authorization"] = "Bearer " + token;
+        }
+        if (uid) {
+            headers["X-User-Id"] = String(uid);
         }
 
         const response = await fetch(API_BASE_URL + endpoint, {
@@ -783,7 +791,7 @@
             el.totalOrders.textContent = orders.length;
 
             el.activeOrders.textContent = orders.filter(function (order) {
-                return ["accepted", "in_progress"].includes(
+                return ["pending", "accepted", "in_progress"].includes(
                     String(order.status || "").toLowerCase()
                 );
             }).length;
@@ -948,11 +956,19 @@
     });
 
     const providerName =
-        localStorage.getItem("edumatch_provider_name");
+        localStorage.getItem("edumatch_provider_name") ||
+        localStorage.getItem("providerName") ||
+        (function() {
+            try {
+                const u = JSON.parse(localStorage.getItem("edumatch_user") || localStorage.getItem("eduMatchUser") || "{}");
+                return u.fullName || u.full_name || u.name || "";
+            } catch(e) { return ""; }
+        })() || "Project Provider";
 
-    if (providerName) {
+    if (el.providerName) {
         el.providerName.textContent = providerName;
-
+    }
+    if (el.providerAvatar) {
         el.providerAvatar.textContent =
             providerName.trim().charAt(0).toUpperCase() || "P";
     }

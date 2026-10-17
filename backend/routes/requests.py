@@ -174,27 +174,61 @@ def get_my_projects():
                cr.message as description, cr.offered_budget as budget,
                cr.status, cr.created_at, cr.updated_at,
                u.full_name as provider_name, cr.provider_id,
-               'collaboration_request' as item_type
+               'collaboration_request' as item_type,
+               cr.deliverable_url, cr.deliverable_note
         FROM collaboration_requests cr
-        LEFT JOIN users u ON cr.provider_id = u.id
+        LEFT JOIN users u ON (cr.provider_id = u.id OR cr.provider_id IN (SELECT id FROM provider_profiles WHERE user_id = u.id))
         WHERE cr.student_id = ?
         ORDER BY cr.created_at DESC
     """, (user_id,)).fetchall()
 
+    # Deduplicate collaboration requests: drop identical provider + project_title duplicates
+    seen_collabs = set()
+    deduped_collabs = []
+    active_project_titles = set()
+
+    for r in collab_rows:
+        d = dict(r)
+        p_title = (d.get("title") or "").strip().lower()
+        st = str(d.get("status") or "").lower()
+        if st in ("pending", "accepted", "in_progress", "completed"):
+            active_project_titles.add(p_title)
+
+        dedup_key = (d.get("provider_id"), p_title, st)
+        if dedup_key in seen_collabs:
+            continue
+        seen_collabs.add(dedup_key)
+        deduped_collabs.append(d)
+
     # 2. General student project requirements
+    # Exclude open requirements that already have an active collaboration request with a provider
     req_rows = db.execute("""
         SELECT r.id, r.title, r.title as project_name,
                r.description, r.budget,
                CASE WHEN r.status = 'open' THEN 'pending' ELSE r.status END as status,
                r.created_at, r.created_at as updated_at,
                'Open (Seeking Provider)' as provider_name, NULL as provider_id,
-               'requirement' as item_type
+               'requirement' as item_type,
+               NULL as deliverable_url, NULL as deliverable_note
         FROM requirements r
         WHERE r.student_id = ?
+          AND LOWER(r.status) = 'open'
+          AND r.id NOT IN (
+              SELECT requirement_id FROM collaboration_requests 
+              WHERE student_id = ? AND requirement_id IS NOT NULL
+          )
         ORDER BY r.created_at DESC
-    """, (user_id,)).fetchall()
+    """, (user_id, user_id)).fetchall()
 
-    combined = [dict(r) for r in collab_rows] + [dict(r) for r in req_rows]
+    # Filter out requirements where student already has an active provider collaboration request with the same title
+    filtered_reqs = []
+    for r in req_rows:
+        d = dict(r)
+        p_title = (d.get("title") or "").strip().lower()
+        if p_title not in active_project_titles:
+            filtered_reqs.append(d)
+
+    combined = deduped_collabs + filtered_reqs
 
     # DSA Algorithm 1: Stable Merge Sort for guaranteed O(N log N) ordering
     sorted_projects = merge_sort(
@@ -414,38 +448,49 @@ def change_status(request_id):
     if req_row["provider_id"] != user_id and req_row["student_id"] != user_id:
         return jsonify({"success": False, "message": "Unauthorized."}), 403
 
+    if new_status in ("accepted", "in_progress"):
+        new_status = "in_progress"
+
     db.execute(
         "UPDATE collaboration_requests SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         (new_status, request_id)
     )
 
     req_id = req_row.get("requirement_id")
+    if not req_id and req_row.get("project_title"):
+        match_req = db.execute(
+            "SELECT id FROM requirements WHERE student_id = ? AND LOWER(title) = LOWER(?) LIMIT 1",
+            (req_row["student_id"], req_row["project_title"])
+        ).fetchone()
+        req_id = match_req["id"] if match_req else None
+
     if req_id:
-        if new_status in ("accepted", "in_progress"):
-            # Update parent requirement to in_progress so it is hidden from all other providers
+        if new_status == "in_progress":
+            # Update parent requirement to in_progress so it is closed to all other providers
             db.execute("UPDATE requirements SET status = 'in_progress' WHERE id = ?", (req_id,))
             # Reject other pending proposals for the same requirement
             db.execute(
-                "UPDATE collaboration_requests SET status = 'rejected', updated_at = CURRENT_TIMESTAMP WHERE requirement_id = ? AND id != ? AND status = 'pending'",
-                (req_id, request_id)
+                "UPDATE collaboration_requests SET status = 'rejected', updated_at = CURRENT_TIMESTAMP WHERE (requirement_id = ? OR (student_id = ? AND LOWER(project_title) = LOWER(?))) AND id != ? AND status = 'pending'",
+                (req_id, req_row["student_id"], req_row["project_title"], request_id)
             )
         elif new_status == "completed":
             # Mark requirement as completed
             db.execute("UPDATE requirements SET status = 'completed' WHERE id = ?", (req_id,))
             # Increment completed_projects in provider_profiles
             db.execute(
-                "UPDATE provider_profiles SET completed_projects = completed_projects + 1 WHERE user_id = ?",
-                (req_row["provider_id"],)
+                "UPDATE provider_profiles SET completed_projects = completed_projects + 1 WHERE user_id = ? OR id = ?",
+                (req_row["provider_id"], req_row["provider_id"])
             )
 
     if new_status == "completed" and not req_id:
         # Increment provider completed_projects for direct service orders
         db.execute(
-            "UPDATE provider_profiles SET completed_projects = completed_projects + 1 WHERE user_id = ?",
-            (req_row["provider_id"],)
+            "UPDATE provider_profiles SET completed_projects = completed_projects + 1 WHERE user_id = ? OR id = ?",
+            (req_row["provider_id"], req_row["provider_id"])
         )
 
     db.commit()
+    invalidate_matching_cache()
 
     # Sync status to Supabase and SQLite notifications
     try:

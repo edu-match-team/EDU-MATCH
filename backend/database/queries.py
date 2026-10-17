@@ -191,9 +191,11 @@ def get_requests_for_provider(provider_id: int) -> List[Dict[str, Any]]:
     FROM collaboration_requests cr
     JOIN users u ON cr.student_id = u.id
     WHERE cr.provider_id = ?
+       OR cr.provider_id IN (SELECT id FROM provider_profiles WHERE user_id = ?)
+       OR cr.provider_id IN (SELECT user_id FROM provider_profiles WHERE id = ?)
     ORDER BY cr.created_at DESC
     """
-    rows = db.execute(query, (provider_id,)).fetchall()
+    rows = db.execute(query, (provider_id, provider_id, provider_id)).fetchall()
     return [dict(r) for r in rows]
 
 
@@ -202,7 +204,7 @@ def get_requests_for_student(student_id: int) -> List[Dict[str, Any]]:
     query = """
     SELECT cr.*, u.full_name as provider_name, u.email as provider_email
     FROM collaboration_requests cr
-    JOIN users u ON cr.provider_id = u.id
+    JOIN users u ON (cr.provider_id = u.id OR cr.provider_id IN (SELECT id FROM provider_profiles WHERE user_id = u.id))
     WHERE cr.student_id = ?
     ORDER BY cr.created_at DESC
     """
@@ -213,8 +215,15 @@ def get_requests_for_student(student_id: int) -> List[Dict[str, Any]]:
 def update_request_status(request_id: int, status: str, provider_id: int) -> bool:
     db = get_db()
     cursor = db.execute(
-        "UPDATE collaboration_requests SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND provider_id = ?",
-        (status, request_id, provider_id)
+        """
+        UPDATE collaboration_requests 
+        SET status = ?, updated_at = CURRENT_TIMESTAMP 
+        WHERE id = ? 
+          AND (provider_id = ? 
+               OR provider_id IN (SELECT id FROM provider_profiles WHERE user_id = ?)
+               OR provider_id IN (SELECT user_id FROM provider_profiles WHERE id = ?))
+        """,
+        (status, request_id, provider_id, provider_id, provider_id)
     )
     db.commit()
     return cursor.rowcount > 0

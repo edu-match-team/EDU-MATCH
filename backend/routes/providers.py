@@ -1,6 +1,8 @@
 from flask import Blueprint, jsonify, request, session
 from backend.database.queries import get_all_providers_with_skills, get_provider_details, get_user_by_id
 from backend.database.connection import get_db
+from backend.routes.matching import invalidate_matching_cache
+from dsa.matching import check_provider_category_match
 
 providers_bp = Blueprint("providers", __name__, url_prefix="/api/providers")
 
@@ -24,9 +26,10 @@ def list_providers():
             if not (name_match or title_match or desc_match or skills_match):
                 continue
 
-        # Category matching
+        # Semantic Category matching (forgiving & related checks)
         if category and category not in ("all", ""):
-            if p["category"].lower() != category:
+            is_cat_match, _ = check_provider_category_match(p, category)
+            if not is_cat_match:
                 continue
 
         # Skill matching
@@ -167,6 +170,7 @@ def provider_own_profile():
                     db.execute("INSERT OR IGNORE INTO provider_skills (provider_id, skill_id) VALUES (?, ?)", (prov_profile_id, sk_row["id"]))
 
     db.commit()
+    invalidate_matching_cache()
 
     updated = get_provider_details(user_id)
     return jsonify({
@@ -374,6 +378,7 @@ def provider_services_handler():
         (user_id, title, category, description, price, delivery_days)
     )
     db.commit()
+    invalidate_matching_cache()
     return jsonify({"success": True, "message": "Service created successfully.", "id": cursor.lastrowid}), 201
 
 
@@ -398,6 +403,7 @@ def provider_service_detail_handler(service_id):
     if request.method == "DELETE":
         db.execute("DELETE FROM services WHERE id = ?", (service_id,))
         db.commit()
+        invalidate_matching_cache()
         return jsonify({"success": True, "message": "Service deleted successfully."}), 200
 
     # PUT update
@@ -417,6 +423,7 @@ def provider_service_detail_handler(service_id):
         (title, category, description, price, delivery_days, service_id)
     )
     db.commit()
+    invalidate_matching_cache()
     return jsonify({"success": True, "message": "Service updated successfully."}), 200
 
 

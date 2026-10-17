@@ -48,8 +48,9 @@ def list_services():
         params.extend([search, search, search])
 
     if category and category.lower() != "all":
-        sql += " AND LOWER(s.category) = LOWER(?)"
-        params.append(category)
+        sql += " AND (LOWER(s.category) LIKE ? OR LOWER(s.title) LIKE ?)"
+        c_search = f"%{category.lower()}%"
+        params.extend([c_search, c_search])
 
     sql += " ORDER BY s.id DESC"
 

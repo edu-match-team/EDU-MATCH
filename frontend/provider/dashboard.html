@@ -996,8 +996,10 @@
     // Live update of services, requests, orders, and earnings statistics.
     async function updateActivityStatistics() {
         const token = localStorage.getItem("edumatch_token");
+        const userId = localStorage.getItem("edumatch_user_id") || localStorage.getItem("edumatch_provider_id");
         const headers = { "Accept": "application/json" };
         if (token) headers["Authorization"] = "Bearer " + token;
+        if (userId) headers["X-User-Id"] = userId;
 
         // 1. Fetch provider profile & photo
         try {
@@ -1043,11 +1045,11 @@
             if (sRes.ok) {
                 const sData = await sRes.json();
                 const servs = sData.services || (Array.isArray(sData) ? sData : []);
-                document.getElementById("totalServices").textContent = servs.length || 1;
+                document.getElementById("totalServices").textContent = servs.length;
             }
         } catch (e) {
             const localServices = readStorage(STORAGE_KEYS.services, []);
-            document.getElementById("totalServices").textContent = Array.isArray(localServices) ? Math.max(localServices.length, 1) : 1;
+            document.getElementById("totalServices").textContent = Array.isArray(localServices) ? localServices.length : 0;
         }
 
         // 3. Fetch Requests
@@ -1087,7 +1089,7 @@
         });
 
         const activeOrdersList = orderList.filter(function(o) {
-            return ["active", "in progress", "in_progress", "accepted"].includes(String(o.status || "").toLowerCase());
+            return ["active", "in progress", "in_progress", "accepted", "pending"].includes(String(o.status || "").toLowerCase());
         });
 
         document.getElementById("newRequests").textContent = pendingRequests.length;

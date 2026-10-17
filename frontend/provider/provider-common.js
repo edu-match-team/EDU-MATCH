@@ -10,11 +10,13 @@
 
     function getAuthHeaders() {
         const token = localStorage.getItem("edumatch_token");
+        const userId = localStorage.getItem("edumatch_user_id") || localStorage.getItem("edumatch_provider_id");
         const headers = {
             "Content-Type": "application/json",
             "Accept": "application/json"
         };
         if (token) headers["Authorization"] = "Bearer " + token;
+        if (userId) headers["X-User-Id"] = userId;
         return headers;
     }
 
@@ -131,11 +133,19 @@
     // Fetch and populate provider details into sidebar
     async function syncProviderProfile() {
         const token = localStorage.getItem("edumatch_token");
-        if (!token) return;
 
         // Quick populate from cached storage
         try {
-            const cachedName = localStorage.getItem("edumatch_provider_name") || localStorage.getItem("providerName");
+            let cachedName = localStorage.getItem("edumatch_provider_name") || localStorage.getItem("providerName");
+            if (!cachedName) {
+                const userRaw = localStorage.getItem("edumatch_user") || localStorage.getItem("eduMatchUser");
+                if (userRaw) {
+                    try {
+                        const u = JSON.parse(userRaw);
+                        cachedName = u.name || u.full_name || u.email;
+                    } catch(e) {}
+                }
+            }
             const cachedPhoto = localStorage.getItem("edumatch_provider_photo");
             if (cachedName) {
                 const nameEl = document.getElementById("sidebarProviderName") || document.getElementById("providerName");

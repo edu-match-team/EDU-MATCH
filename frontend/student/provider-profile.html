@@ -517,7 +517,7 @@
 
                         <div class="profile-top">
                             <div class="avatar" id="providerAvatar">P</div>
-                            <span class="badge">Project Provider</span>
+                            <span class="badge" id="providerCategoryBadge" style="background:#EDE9FE; color:#6D28D9; font-weight:700; padding:6px 12px; border-radius:8px;">Project Provider</span>
                         </div>
 
                         <h2 class="provider-name" id="providerName"></h2>
@@ -689,6 +689,20 @@
         const errorState = document.getElementById("errorState");
         const profileLayout = document.getElementById("profileLayout");
 
+        function escapeHtml(value) {
+            if (value === null || value === undefined) return "";
+            return String(value).replace(/[&<>"']/g, function(character) {
+                return {
+                    "&": "&amp;",
+                    "<": "&lt;",
+                    ">": "&gt;",
+                    '"': "&quot;",
+                    "'": "&#39;"
+                }[character];
+            });
+        }
+        const escapeHTML = escapeHtml;
+
         // Initialize navbar student avatar
         (function initNavStudentAvatar() {
             const uAvatar = document.getElementById("userAvatar");
@@ -748,6 +762,8 @@
                     }
                 }
                 document.querySelector(".provider-role").textContent = p.title || p.role || "Project Provider";
+                const catBadge = document.getElementById("providerCategoryBadge");
+                if (catBadge) catBadge.textContent = p.category || "Project Provider";
                 document.getElementById("providerRating").textContent = (p.rating || 5.0).toFixed(1);
                 document.getElementById("sideRating").textContent = `★ ${(p.rating || 5.0).toFixed(1)}`;
                 document.getElementById("providerBio").textContent = p.description || p.bio || "Experienced project mentor and developer.";

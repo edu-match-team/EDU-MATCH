@@ -670,10 +670,14 @@
                     <select id="serviceCategory" required>
                         <option value="">Select a category</option>
                         <option value="Web Development">Web Development</option>
-                        <option value="App Development">App Development</option>
-                        <option value="Data Science">Data Science</option>
                         <option value="Machine Learning">Machine Learning</option>
-                        <option value="Database">Database</option>
+                        <option value="Artificial Intelligence">Artificial Intelligence</option>
+                        <option value="Data Science">Data Science</option>
+                        <option value="App Development">App Development</option>
+                        <option value="Database & SQL">Database & SQL</option>
+                        <option value="DSA & Algorithms">DSA & Algorithms</option>
+                        <option value="Cloud & DevOps">Cloud & DevOps</option>
+                        <option value="Cyber Security">Cyber Security</option>
                         <option value="UI/UX Design">UI/UX Design</option>
                         <option value="Programming">Programming</option>
                         <option value="Other">Other</option>
@@ -757,6 +761,7 @@
 
     async function apiRequest(path, options = {}) {
         const token = getToken();
+        const userId = localStorage.getItem("edumatch_user_id") || localStorage.getItem("edumatch_provider_id");
 
         const headers = {
             "Content-Type": "application/json",
@@ -765,6 +770,9 @@
 
         if (token) {
             headers.Authorization = `Bearer ${token}`;
+        }
+        if (userId) {
+            headers["X-User-Id"] = userId;
         }
 
         const response = await fetch(API_BASE_URL + path, {

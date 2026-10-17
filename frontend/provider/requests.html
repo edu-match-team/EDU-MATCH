@@ -636,6 +636,7 @@
 
     async function apiRequest(path, options = {}) {
         const token = getToken();
+        const userId = localStorage.getItem("edumatch_user_id") || localStorage.getItem("edumatch_provider_id");
 
         const headers = {
             "Content-Type": "application/json",
@@ -644,6 +645,9 @@
 
         if (token) {
             headers.Authorization = `Bearer ${token}`;
+        }
+        if (userId) {
+            headers["X-User-Id"] = userId;
         }
 
         const response = await fetch(API_BASE_URL + path, {
@@ -669,7 +673,7 @@
         const normalized = String(status || "").toLowerCase();
 
         if (normalized === "pending") return "pending";
-        if (normalized === "accepted") return "accepted";
+        if (normalized === "accepted" || normalized === "in_progress") return "accepted";
         if (normalized === "rejected") return "rejected";
         if (normalized === "cancelled") return "cancelled";
 
@@ -792,7 +796,7 @@
                             <button class="btn btn-primary"
                                 data-action="accept"
                                 data-id="${escapeHTML(id)}">
-                                Accept Request
+                                Accept & Start Work
                             </button>
 
                             <button class="btn btn-danger"
@@ -908,13 +912,13 @@
                 {
                     method: "PATCH",
                     body: JSON.stringify({
-                        status: action === "accept" ? "accepted" : "rejected"
+                        status: action === "accept" ? "in_progress" : "rejected"
                     })
                 }
             );
 
             setNotice(
-                `The request was ${action === "accept" ? "accepted" : "rejected"}.`,
+                `The request was ${action === "accept" ? "accepted and moved to In Progress" : "rejected"}.`,
                 "info"
             );
 
