@@ -840,6 +840,7 @@
                     }
                     if (data.user.email && !document.getElementById("email").value) {
                         document.getElementById("email").value = data.user.email;
+                    }
                     if (data.user.profile_photo) {
                         profilePhoto = data.user.profile_photo;
                     } else if (currentUserId && localStorage.getItem("edumatch_student_photo_" + currentUserId)) {
@@ -922,8 +923,19 @@
 
     const avatarClickTarget = document.getElementById("avatar");
     const choosePhotoBtn = document.getElementById("choosePhotoBtn");
-    
-    // Add drag and drop support to the avatar preview
+
+    if (choosePhotoBtn) {
+        choosePhotoBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            photoInput.click();
+        });
+    }
+    if (avatarClickTarget) {
+        avatarClickTarget.addEventListener("click", (e) => {
+            e.preventDefault();
+            photoInput.click();
+        });
+    }
     if (avatarClickTarget) {
         avatarClickTarget.addEventListener("dragover", (e) => {
             e.preventDefault();

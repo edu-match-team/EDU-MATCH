@@ -45,10 +45,56 @@ def list_conversations():
     if not user_id:
         return jsonify({"success": False, "message": "Not logged in."}), 401
 
-    raw_convs = get_user_conversations(user_id)
     db = get_db()
+    cur_user_row = db.execute(
+        """
+        SELECT u.id, u.full_name, u.role,
+               COALESCE(
+                   NULLIF(u.profile_photo, ''),
+                   NULLIF((SELECT profile_photo FROM student_profiles WHERE user_id = u.id), ''),
+                   NULLIF((SELECT profile_photo FROM provider_profiles WHERE user_id = u.id), ''),
+                   ''
+               ) AS photo
+        FROM users u WHERE u.id = ?
+        """,
+        (user_id,)
+    ).fetchone()
+
+    cur_role = (cur_user_row["role"] if cur_user_row else "").lower()
+    raw_convs = get_user_conversations(user_id)
     formatted = []
     for c in raw_convs:
+        other_role = (c.get("other_user_role") or "").lower()
+
+        # Enforce strict role isolation:
+        # A student only ever sees providers in their chat list.
+        # A provider only ever sees students in their chat list.
+        if request.path.startswith("/api/student") or (cur_role == "student" and not request.path.startswith("/api/provider")):
+            if other_role != "provider":
+                continue
+        elif request.path.startswith("/api/provider") or (cur_role == "provider" and not request.path.startswith("/api/student")):
+            if other_role != "student":
+                continue
+
+        # Strict connection check:
+        # Only show users with at least 1 visible message OR an active pending/accepted/in_progress collaboration request
+        vis_count = int(c.get("visible_message_count") or 0)
+        has_msg = vis_count > 0 and bool(c.get("last_message"))
+        has_active_req = db.execute(
+            """
+            SELECT 1 FROM collaboration_requests 
+            WHERE ((student_id = ? AND provider_id = ?) OR (student_id = ? AND provider_id = ?))
+              AND status IN ('pending', 'accepted', 'in_progress')
+            LIMIT 1
+            """,
+            (user_id, c["other_user_id"], c["other_user_id"], user_id)
+        ).fetchone()
+
+        active_q = request.args.get("conversation_id") or request.args.get("conv_id")
+        if not (has_msg or has_active_req):
+            if not (active_q and str(active_q) == str(c["id"])):
+                continue
+
         u_row = db.execute(
             """
             SELECT u.id, u.full_name, u.email, u.role,

@@ -1,16 +1,62 @@
-# EduMatch — Student Project Matching & Collaboration Platform
+# 🎓 EduMatch — Academic Project Matching & Mentorship Ecosystem
+
+[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Backend-Flask%20Framework-000000?logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![SQLite](https://img.shields.io/badge/Database-SQLite3-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
+[![Supabase](https://img.shields.io/badge/Cloud%20Sync-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+[![DSA Engine](https://img.shields.io/badge/DSA%20Engine-8%20Custom%20Structures-8A2BE2)](#-dsa-engine-deep-dive)
+[![Tests](https://img.shields.io/badge/Tests-Pytest%20Passing-success?logo=pytest)](https://docs.pytest.org/)
 
 > **Academic Program:** BCA — Artificial Intelligence & Data Science  
-> **Project Category:** Full-Stack Web Application with Data Structures & Algorithms (DSA) Engine  
-> **Team Size:** 5 Members  
+> **Project Type:** Full-Stack Academic Collaboration Platform with Custom DSA Engine  
+> **Authors:** Vishwajeet Rawat & Team  
 
 ---
 
-## 🌟 Executive Summary
+## 📖 Table of Contents
+- [🌟 Platform Overview](#-platform-overview)
+- [⚡ Key Features & Portals](#-key-features--portals)
+- [🏗️ System Architecture](#-system-architecture)
+- [🧠 Custom DSA Engine Deep-Dive](#-custom-dsa-engine-deep-dive)
+- [💻 Tech Stack](#-tech-stack)
+- [📁 Project Directory Structure](#-project-directory-structure)
+- [🚀 Quick Start & Installation](#-quick-start--installation)
+- [🧪 Running Automated Tests](#-running-automated-tests)
+- [📚 Full Technical & Viva Guide](#-full-technical--viva-guide)
 
-**EduMatch** is a specialized web platform connecting academic students who require guidance, development assistance, or mentorship on technical projects with vetted project providers, developers, and skilled peers.
+---
 
-Instead of searching randomly or relying on unverified claims, EduMatch utilizes a **custom Data Structures and Algorithms (DSA) matching and ranking engine** that calculates composite compatibility based on skill overlap, budget constraints, availability, and reputation ratings.
+## 🌟 Platform Overview
+
+**EduMatch** is a peer-to-peer academic collaboration and mentorship ecosystem connecting university students with vetted peer developers, technical researchers, and subject-matter mentors.
+
+Instead of unvetted messaging groups, EduMatch features:
+- **Intelligent DSA Matching & Semantic Search**: Direct relevance scoring for queries like `"Senior AI"`, `"Web Developer"`, and `"App Developer"`, placing exact matches and domain experts at the top of search results.
+- **Strict Role-Isolated Real-Time Chat**: Students and mentors communicate with private message threads, deliverable file downloads, and photo attachments.
+- **Requirement Lifecycle & Acceptance Exclusivity**: When a provider accepts a project, it transitions to `in_progress` and is automatically removed from open browse feeds.
+- **Cloud Resiliency**: Fast local SQLite storage paired with asynchronous Supabase cloud backup.
+
+---
+
+## ⚡ Key Features & Portals
+
+### 🎓 1. Student Portal (`/student`)
+- **DSA Search & Autocomplete**: Real-time prefix suggestions via Trie and instant ranking via Binary Max-Heap.
+- **Multi-Filter Engine**: Filter by Project Category, Required Tech Stack, and Maximum Budget.
+- **Provider Showcase**: Inspect mentor ratings, hourly rates, verified badges, past projects, and portfolios.
+- **Order Service & Custom Proposals**: Direct milestone booking with escrow-style budget tracking.
+- **Isolated Messaging & Deliverable Viewer**: Receive finished project deliverables and view download links directly in chat.
+
+### 💼 2. Provider Portal (`/provider`)
+- **Professional Portfolio & Services**: Publish custom gig offerings (e.g., "Full Stack Web App", "ML Model Training").
+- **Open Project Requirements Feed**: Browse student project requests and submit bids.
+- **Order Management**: Track pending, in-progress, and completed contracts.
+- **Deliverables Modal**: Submit milestone code repositories, documentation, and Google Drive links directly to students.
+
+### 🛡️ 3. Admin Portal (`/admin`)
+- **Platform Analytics**: Live KPI counters for active users, students, providers, orders, and messages.
+- **User Moderation**: Verify providers, manage student records, and toggle account statuses.
+- **Dispute Resolution**: Arbitrate project issues between students and mentors.
 
 ---
 
@@ -18,114 +64,164 @@ Instead of searching randomly or relying on unverified claims, EduMatch utilizes
 
 ```
                                   +-----------------------------+
-                                  |   EduMatch Client UI        |
-                                  |  (HTML5/CSS3/JS & React)    |
+                                  |     EduMatch Frontend UI    |
+                                  |  (Vanilla HTML5 / CSS3 / JS)|
                                   +--------------+--------------+
                                                  |
-                                     HTTP / JSON REST API
+                                     HTTP / REST API (JSON)
                                                  |
                                   +--------------v--------------+
-                                  |   Python Flask Backend      |
-                                  |        (app.py)             |
+                                  |     Python Flask Backend    |
+                                  |           (app.py)          |
                                   +--------------+--------------+
                                                  |
                    +-----------------------------+-----------------------------+
                    |                                                           |
      +-------------v-------------+                               +-------------v-------------+
-     |   DSA Matching Engine     |                               |   SQLite Database         |
-     | - Set Overlap: O(M)       |                               | - users                   |
-     | - Strict Budget Filtering |                               | - student_profiles        |
-     | - Stable MergeSort:       |                               | - provider_profiles       |
-     |   O(N log N)              |                               | - skills & requirements   |
-     +---------------------------+                               | - conversations & messages|
-                                                                 +---------------------------+
+     |     Core DSA Engine       |                               |      Persistence Layer    |
+     | - Max-Heap Priority Queue |                               | - SQLite (edumatch.db)    |
+     | - Trie (Prefix Tree)      |                               | - Supabase Cloud Sync     |
+     | - Stable Merge Sort       |                               |                           |
+     | - LRU Cache               |                               |                           |
+     | - Separate Chaining Hash  |                               |                           |
+     | - Graph BFS & Dijkstra    |                               |                           |
+     +---------------------------+                               +---------------------------+
 ```
 
 ---
 
-## ⚡ DSA Matching Engine Explanation
+## 🧠 Custom DSA Engine Deep-Dive
 
-### 1. Mathematical Scoring Formulation
+EduMatch does **not** rely on slow database table scans for search and ranking. It implements **8 native Data Structures & Algorithms** in Python:
 
-For any candidate provider $P$ and student project requirement $R$:
-
-1. **Skill Overlap Score ($S$):** Calculated via Set Theory:
-   $$S = \left(\frac{|P_{\text{skills}} \cap R_{\text{required\_skills}}|}{|R_{\text{required\_skills}}|}\right) \times 100$$
-2. **Budget Compatibility Score ($B$):**
-   - If $P_{\text{price}} > R_{\text{budget}}$ and strict budget mode is enabled $\rightarrow$ Provider is filtered out.
-   - If $P_{\text{price}} \le R_{\text{budget}}$, score rewards cost efficiency:
-     $$B = \max\left(40.0, 100.0 - \left(\frac{P_{\text{price}}}{R_{\text{budget}}} \times 40.0\right)\right)$$
-3. **Availability Score ($A$):**
-   - `available`: $100$
-   - `limited`: $60$
-   - `busy`: $25$
-4. **Rating Score ($R^*$):**
-   $$R^* = \left(\frac{\text{Rating}}{5.0}\right) \times 100$$
-
-### Composite Total Score:
-$$\text{Total Score} = 0.55 \cdot S + 0.20 \cdot B + 0.15 \cdot A + 0.10 \cdot R^*$$
-
-### 2. Algorithmic Complexity
-
-- **Set Intersection:** $O(M)$ average time where $M$ is the number of skills.
-- **Sorting Algorithm:** Divide-and-Conquer **Merge Sort** (`dsa/sorting.py`).
-  - **Best Case:** $O(N \log N)$
-  - **Average Case:** $O(N \log N)$
-  - **Worst Case:** $O(N \log N)$
-  - **Auxiliary Space:** $O(N)$
-  - **Stability:** Stable (maintains predictable ordering for equal match scores).
+| # | Data Structure / Algorithm | Source File | Usage in EduMatch | Time Complexity | Space Complexity |
+|---|---|---|---|---|---|
+| **1** | **Binary Max-Heap Priority Queue** | [`dsa/priority_queue.py`](dsa/priority_queue.py) | Match ranking and urgent student project scheduling | $O(\log N)$ push/pop, $O(N \log K)$ Top-$K$ | $O(N)$ |
+| **2** | **Trie (Prefix Tree)** | [`dsa/searching.py`](dsa/searching.py) | Google-like search autocomplete for skills, categories, and titles | $O(L)$ where $L = \text{query length}$ | $O(\Sigma \cdot L \cdot N)$ |
+| **3** | **Stable Merge Sort** | [`dsa/sorting.py`](dsa/sorting.py) | Divide-and-conquer chronological ordering of orders & requests | $O(N \log N)$ (Best, Avg, Worst) | $O(N)$ |
+| **4** | **LRU Cache** | [`dsa/lru_cache.py`](dsa/lru_cache.py) | Doubly-linked list + hash map caching of match query payloads | $O(1)$ get, $O(1)$ put, $O(1)$ eviction | $O(\text{Capacity})$ |
+| **5** | **Separate Chaining Hash Table** | [`dsa/hash_table.py`](dsa/hash_table.py) | Fast in-memory user/provider profile caching | $O(1)$ average lookup, $O(N)$ worst | $O(N + B)$ |
+| **6** | **Bipartite Interaction Graph** | [`dsa/graph_matching.py`](dsa/graph_matching.py) | Peer recommendations using BFS & shortest matching path via Dijkstra | BFS: $O(V + E)$, Dijkstra: $O((V+E)\log V)$ | $O(V + E)$ |
+| **7** | **Binary Search** | [`dsa/searching.py`](dsa/searching.py) | Boundary cutoff analysis in pre-sorted provider score lists | $O(\log N)$ | $O(1)$ |
+| **8** | **Set Theory & Semantic Concept Graph** | [`dsa/matching.py`](dsa/matching.py) | Query relevance, semantic domain expansion & Jaccard skill overlap | $O(N \cdot M)$ | $O(M)$ |
 
 ---
 
-## 👥 5-Member Team Responsibilities
+## 💻 Tech Stack
 
-| Role | Member Focus | Deliverables |
-|---|---|---|
-| **Member 1** | Frontend & UI/UX | HTML5/CSS3 layouts, DM Sans typography, responsive portal cards |
-| **Member 2** | Backend & Authentication | Flask Blueprints, Werkzeug password hashing, session cookies, route protection |
-| **Member 3** | Database Persistence | SQLite schema (`database/schema.sql`), queries, foreign key enforcement |
-| **Member 4** | DSA & Algorithm Design | Set theory matching, budget cutoff, merge sort ranking, complexity metrics |
-| **Member 5** | Chat, Testing & Integration | Persistent messaging, collaboration workflows, `pytest` validation suite |
+- **Backend**: Python 3, Flask, Werkzeug, Flask-CORS
+- **Frontend**: Vanilla HTML5, Modern CSS3 (CSS Variables, Flexbox/Grid, Glassmorphism), ES6 JavaScript
+- **Database**: SQLite3 (Embedded zero-latency relational engine)
+- **Cloud & Realtime**: Supabase (PostgreSQL Cloud Sync, Real-time Webhooks & Notifications)
+- **Testing**: Pytest
 
 ---
 
-## 🚀 How to Run the Website
+## 📁 Project Directory Structure
 
-### Option 1: Full-Stack Flask Web Server (Recommended)
+```
+EDU MATCH/
+├── dsa/                       # Custom Data Structures & Algorithms Library
+│   ├── matching.py            # Multi-criteria scoring, semantic expansion & ranking
+│   ├── priority_queue.py      # Binary Max-Heap and Priority Queue
+│   ├── searching.py           # SkillTrie (Prefix Tree) & Binary Search
+│   ├── sorting.py             # Stable MergeSort
+│   ├── lru_cache.py           # Doubly-Linked List + Hash Map LRU Cache
+│   ├── hash_table.py          # Separate-chaining Hash Table with polynomial hash
+│   └── graph_matching.py      # Bipartite Adjacency List Graph (BFS & Dijkstra)
+│
+├── backend/                   # Python Flask REST API
+│   ├── app.py                 # Application factory & blueprint registration
+│   ├── config.py              # App configuration
+│   ├── database/              # SQLite queries & Supabase cloud sync
+│   └── routes/                # Auth, Chat, Matching, Providers, Requests, Admin
+│
+├── frontend/                  # Web Client Portals
+│   ├── student/               # Student search, orders, chat, profile
+│   ├── provider/              # Provider dashboard, requests, services, chat
+│   └── admin/                 # Admin dashboard, users, orders, reports
+│
+├── database/                  # SQLite schema & initialization script
+│   ├── schema.sql
+│   ├── seed_db.py
+│   └── edumatch.db
+│
+├── tests/                     # Pytest automated test suite
+├── README.md                  # This file
+└── DSA_AND_PROJECT_GUIDE.md   # Complete viva voce and technical mentor manual
+```
 
-1. Activate your virtual environment in PowerShell:
-   ```powershell
-   .\.venv\Scripts\Activate.ps1
-   ```
-2. Start the application:
-   ```powershell
-   python app.py
-   ```
-3. Open your browser and navigate to:
-   - **Homepage:** [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
-   - **Student Login:** [http://127.0.0.1:5000/student/login.html](http://127.0.0.1:5000/student/login.html)
-   - **Provider Login:** [http://127.0.0.1:5000/provider/login.html](http://127.0.0.1:5000/provider/login.html)
-   - **Admin Login:** [http://127.0.0.1:5000/admin/login.html](http://127.0.0.1:5000/admin/login.html)
+---
 
+## 🚀 Quick Start & Installation
 
-### Option 2: React + Vite Frontend (Modern SPA)
+### 1. Prerequisites
+- Python 3.10+ installed
+- Git installed
 
-The repository also includes a complete React 18 + Vite setup inside `frontend-react/`:
-1. Ensure Node.js is installed (`winget install OpenJS.NodeJS` or from [nodejs.org](https://nodejs.org/)).
-2. Navigate to `frontend-react/` and install dependencies:
-   ```powershell
-   cd frontend-react
-   npm install
-   npm run dev
-   ```
-3. Access the Vite dev server at `http://localhost:5173`. Vite automatically proxies `/api` calls to the Flask backend running on port `5000`.
+### 2. Clone Repository
+```bash
+git clone https://github.com/rawatvishwajeet9-ship-it/EDU-MATCH.git
+cd "EDU MATCH"
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Run Flask Server
+```bash
+python backend/app.py
+```
+The server will boot at: **`http://127.0.0.1:5000`**
+
+### 5. Access Portals
+- **Landing Page**: `http://127.0.0.1:5000/index.html`
+- **Student Search**: `http://127.0.0.1:5000/student/search.html`
+- **Student Chat**: `http://127.0.0.1:5000/student/chat.html`
+- **Provider Dashboard**: `http://127.0.0.1:5000/provider/dashboard.html`
+- **Admin Dashboard**: `http://127.0.0.1:5000/admin/dashboard.html`
 
 ---
 
 ## 🧪 Running Automated Tests
 
-Run the test suite using pytest:
-```powershell
-.\.venv\Scripts\python.exe -m pytest -v
+Run the full pytest suite to verify all DSA structures and backend routes:
+
+```bash
+python -m pytest tests/ -v
 ```
-All 6 tests verify authentication security, API health, score calculations, budget filtering, and stable sorting.
+
+Expected output:
+```
+tests/backend/test_auth.py::test_auth_flow PASSED
+tests/backend/test_profile_and_chat.py::test_student_profile_photo_and_completion PASSED
+tests/backend/test_search_and_matching.py::test_senior_ai_ranking PASSED
+tests/backend/test_search_and_matching.py::test_web_developer_ranking PASSED
+tests/backend/test_search_and_matching.py::test_app_developer_ranking PASSED
+tests/dsa/test_dsa_structures.py::test_priority_queue_ordering PASSED
+tests/dsa/test_dsa_structures.py::test_top_k_elements PASSED
+tests/dsa/test_dsa_structures.py::test_lru_cache_operations PASSED
+tests/dsa/test_dsa_structures.py::test_graph_bfs_and_dijkstra PASSED
+tests/dsa/test_dsa_structures.py::test_hash_table PASSED
+tests/dsa/test_matching.py::test_calculate_match_score_perfect PASSED
+tests/dsa/test_matching.py::test_merge_sort_descending PASSED
+================ 12 passed in 1.2s =================
+```
+
+---
+
+## 📚 Full Technical & Viva Guide
+
+For project evaluators, college professors, and viva voce preparation, consult the dedicated companion guide:  
+👉 **[`DSA_AND_PROJECT_GUIDE.md`](DSA_AND_PROJECT_GUIDE.md)**
+
+It includes:
+- Architectural breakdowns with ASCII and Mermaid flowcharts.
+- Step-by-step mathematical proofs of the matching formula.
+- Exact line-by-line file references for every algorithm.
+- Frequently asked viva voce questions with model answers.
+
+---
+© 2026 EduMatch · Built with ❤️ by Vishwajeet Rawat & Team (BCA AI & Data Science)

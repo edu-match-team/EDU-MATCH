@@ -15,7 +15,9 @@ match_lru_cache = LRUCache(capacity=64)
 def find_matches():
     data = request.get_json(silent=True) or {}
     
-    # 1. Parse required skills
+    # 1. Parse search query & required skills
+    query = str(data.get("query") or data.get("q") or "").strip()
+
     raw_skills = data.get("skills", [])
     if isinstance(raw_skills, str):
         required_skills = [s.strip() for s in raw_skills.split(",") if s.strip()]
@@ -34,7 +36,7 @@ def find_matches():
     strict_budget = bool(data.get("strict_budget", False))
 
     # Check DSA LRU Cache for instant O(1) hit
-    cache_key = f"{','.join(sorted(required_skills))}|{budget}|{category}|{strict_budget}"
+    cache_key = f"{query}|{','.join(sorted(required_skills))}|{budget}|{category}|{strict_budget}"
     cached_payload = match_lru_cache.get(cache_key)
     if cached_payload:
         cached_payload["cached"] = True
@@ -44,9 +46,10 @@ def find_matches():
     # 3. Fetch candidate providers from SQLite
     all_providers = get_all_providers_with_skills()
 
-    # 4. Execute DSA Matching & Ranking Algorithm (Set Theory + Merge Sort)
+    # 4. Execute DSA Matching & Ranking Algorithm (Query Relevance + Concept Graph + Heap Sort)
     ranked_results = match_and_rank_providers(
         providers=all_providers,
+        query=query,
         required_skills=required_skills,
         student_budget=budget,
         strict_budget=strict_budget,
@@ -69,14 +72,15 @@ def find_matches():
         "cached": False,
         "cache_stats": match_lru_cache.stats(),
         "dsa_metadata": {
-            "algorithm": "Multi-Criteria Composite Match Scoring & Stable Merge Sort",
-            "scoring_formula": "TotalScore = (0.55 * SkillScore) + (0.20 * BudgetScore) + (0.15 * AvailabilityScore) + (0.10 * RatingScore)",
+            "algorithm": "Multi-Criteria Composite Match Scoring & Binary Max-Heap Priority Queue Sort",
+            "scoring_formula": "TotalScore = (0.55 * QueryRelevance) + (0.20 * SkillScore) + (0.12 * BudgetScore) + (0.08 * AvailabilityScore) + (0.05 * RatingScore)" if query else "TotalScore = (0.55 * SkillScore) + (0.20 * BudgetScore) + (0.15 * AvailabilityScore) + (0.10 * RatingScore)",
             "time_complexity": "O(N * M + N log N) where N is provider count and M is skill count",
             "space_complexity": "O(N) auxiliary space",
             "data_structures_used": [
+                "Trie / Prefix Tree (O(L) instant autocomplete)",
+                "Concept Graph (Semantic domain expansion)",
                 "Hash Sets (O(1) skill intersection)",
-                "Divide-and-Conquer Merge Sort (O(N log N))",
-                "Binary Max-Heap Priority Queue (O(N log K) top-K spotlight)",
+                "Binary Max-Heap Priority Queue (O(N log N) Heap Sort)",
                 "Doubly-Linked List + Hash Map LRU Cache (O(1) memoization)"
             ]
         }
@@ -108,30 +112,42 @@ def get_search_suggestions():
     seed_keywords = [
         "Python", "Python Machine Learning", "Python Flask Web App", "Python Django", "Pandas",
         "Machine Learning", "ML Model Training", "Data Science", "Data Analysis",
-        "Web Development", "Full Stack Web Development", "React", "React Frontend",
+        "Web Developer", "Web Development", "Full Stack Web Development", "React", "React Frontend",
         "JavaScript", "HTML & CSS", "Flask", "SQL", "Database Design", "PostgreSQL",
-        "Deep Learning", "Artificial Intelligence", "NLP Natural Language Processing",
-        "Computer Vision", "App Development", "Android App", "Flutter Mobile App",
-        "C++", "C++ Algorithms", "DSA Data Structures", "Java", "PHP",
-        "Cyber Security", "Blockchain", "Cloud Computing", "AWS", "IoT Internet of Things",
-        "Insight & Analytics", "Instructor & Mentor Support", "Installation & Setup Guide",
-        "Instant Chat & Project Collaboration", "Instruction & Code Review", "Inspect Database Schema"
+        "Deep Learning", "Artificial Intelligence", "Senior AI Researcher", "Senior AI Mentor",
+        "NLP Natural Language Processing", "TensorFlow", "PyTorch",
+        "Computer Vision", "App Developer", "App Development", "Android App", "Flutter Mobile App",
+        "Mobile App Development", "C++", "C++ Algorithms", "DSA Data Structures", "Java", "PHP",
+        "Cyber Security", "Blockchain", "Cloud Computing", "AWS", "IoT Internet of Things"
     ]
     for kw in seed_keywords:
         trie.insert(kw, kw)
 
-    # 2. Add all skills from database
+    # 2. Add all skills, provider names, titles & categories from database
     try:
         db = get_db()
         db_skills = db.execute("SELECT name FROM skills").fetchall()
         for row in db_skills:
             trie.insert(row["name"], row["name"])
 
-        # Add provider titles & categories
-        prov_rows = db.execute("SELECT DISTINCT title, category FROM provider_profiles").fetchall()
+        # Add provider titles, full_name & categories
+        prov_rows = db.execute("""
+            SELECT u.full_name, p.title, p.category 
+            FROM provider_profiles p 
+            JOIN users u ON p.user_id = u.id 
+            WHERE u.is_active = 1
+        """).fetchall()
         for pr in prov_rows:
             if pr["title"]:
                 trie.insert(pr["title"], pr["title"])
+                # Also insert sub-phrases of title
+                words = pr["title"].split()
+                for i in range(len(words)):
+                    sub = " ".join(words[i:])
+                    if len(sub) > 2:
+                        trie.insert(sub, pr["title"])
+            if pr["full_name"]:
+                trie.insert(pr["full_name"], pr["full_name"])
             if pr["category"]:
                 trie.insert(pr["category"], pr["category"])
     except Exception:
@@ -139,6 +155,13 @@ def get_search_suggestions():
 
     # Lookup prefix in Trie
     matched_suggestions = trie.search_prefix(query)
+
+    # Also check word-level token matching if prefix yields few results
+    if len(matched_suggestions) < 3:
+        q_lower = query.lower()
+        for kw in seed_keywords:
+            if q_lower in kw.lower() and kw not in matched_suggestions:
+                matched_suggestions.append(kw)
 
     # Deduplicate while preserving order and limit to top 8 suggestions
     seen = set()

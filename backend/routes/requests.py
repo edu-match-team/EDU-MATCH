@@ -238,20 +238,52 @@ def get_my_projects():
 @requests_bp.route("/student-requirements", methods=["GET"])
 def get_open_student_requirements():
     """
-    Allows providers to browse all student requirements/project requests
-    so providers can view, search, and connect or accept them.
+    Allows providers to browse open student requirements/project requests.
+    Excludes requirements that are already accepted, in-progress, completed,
+    or where the current provider has already submitted a proposal.
     """
     db = get_db()
-    rows = db.execute("""
-        SELECT r.id, r.student_id, r.title, r.category, r.description,
-               r.required_skills, r.budget, r.deadline, r.complexity,
-               r.status, r.created_at,
-               u.full_name as student_name, u.email as student_email
-        FROM requirements r
-        JOIN users u ON r.student_id = u.id
-        WHERE u.is_active = 1
-        ORDER BY r.created_at DESC
-    """).fetchall()
+    current_user_id = get_auth_user_id()
+
+    if current_user_id:
+        rows = db.execute("""
+            SELECT r.id, r.student_id, r.title, r.category, r.description,
+                   r.required_skills, r.budget, r.deadline, r.complexity,
+                   r.status, r.created_at,
+                   u.full_name as student_name, u.email as student_email
+            FROM requirements r
+            JOIN users u ON r.student_id = u.id
+            WHERE u.is_active = 1 
+              AND LOWER(r.status) = 'open'
+              AND r.id NOT IN (
+                  SELECT requirement_id FROM collaboration_requests 
+                  WHERE requirement_id IS NOT NULL 
+                    AND status IN ('accepted', 'in_progress', 'completed')
+              )
+              AND r.id NOT IN (
+                  SELECT requirement_id FROM collaboration_requests 
+                  WHERE requirement_id IS NOT NULL 
+                    AND provider_id = ?
+              )
+            ORDER BY r.created_at DESC
+        """, (current_user_id,)).fetchall()
+    else:
+        rows = db.execute("""
+            SELECT r.id, r.student_id, r.title, r.category, r.description,
+                   r.required_skills, r.budget, r.deadline, r.complexity,
+                   r.status, r.created_at,
+                   u.full_name as student_name, u.email as student_email
+            FROM requirements r
+            JOIN users u ON r.student_id = u.id
+            WHERE u.is_active = 1 
+              AND LOWER(r.status) = 'open'
+              AND r.id NOT IN (
+                  SELECT requirement_id FROM collaboration_requests 
+                  WHERE requirement_id IS NOT NULL 
+                    AND status IN ('accepted', 'in_progress', 'completed')
+              )
+            ORDER BY r.created_at DESC
+        """).fetchall()
 
     requirements = []
     for row in rows:
@@ -302,6 +334,17 @@ def provider_propose_on_requirement():
     student_id = req_row["student_id"]
     budget = req_row["budget"]
     title = req_row["title"]
+
+    # Check if this provider has already proposed on this requirement
+    existing_prop = db.execute(
+        "SELECT id FROM collaboration_requests WHERE requirement_id = ? AND provider_id = ?",
+        (req_id, user_id)
+    ).fetchone()
+    if existing_prop:
+        return jsonify({
+            "success": False,
+            "message": "You have already submitted a proposal for this project requirement."
+        }), 409
 
     # Create collaboration request with status 'pending' (from provider proposal)
     collab_id = create_collaboration_request(
@@ -375,6 +418,33 @@ def change_status(request_id):
         "UPDATE collaboration_requests SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         (new_status, request_id)
     )
+
+    req_id = req_row.get("requirement_id")
+    if req_id:
+        if new_status in ("accepted", "in_progress"):
+            # Update parent requirement to in_progress so it is hidden from all other providers
+            db.execute("UPDATE requirements SET status = 'in_progress' WHERE id = ?", (req_id,))
+            # Reject other pending proposals for the same requirement
+            db.execute(
+                "UPDATE collaboration_requests SET status = 'rejected', updated_at = CURRENT_TIMESTAMP WHERE requirement_id = ? AND id != ? AND status = 'pending'",
+                (req_id, request_id)
+            )
+        elif new_status == "completed":
+            # Mark requirement as completed
+            db.execute("UPDATE requirements SET status = 'completed' WHERE id = ?", (req_id,))
+            # Increment completed_projects in provider_profiles
+            db.execute(
+                "UPDATE provider_profiles SET completed_projects = completed_projects + 1 WHERE user_id = ?",
+                (req_row["provider_id"],)
+            )
+
+    if new_status == "completed" and not req_id:
+        # Increment provider completed_projects for direct service orders
+        db.execute(
+            "UPDATE provider_profiles SET completed_projects = completed_projects + 1 WHERE user_id = ?",
+            (req_row["provider_id"],)
+        )
+
     db.commit()
 
     # Sync status to Supabase and SQLite notifications

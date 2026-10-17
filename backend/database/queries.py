@@ -48,7 +48,7 @@ def get_all_providers_with_skills() -> List[Dict[str, Any]]:
     JOIN users u ON p.user_id = u.id
     LEFT JOIN provider_skills ps ON p.id = ps.provider_id
     LEFT JOIN skills s ON ps.skill_id = s.id
-    WHERE u.is_active = 1
+    WHERE u.is_active = 1 AND LOWER(u.role) = 'provider'
     GROUP BY p.id
     """
     rows = db.execute(query).fetchall()
@@ -247,14 +247,35 @@ def get_user_conversations(user_id: int) -> List[Dict[str, Any]]:
            CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END as other_user_id,
            u.full_name as other_user_name,
            u.role as other_user_role,
-           (SELECT message_text FROM messages WHERE conversation_id = c.id ORDER BY id DESC LIMIT 1) as last_message,
-           (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY id DESC LIMIT 1) as last_message_time
+           (
+               SELECT m.message_text FROM messages m 
+               WHERE m.conversation_id = c.id
+                 AND COALESCE(m.deleted_for_everyone, 0) = 0
+                 AND NOT (m.sender_id = ? AND COALESCE(m.deleted_for_sender, 0) = 1)
+                 AND NOT (m.sender_id != ? AND COALESCE(m.deleted_for_receiver, 0) = 1)
+               ORDER BY m.id DESC LIMIT 1
+           ) as last_message,
+           (
+               SELECT m.created_at FROM messages m 
+               WHERE m.conversation_id = c.id
+                 AND COALESCE(m.deleted_for_everyone, 0) = 0
+                 AND NOT (m.sender_id = ? AND COALESCE(m.deleted_for_sender, 0) = 1)
+                 AND NOT (m.sender_id != ? AND COALESCE(m.deleted_for_receiver, 0) = 1)
+               ORDER BY m.id DESC LIMIT 1
+           ) as last_message_time,
+           (
+               SELECT COUNT(*) FROM messages m 
+               WHERE m.conversation_id = c.id
+                 AND COALESCE(m.deleted_for_everyone, 0) = 0
+                 AND NOT (m.sender_id = ? AND COALESCE(m.deleted_for_sender, 0) = 1)
+                 AND NOT (m.sender_id != ? AND COALESCE(m.deleted_for_receiver, 0) = 1)
+           ) as visible_message_count
     FROM conversations c
     JOIN users u ON u.id = (CASE WHEN c.user1_id = ? THEN c.user2_id ELSE c.user1_id END)
-    WHERE c.user1_id = ? OR c.user2_id = ?
+    WHERE (c.user1_id = ? OR c.user2_id = ?) AND u.is_active = 1
     ORDER BY c.updated_at DESC
     """
-    rows = db.execute(query, (user_id, user_id, user_id, user_id)).fetchall()
+    rows = db.execute(query, (user_id, user_id, user_id, user_id, user_id, user_id, user_id, user_id, user_id, user_id)).fetchall()
     return [dict(r) for r in rows]
 
 

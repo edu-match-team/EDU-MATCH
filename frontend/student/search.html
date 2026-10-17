@@ -789,10 +789,13 @@
                         <option value="">All categories</option>
                         <option value="Web Development">Web Development</option>
                         <option value="Machine Learning">Machine Learning</option>
+                        <option value="Artificial Intelligence">Artificial Intelligence</option>
                         <option value="Data Science">Data Science</option>
                         <option value="App Development">App Development</option>
-                        <option value="Database">Database</option>
-                        <option value="DSA">DSA</option>
+                        <option value="Database">Database & SQL</option>
+                        <option value="DSA">DSA & Algorithms</option>
+                        <option value="Cloud Computing">Cloud & DevOps</option>
+                        <option value="Cyber Security">Cyber Security</option>
                     </select>
                 </div>
 
@@ -800,15 +803,19 @@
                     <h4>Required Skill</h4>
                     <select id="skillFilter">
                         <option value="">All skills</option>
-                        <option value="HTML">HTML</option>
-                        <option value="CSS">CSS</option>
-                        <option value="JavaScript">JavaScript</option>
                         <option value="Python">Python</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="React">React</option>
                         <option value="Flask">Flask</option>
                         <option value="Machine Learning">Machine Learning</option>
-                        <option value="SQL">SQL</option>
+                        <option value="Deep Learning">Deep Learning</option>
+                        <option value="NLP">NLP (Natural Language)</option>
+                        <option value="TensorFlow">TensorFlow</option>
+                        <option value="HTML">HTML & CSS</option>
+                        <option value="SQL">SQL & Database</option>
                         <option value="C++">C++</option>
-                        <option value="React">React</option>
+                        <option value="Flutter">Flutter / Mobile</option>
+                        <option value="Android">Android</option>
                     </select>
                 </div>
 
@@ -915,13 +922,13 @@
 
             const skillsList = [];
             if (skill) skillsList.push(skill);
-            if (query && !skillsList.includes(query)) skillsList.push(query);
 
             try {
                 const response = await fetch(`${API_BASE}/matching/find-matches`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
+                        query: query,
                         skills: skillsList,
                         category: category,
                         budget: budgetVal,
@@ -1028,7 +1035,7 @@
                                 <span class="badge category">${escapeHTML(provider.category)}</span>
                                 <span class="badge rating">★ ${provider.rating.toFixed(1)}</span>
                                 <span class="badge match-score" style="background:#EDE9FE; color:#6D28D9; font-weight:700;">
-                                    ⚡ 98% Match
+                                    ⚡ ${provider.match}% Match
                                 </span>
                                 ${(provider.services && provider.services.length > 0) ? `<span class="badge" style="background:#ECFDF5; color:#059669; font-weight:700;">🛠️ ${provider.services.length} Service${provider.services.length > 1 ? 's' : ''} Available</span>` : ''}
                             </div>
@@ -1177,6 +1184,23 @@
         document.getElementById("applyFilters").addEventListener("click", () => {
             closeSuggestions();
             fetchProvidersFromDSAEngine();
+        });
+
+        categoryFilter.addEventListener("change", () => {
+            closeSuggestions();
+            fetchProvidersFromDSAEngine();
+        });
+
+        skillFilter.addEventListener("change", () => {
+            closeSuggestions();
+            fetchProvidersFromDSAEngine();
+        });
+
+        budgetFilter.addEventListener("input", () => {
+            clearTimeout(suggestionDebounceTimer);
+            suggestionDebounceTimer = setTimeout(() => {
+                fetchProvidersFromDSAEngine();
+            }, 300);
         });
 
         document.getElementById("clearFilters").addEventListener("click", clearAllFilters);

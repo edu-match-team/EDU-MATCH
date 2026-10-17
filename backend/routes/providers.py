@@ -345,7 +345,15 @@ def provider_services_handler():
 
     db = get_db()
     if request.method == "GET":
-        rows = db.execute("SELECT * FROM services WHERE provider_id = ? ORDER BY id DESC", (user_id,)).fetchall()
+        rows = db.execute(
+            """
+            SELECT * FROM services 
+            WHERE provider_id = ? 
+               OR provider_id IN (SELECT id FROM provider_profiles WHERE user_id = ?)
+            ORDER BY id DESC
+            """,
+            (user_id, user_id)
+        ).fetchall()
         return jsonify({"success": True, "services": [dict(r) for r in rows]}), 200
 
     data = request.get_json(silent=True) or {}
@@ -376,7 +384,14 @@ def provider_service_detail_handler(service_id):
         return jsonify({"success": False, "message": "Authentication required."}), 401
 
     db = get_db()
-    row = db.execute("SELECT * FROM services WHERE id = ? AND provider_id = ?", (service_id, user_id)).fetchone()
+    row = db.execute(
+        """
+        SELECT * FROM services 
+        WHERE id = ? 
+          AND (provider_id = ? OR provider_id IN (SELECT id FROM provider_profiles WHERE user_id = ?))
+        """,
+        (service_id, user_id, user_id)
+    ).fetchone()
     if not row:
         return jsonify({"success": False, "message": "Service not found or unauthorized."}), 404
 
