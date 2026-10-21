@@ -45,7 +45,8 @@ def create_app():
                     r"https?://localhost(:\d+)?",
                     r"https?://.*\.devtunnels\.ms(:\d+)?",
                     r"https?://.*\.loca\.lt(:\d+)?",
-                    r"https?://.*\.ngrok-free\.app(:\d+)?"
+                    r"https?://.*\.ngrok-free\.app(:\d+)?",
+                    r"https?://.*\.trycloudflare\.com(:\d+)?"
                 ],
                 "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization", "X-User-Id", "Accept"]
