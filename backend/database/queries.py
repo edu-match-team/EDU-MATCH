@@ -187,9 +187,27 @@ def create_collaboration_request(student_id: int, provider_id: int, project_titl
 def get_requests_for_provider(provider_id: int) -> List[Dict[str, Any]]:
     db = get_db()
     query = """
-    SELECT cr.*, u.full_name as student_name, u.email as student_email
+    SELECT cr.*,
+           cr.project_title AS title,
+           cr.project_title AS service_title,
+           COALESCE(NULLIF(cr.message, ''), r.description, 'Project request from student') AS description,
+           COALESCE(NULLIF(cr.message, ''), r.description, 'Project request from student') AS message,
+           cr.offered_budget AS budget,
+           cr.offered_budget AS amount,
+           COALESCE(NULLIF(r.deadline, ''), 'Flexible') AS deadline,
+           COALESCE(NULLIF(r.deadline, ''), cr.updated_at, 'Flexible') AS delivery_date,
+           COALESCE(r.category, 'General') AS category,
+           COALESCE(r.complexity, 'Intermediate') AS complexity,
+           COALESCE(r.required_skills, '') AS skills,
+           u.full_name AS student_name,
+           u.email AS student_email,
+           COALESCE(u.profile_photo, '') AS student_photo
     FROM collaboration_requests cr
     JOIN users u ON cr.student_id = u.id
+    LEFT JOIN requirements r ON (
+        cr.requirement_id = r.id 
+        OR (cr.student_id = r.student_id AND LOWER(cr.project_title) = LOWER(r.title))
+    )
     WHERE cr.provider_id = ?
        OR cr.provider_id IN (SELECT id FROM provider_profiles WHERE user_id = ?)
        OR cr.provider_id IN (SELECT user_id FROM provider_profiles WHERE id = ?)

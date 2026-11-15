@@ -721,9 +721,10 @@
 
         requestList.innerHTML = filtered.map(request => {
             const id = request.id;
-            const title = request.service_title ||
+            const title = request.project_title ||
+                request.service_title ||
                 request.title ||
-                "Untitled request";
+                "Project Order";
 
             const student = request.student?.name ||
                 request.student_name ||
@@ -732,10 +733,11 @@
             const status = String(request.status || "pending").toLowerCase();
 
             const description = request.description ||
+                request.message ||
                 request.requirements ||
-                "No additional description was provided.";
+                "Project collaboration request from student.";
 
-            const budget = request.budget ?? request.amount;
+            const budget = request.offered_budget ?? request.budget ?? request.amount;
 
             const canRespond = status === "pending";
 
@@ -769,10 +771,11 @@
 
                         <div class="detail-item">
                             <small>Deadline</small>
-                            <strong>${escapeHTML(formatDate(
-                                request.deadline ||
-                                request.delivery_date
-                            ))}</strong>
+                            <strong>${escapeHTML(
+                                (request.deadline && request.deadline !== "Not specified" && request.deadline !== "Flexible")
+                                ? formatDate(request.deadline)
+                                : (request.delivery_date && request.delivery_date !== "Flexible" ? formatDate(request.delivery_date) : "Flexible")
+                            )}</strong>
                         </div>
 
                         <div class="detail-item">

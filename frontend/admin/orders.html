@@ -685,12 +685,13 @@
 
     function getServiceTitle(order) {
         if (typeof order.service === "object" && order.service !== null) {
-            return order.service.title || order.service.name || "Not available";
+            return order.service.title || order.service.name || order.service.project_title || "Not available";
         }
 
         return order.service_title
             || order.service_name
-            || "Not available";
+            || order.project_title
+            || "Custom Project";
     }
 
     function getOrderStatus(order) {

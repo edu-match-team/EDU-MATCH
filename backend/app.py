@@ -112,16 +112,18 @@ def create_app():
         for r in all_reqs:
             orders.append({
                 "id": r["id"],
-                "service_title": r.get("project_title") or "Project Order",
-                "project_title": r.get("project_title") or "Project Order",
+                "service_title": r.get("project_title") or r.get("title") or "Project Order",
+                "project_title": r.get("project_title") or r.get("title") or "Project Order",
+                "description": r.get("description") or r.get("message") or "Project Order",
                 "student": {
                     "id": r.get("student_id"),
                     "name": r.get("student_name") or "Student",
                     "email": r.get("student_email") or ""
                 },
-                "amount": r.get("offered_budget") or 0,
+                "amount": r.get("offered_budget") or r.get("budget") or 0,
                 "created_at": r.get("created_at") or "",
-                "delivery_date": r.get("updated_at") or "",
+                "delivery_date": r.get("deadline") or r.get("delivery_date") or r.get("updated_at") or "",
+                "deadline": r.get("deadline") or "Flexible",
                 "status": r.get("status") or "pending",
                 "payment_status": r.get("payment_status") or "unpaid",
                 "deliverable_url": r.get("deliverable_url") or "",
