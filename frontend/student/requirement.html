@@ -1011,11 +1011,9 @@
 
                 </div>
 
-                <div class="notice">
-                    <strong>Demo version</strong><br>
-                    This form currently saves submitted requirements in your
-                    browser only. Database storage and DSA-based matching
-                    will be connected through the EduMatch backend later.
+                <div class="notice" style="background: #f0fdf4; border-color: #86efac; color: #166534;">
+                    <strong>✓ Live EduMatch Database Connected</strong><br>
+                    Submitted requirements are stored directly in the EduMatch database and instantly broadcasted to verified matching providers.
                 </div>
 
             </aside>
@@ -1232,24 +1230,23 @@
                 if (response.ok && result.success) {
                     successMessage.innerHTML = `
                         <strong>✓ Success!</strong> Your requirement has been saved to EduMatch database (ID: ${result.requirement_id}).<br>
-                        It is now visible in <a href="orders.html" style="color:#7657ff;font-weight:700;text-decoration:underline;">My Project Requests</a>! Redirecting to find providers...
+                        It is now visible in <a href="orders.html" style="color:#7657ff;font-weight:700;text-decoration:underline;">My Project Requests</a> and broadcasted to verified providers!
                     `;
                     successMessage.classList.add("show");
                     successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
 
-                    const primarySkill = skills[0] || "";
                     setTimeout(() => {
-                        window.location.href = `search.html?skill=${encodeURIComponent(primarySkill)}&category=${encodeURIComponent(category)}&budget=${budgetVal}`;
-                    }, 1500);
+                        window.location.href = "orders.html";
+                    }, 1200);
                 } else {
                     successMessage.innerHTML = `
                         <strong>✓ Saved!</strong> Your project requirement is recorded and viewable in <a href="orders.html" style="color:#7657ff;font-weight:700;text-decoration:underline;">My Project Requests</a>.<br>
-                        Redirecting to recommended providers...
+                        Redirecting to your project requests...
                     `;
                     successMessage.classList.add("show");
                     setTimeout(() => {
-                        window.location.href = `search.html?skill=${encodeURIComponent(skills[0] || "")}&budget=${budgetVal}`;
-                    }, 1200);
+                        window.location.href = "orders.html";
+                    }, 1000);
                 }
             } catch (err) {
                 console.warn("Requirement submission note:", err);

@@ -17,7 +17,7 @@ def list_providers():
     filtered = []
 
     for p in all_provs:
-        # Search query matching name, title, description, or skills
+        # Search query matching name, title, des`c`ription, or skills
         if query:
             name_match = query in p["name"].lower()
             title_match = query in p["title"].lower()
@@ -39,10 +39,26 @@ def list_providers():
 
         filtered.append(p)
 
+    # Deduplicate providers so each provider profile is only returned once
+    seen_ids = set()
+    seen_emails = set()
+    seen_names = set()
+    deduped = []
+    for p in filtered:
+        pid = p.get("id") or p.get("provider_profile_id")
+        pemail = str(p.get("email") or "").lower().strip()
+        pname = str(p.get("name") or "").lower().strip()
+        if (pid and pid in seen_ids) or (pemail and pemail in seen_emails) or (pname and pname in seen_names):
+            continue
+        if pid: seen_ids.add(pid)
+        if pemail: seen_emails.add(pemail)
+        if pname: seen_names.add(pname)
+        deduped.append(p)
+
     return jsonify({
         "success": True,
-        "count": len(filtered),
-        "providers": filtered
+        "count": len(deduped),
+        "providers": deduped
     }), 200
 
 

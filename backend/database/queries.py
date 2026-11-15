@@ -49,7 +49,7 @@ def get_all_providers_with_skills() -> List[Dict[str, Any]]:
     LEFT JOIN provider_skills ps ON p.id = ps.provider_id
     LEFT JOIN skills s ON ps.skill_id = s.id
     WHERE u.is_active = 1 AND LOWER(u.role) = 'provider'
-    GROUP BY p.id
+    GROUP BY u.id
     """
     rows = db.execute(query).fetchall()
     providers = []
@@ -524,9 +524,13 @@ def update_order_status_for_provider(order_id: int, provider_id: int, status: st
         """
         UPDATE collaboration_requests 
         SET status = ?, updated_at = CURRENT_TIMESTAMP 
-        WHERE id = ? AND (provider_id = ? OR provider_id = (SELECT user_id FROM provider_profiles WHERE id = ?))
+        WHERE id = ? AND (
+            provider_id = ? 
+            OR provider_id = (SELECT user_id FROM provider_profiles WHERE id = ?)
+            OR provider_id = (SELECT id FROM provider_profiles WHERE user_id = ?)
+        )
         """,
-        (status, order_id, provider_id, provider_id)
+        (status, order_id, provider_id, provider_id, provider_id)
     )
     if status == "completed":
         # Increment completed_projects in provider_profiles
@@ -548,9 +552,13 @@ def update_order_deliverable(order_id: int, provider_id: int, deliverable_url: s
         """
         UPDATE collaboration_requests
         SET deliverable_url = ?, deliverable_note = ?, status = 'completed', updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND (provider_id = ? OR provider_id = (SELECT user_id FROM provider_profiles WHERE id = ?))
+        WHERE id = ? AND (
+            provider_id = ? 
+            OR provider_id = (SELECT user_id FROM provider_profiles WHERE id = ?)
+            OR provider_id = (SELECT id FROM provider_profiles WHERE user_id = ?)
+        )
         """,
-        (deliverable_url.strip(), deliverable_note.strip(), order_id, provider_id, provider_id)
+        (deliverable_url.strip(), deliverable_note.strip(), order_id, provider_id, provider_id, provider_id)
     )
     if cursor.rowcount > 0:
         db.execute(
@@ -572,9 +580,13 @@ def update_order_payment_status(order_id: int, provider_id: int, payment_status:
         """
         UPDATE collaboration_requests
         SET payment_status = ?, updated_at = CURRENT_TIMESTAMP
-        WHERE id = ? AND (provider_id = ? OR provider_id = (SELECT user_id FROM provider_profiles WHERE id = ?))
+        WHERE id = ? AND (
+            provider_id = ? 
+            OR provider_id = (SELECT user_id FROM provider_profiles WHERE id = ?)
+            OR provider_id = (SELECT id FROM provider_profiles WHERE user_id = ?)
+        )
         """,
-        (payment_status, order_id, provider_id, provider_id)
+        (payment_status, order_id, provider_id, provider_id, provider_id)
     )
     db.commit()
     return cursor.rowcount > 0

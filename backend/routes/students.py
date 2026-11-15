@@ -229,6 +229,18 @@ def student_requirements():
         complexity=complexity
     )
 
+    # Immediate notification to student that their requirement is live
+    try:
+        from backend.database.queries import create_notification
+        create_notification(
+            user_id=user_id,
+            title="Project Requirement Posted",
+            message=f"Your requirement '{title}' is now live and waiting for top verified providers.",
+            link="/student/orders.html"
+        )
+    except Exception as e:
+        print(f"[Requirement Notif Error]: {e}")
+
     # Sync to Supabase
     try:
         sync_requirement_to_supabase(
@@ -250,3 +262,23 @@ def student_requirements():
         "message": "Requirement posted successfully.",
         "requirement_id": req_id
     }), 201
+
+
+@students_bp.route("/requirements/<int:req_id>", methods=["DELETE"])
+def delete_student_requirement(req_id):
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    db = get_db()
+    row = db.execute("SELECT * FROM requirements WHERE id = ? AND student_id = ?", (req_id, user_id)).fetchone()
+    if not row:
+        return jsonify({"success": False, "message": "Requirement not found."}), 404
+
+    if row["status"].lower() not in ("open", "pending"):
+        return jsonify({"success": False, "message": "Only pending or open requirements can be deleted."}), 400
+
+    db.execute("DELETE FROM collaboration_requests WHERE requirement_id = ? AND status = 'pending'", (req_id,))
+    db.execute("DELETE FROM requirements WHERE id = ?", (req_id,))
+    db.commit()
+    return jsonify({"success": True, "message": "Requirement deleted successfully."}), 200

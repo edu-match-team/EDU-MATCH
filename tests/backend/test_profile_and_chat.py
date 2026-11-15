@@ -10,6 +10,31 @@ def client():
     app.config["TESTING"] = True
     with app.test_client() as client:
         yield client
+        # Clean up temporary test users so the live database stays clean
+        from backend.database.connection import get_db
+        with app.app_context():
+            try:
+                db = get_db()
+                cur = db.execute("SELECT id FROM users WHERE email LIKE '%.%@edumatch.edu' AND id NOT IN (13, 96)")
+                ids = [r[0] for r in cur.fetchall()]
+                if ids:
+                    placeholders = ','.join('?' for _ in ids)
+                    db.execute(f"DELETE FROM student_profiles WHERE user_id IN ({placeholders})", ids)
+                    db.execute(f"DELETE FROM provider_skills WHERE provider_id IN (SELECT id FROM provider_profiles WHERE user_id IN ({placeholders}))", ids)
+                    db.execute(f"DELETE FROM portfolio_projects WHERE provider_id IN (SELECT id FROM provider_profiles WHERE user_id IN ({placeholders}))", ids)
+                    db.execute(f"DELETE FROM services WHERE provider_id IN (SELECT id FROM provider_profiles WHERE user_id IN ({placeholders}))", ids)
+                    db.execute(f"DELETE FROM certifications WHERE provider_id IN (SELECT id FROM provider_profiles WHERE user_id IN ({placeholders}))", ids)
+                    db.execute(f"DELETE FROM provider_profiles WHERE user_id IN ({placeholders})", ids)
+                    db.execute(f"DELETE FROM requirements WHERE student_id IN ({placeholders})", ids)
+                    db.execute(f"DELETE FROM collaboration_requests WHERE student_id IN ({placeholders}) OR provider_id IN ({placeholders})", ids + ids)
+                    db.execute(f"DELETE FROM messages WHERE sender_id IN ({placeholders}) OR conversation_id IN (SELECT id FROM conversations WHERE user1_id IN ({placeholders}) OR user2_id IN ({placeholders}))", ids + ids + ids)
+                    db.execute(f"DELETE FROM conversations WHERE user1_id IN ({placeholders}) OR user2_id IN ({placeholders})", ids + ids)
+                    db.execute(f"DELETE FROM reviews WHERE student_id IN ({placeholders}) OR provider_id IN ({placeholders})", ids + ids)
+                    db.execute(f"DELETE FROM notifications WHERE user_id IN ({placeholders})", ids)
+                    db.execute(f"DELETE FROM users WHERE id IN ({placeholders})", ids)
+                    db.commit()
+            except Exception:
+                pass
 
 def test_student_profile_photo_and_completion(client):
     uid = uuid.uuid4().hex[:8]

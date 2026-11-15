@@ -1130,11 +1130,15 @@
     }
 
     async function loadOrdersData(token) {
+        const userRaw = localStorage.getItem("eduMatchUser") || localStorage.getItem("edumatch_user") || localStorage.getItem("currentUser");
+        const user = userRaw ? JSON.parse(userRaw) : null;
         const headers = { "Accept": "application/json" };
-        if (token) headers["Authorization"] = "Bearer " + token;
+        if (token) headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);
+        if (user && user.id) headers["X-User-Id"] = String(user.id);
 
         try {
-            const res = await fetch(API_ROOT + "/projects/my", {
+            const url = API_ROOT + "/projects/my" + (user && user.id ? `?user_id=${user.id}` : "");
+            const res = await fetch(url, {
                 method: "GET",
                 credentials: "include",
                 headers: headers
@@ -1142,7 +1146,7 @@
 
             if (!res.ok) throw new Error("Orders API error");
             const data = await res.json();
-            const projects = data.projects || (Array.isArray(data) ? data : []);
+            const projects = data.projects || data.requests || (Array.isArray(data) ? data : []);
 
             document.getElementById("ordersStatValue").textContent = projects.length;
             document.getElementById("ordersStatCaption").textContent =
@@ -1198,7 +1202,7 @@
     let globalNotifications = [];
 
     async function loadNotificationsData(token) {
-        const userRaw = localStorage.getItem("eduMatchUser");
+        const userRaw = localStorage.getItem("eduMatchUser") || localStorage.getItem("edumatch_user") || localStorage.getItem("currentUser");
         const user = userRaw ? JSON.parse(userRaw) : null;
         const headers = { "Accept": "application/json" };
         if (token) headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);

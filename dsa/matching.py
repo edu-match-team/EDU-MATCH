@@ -453,7 +453,31 @@ def match_and_rank_providers(
         pq.push(cand)
 
     ranked: List[Dict[str, Any]] = []
+    seen_ids = set()
+    seen_emails = set()
+    seen_names = set()
+
     while not pq.is_empty():
-        ranked.append(pq.pop())
+        item = pq.pop()
+        cand_id = item.get("id") or item.get("user_id")
+        cand_email = str(item.get("email") or "").lower().strip()
+        cand_name = str(item.get("name") or item.get("full_name") or "").lower().strip()
+
+        # Deduplicate: ensure each provider is only listed once
+        if cand_id and cand_id in seen_ids:
+            continue
+        if cand_email and cand_email in seen_emails:
+            continue
+        if cand_name and cand_name in seen_names:
+            continue
+
+        if cand_id:
+            seen_ids.add(cand_id)
+        if cand_email:
+            seen_emails.add(cand_email)
+        if cand_name:
+            seen_names.add(cand_name)
+
+        ranked.append(item)
 
     return ranked

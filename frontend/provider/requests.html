@@ -746,13 +746,13 @@
                         <div>
                             <h3>${escapeHTML(title)}</h3>
                             <div class="request-meta">
-                                Student: ${escapeHTML(student)}<br>
-                                Request ID: ${escapeHTML(id)}
+                                Student Username: <strong>${escapeHTML(student)}</strong><br>
+                                Request ID: #${escapeHTML(id)}
                             </div>
                         </div>
 
                         <span class="status ${getStatusClass(status)}">
-                            ${escapeHTML(status)}
+                            ${escapeHTML(status.replace('_', ' '))}
                         </span>
                     </div>
 
@@ -917,11 +917,13 @@
                 }
             );
 
-            setNotice(
-                `The request was ${action === "accept" ? "accepted and moved to In Progress" : "rejected"}.`,
-                "info"
-            );
+            if (action === "accept") {
+                alert("✓ Project Accepted! Moved to In Progress in your orders.");
+                window.location.href = "orders.html";
+                return;
+            }
 
+            setNotice("The request was rejected.", "info");
             await loadRequests();
 
         } catch (error) {
@@ -1007,8 +1009,8 @@
                     <div>
                         <h3>${escapeHTML(r.title)}</h3>
                         <div class="request-meta">
-                            Student: <strong>${escapeHTML(r.student_name)}</strong> (${escapeHTML(r.student_email)})<br>
-                            Category: <span class="badge" style="background:#EDE9FE; color:#6D28D9; padding:2px 8px; border-radius:4px; font-weight:bold;">${escapeHTML(r.category)}</span> · Complexity: ${escapeHTML(r.complexity)}
+                            Student Username: <strong>${escapeHTML(r.student_name || (r.student_email ? r.student_email.split('@')[0] : 'Student'))}</strong> · (${escapeHTML(r.student_email || 'Verified Student')})<br>
+                            Category: <span class="badge" style="background:#EDE9FE; color:#6D28D9; padding:2px 8px; border-radius:4px; font-weight:bold;">${escapeHTML(r.category || 'General')}</span> · Complexity: <strong>${escapeHTML(r.complexity || 'Intermediate')}</strong>
                         </div>
                     </div>
                     <span class="status status-pending">Open Requirement</span>
@@ -1023,12 +1025,12 @@
                         <strong>${escapeHTML(formatAmount(r.budget))}</strong>
                     </div>
                     <div class="detail-item">
-                        <small>Deadline</small>
+                        <small>Expected Deadline</small>
                         <strong>${escapeHTML(r.deadline || "Flexible")}</strong>
                     </div>
                     <div class="detail-item" style="grid-column: span 2; display:flex; justify-content:flex-end; gap:8px;">
-                        <button type="button" class="action-btn accept" onclick="proposeOnRequirement(${r.id}, '${escapeHTML(r.title).replace(/'/g, "\\'")}')" style="background:#6c4df6; border-color:#6c4df6; color:white; padding:8px 16px; border-radius:8px; font-weight:700;">
-                            ⚡ Propose & Accept Requirement
+                        <button type="button" class="action-btn accept" onclick="acceptStudentRequirement(${r.id}, '${escapeHTML(r.title).replace(/'/g, "\\'")}')" style="background:#16a34a; border-color:#16a34a; color:white; padding:9px 18px; border-radius:8px; font-weight:700; cursor:pointer;">
+                            ⚡ Accept Project & Start Work
                         </button>
                     </div>
                 </div>
@@ -1036,20 +1038,22 @@
         `).join("");
     }
 
-    async function proposeOnRequirement(reqId, title) {
-        const msg = prompt(`Send a proposal note to the student for "${title}":`, "Hi! I have reviewed your requirements and would be delighted to mentor and build this project with you.");
-        if (!msg) return;
+    async function acceptStudentRequirement(reqId, title) {
+        const msg = prompt(`Accept and start working on "${title}"? Add an initial message to the student (optional):`, "Hi! I have accepted your requirement and started work. Let's collaborate!");
+        if (msg === null) return;
 
         try {
-            setNotice("Sending proposal to student...", "info");
+            setNotice("Accepting project and moving to In Progress...", "info");
             const res = await apiRequest("/provider/propose", {
                 method: "POST",
-                body: JSON.stringify({ requirement_id: reqId, message: msg })
+                body: JSON.stringify({ requirement_id: reqId, message: msg, action: "accept" })
             });
-            setNotice(res.message || "Proposal sent! The student will be notified and can give you the project.", "success");
-            alert("✓ Proposal sent successfully! The student now has the option in their dashboard to Give Project to you.");
+            alert(`✓ Project Accepted!\n\n"${title}" is now In Progress in your orders and disabled for other providers.`);
+            await loadStudentRequirements();
+            window.location.href = "orders.html";
         } catch (err) {
             setNotice(err.message, "error");
+            alert("Could not accept requirement: " + err.message);
         }
     }
 

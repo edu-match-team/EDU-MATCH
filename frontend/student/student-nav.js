@@ -9,9 +9,12 @@
         : "http://127.0.0.1:5000/api";
 
     function getAuthHeaders() {
-        const token = localStorage.getItem("edumatch_token");
-        const headers = { "Content-Type": "application/json" };
-        if (token) headers["Authorization"] = "Bearer " + token;
+        const token = localStorage.getItem("edumatch_token") || localStorage.getItem("token") || "";
+        const userRaw = localStorage.getItem("eduMatchUser") || localStorage.getItem("edumatch_user") || localStorage.getItem("currentUser");
+        const user = userRaw ? JSON.parse(userRaw) : null;
+        const headers = { "Content-Type": "application/json", "Accept": "application/json" };
+        if (token) headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);
+        if (user && user.id) headers["X-User-Id"] = String(user.id);
         return headers;
     }
 
@@ -139,7 +142,7 @@
         if (!notifList) return;
 
         try {
-            const userRaw = localStorage.getItem("eduMatchUser");
+            const userRaw = localStorage.getItem("eduMatchUser") || localStorage.getItem("edumatch_user") || localStorage.getItem("currentUser");
             const user = userRaw ? JSON.parse(userRaw) : null;
             const url = `${API_BASE}/notifications` + (user && user.id ? `?user_id=${user.id}` : "");
 
@@ -166,7 +169,7 @@
                 }
 
                 notifList.innerHTML = notifs.slice(0, 5).map(n => `
-                    <div style="padding:10px 16px; border-bottom:1px solid #f1f5f9; display:flex; gap:10px; align-items:flex-start; text-decoration:none; color:inherit; ${n.is_read ? '' : 'background:#faf5ff;'}">
+                    <div onclick="${n.link ? `window.location.href='${n.link}'` : ''}" style="padding:10px 16px; border-bottom:1px solid #f1f5f9; display:flex; gap:10px; align-items:flex-start; text-decoration:none; color:inherit; cursor:pointer; ${n.is_read ? '' : 'background:#faf5ff;'}" title="Click to view">
                         <span style="font-size:16px;">${n.icon || '📌'}</span>
                         <div style="flex:1; min-width:0;">
                             <div style="font-size:12.5px; font-weight:700; color:#1e293b; margin-bottom:2px;">${escapeHtml(n.title || 'Notification')}</div>

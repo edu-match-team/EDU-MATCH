@@ -6,9 +6,11 @@ from backend.database.queries import (
     update_request_status,
     get_user_by_id,
     get_or_create_conversation,
-    create_notification
+    create_notification,
+    add_message
 )
 from backend.database.connection import get_db
+from backend.routes.matching import invalidate_matching_cache
 from backend.database.supabase_client import (
     sync_collaboration_request_to_supabase,
     update_supabase_request_status,
@@ -67,9 +69,18 @@ def send_request():
     if not provider_id or not project_title or not message:
         return jsonify({"success": False, "message": "Provider, project title, and message are required."}), 400
 
-    provider = get_user_by_id(provider_id)
-    if not provider or provider["role"] != "provider":
+    db = get_db()
+    provider_row = get_user_by_id(provider_id)
+    if not provider_row or provider_row["role"] != "provider":
+        p_row = db.execute("SELECT user_id FROM provider_profiles WHERE id = ?", (provider_id,)).fetchone()
+        if p_row:
+            provider_row = get_user_by_id(p_row["user_id"])
+            provider_id = p_row["user_id"]
+
+    if not provider_row or provider_row["role"] != "provider":
         return jsonify({"success": False, "message": "Selected provider does not exist."}), 404
+
+    provider = dict(provider_row)
 
     req_id = create_collaboration_request(
         student_id=user_id,
@@ -83,7 +94,30 @@ def send_request():
     # Automatically create conversation so they can immediately chat
     get_or_create_conversation(user_id, provider_id)
 
-    # Sync to Supabase
+    # 1. Local SQLite Notifications (unconditionally created)
+    student_user = get_user_by_id(user_id)
+    s_name = student_user["full_name"] if student_user else "A student"
+    p_name = provider.get("full_name") or provider.get("name") or "Provider"
+
+    try:
+        # Notify provider
+        create_notification(
+            user_id=provider_id,
+            title="New Project Order / Request",
+            message=f"{s_name} sent you a project request: '{project_title}' (Budget: ₹{budget:,}).",
+            link="/provider/requests.html"
+        )
+        # Notify student
+        create_notification(
+            user_id=user_id,
+            title="Project Order Placed",
+            message=f"Your order for '{project_title}' has been submitted to {p_name} (Budget: ₹{budget:,}).",
+            link="/student/orders.html"
+        )
+    except Exception as notif_err:
+        print(f"[Order Notification Error]: {notif_err}")
+
+    # 2. Sync to Supabase (optional cloud sync)
     try:
         sync_collaboration_request_to_supabase(
             req_id=req_id,
@@ -94,14 +128,6 @@ def send_request():
             budget=budget,
             status="pending",
             requirement_id=data.get("requirement_id")
-        )
-        student_user = get_user_by_id(user_id)
-        s_name = student_user["full_name"] if student_user else "A student"
-        create_notification(
-            user_id=provider_id,
-            title="New Project Order / Request",
-            message=f"{s_name} sent you a project request: '{project_title}' (Budget: ₹{budget:,}).",
-            link="/provider/requests.html"
         )
         create_supabase_notification(
             user_id=provider_id,
@@ -173,11 +199,15 @@ def get_my_projects():
         SELECT cr.id, cr.project_title as title, cr.project_title as project_name,
                cr.message as description, cr.offered_budget as budget,
                cr.status, cr.created_at, cr.updated_at,
-               u.full_name as provider_name, cr.provider_id,
+               u.full_name as provider_name, u.email as provider_email, cr.provider_id,
                'collaboration_request' as item_type,
-               cr.deliverable_url, cr.deliverable_note
+               cr.deliverable_url, cr.deliverable_note,
+               COALESCE(r.deadline, '') as deadline,
+               COALESCE(r.complexity, 'Intermediate') as complexity,
+               COALESCE(r.category, 'General') as category
         FROM collaboration_requests cr
         LEFT JOIN users u ON (cr.provider_id = u.id OR cr.provider_id IN (SELECT id FROM provider_profiles WHERE user_id = u.id))
+        LEFT JOIN requirements r ON cr.requirement_id = r.id
         WHERE cr.student_id = ?
         ORDER BY cr.created_at DESC
     """, (user_id,)).fetchall()
@@ -205,9 +235,10 @@ def get_my_projects():
     req_rows = db.execute("""
         SELECT r.id, r.title, r.title as project_name,
                r.description, r.budget,
+               r.deadline, r.complexity, r.category,
                CASE WHEN r.status = 'open' THEN 'pending' ELSE r.status END as status,
                r.created_at, r.created_at as updated_at,
-               'Open (Seeking Provider)' as provider_name, NULL as provider_id,
+               'Open (Seeking Provider)' as provider_name, '' as provider_email, NULL as provider_id,
                'requirement' as item_type,
                NULL as deliverable_url, NULL as deliverable_note
         FROM requirements r
@@ -341,12 +372,64 @@ def get_open_student_requirements():
     return jsonify({"success": True, "requirements": requirements}), 200
 
 
+@requests_bp.route("/<int:request_id>", methods=["DELETE"])
+def delete_request(request_id):
+    """
+    Allows a student to delete/cancel their own pending request or open requirement.
+    """
+    user_id = get_auth_user_id()
+    if not user_id:
+        return jsonify({"success": False, "message": "Not logged in."}), 401
+
+    item_type = request.args.get("item_type", "").strip().lower()
+    db = get_db()
+
+    # 1. If explicitly marked as requirement or found in requirements
+    if item_type == "requirement":
+        row = db.execute("SELECT * FROM requirements WHERE id = ? AND student_id = ?", (request_id, user_id)).fetchone()
+        if not row:
+            return jsonify({"success": False, "message": "Requirement not found or unauthorized."}), 404
+        if row["status"].lower() not in ("open", "pending"):
+            return jsonify({"success": False, "message": "Only pending or open requirements can be deleted."}), 400
+
+        db.execute("DELETE FROM collaboration_requests WHERE requirement_id = ? AND status = 'pending'", (request_id,))
+        db.execute("DELETE FROM requirements WHERE id = ?", (request_id,))
+        db.commit()
+        invalidate_matching_cache()
+        return jsonify({"success": True, "message": "Project requirement deleted successfully."}), 200
+
+    # 2. Check collaboration_requests
+    collab = db.execute("SELECT * FROM collaboration_requests WHERE id = ? AND student_id = ?", (request_id, user_id)).fetchone()
+    if collab:
+        if collab["status"].lower() not in ("pending", "open"):
+            return jsonify({"success": False, "message": "Only pending requests can be cancelled/deleted."}), 400
+        db.execute("DELETE FROM collaboration_requests WHERE id = ?", (request_id,))
+        db.commit()
+        invalidate_matching_cache()
+        return jsonify({"success": True, "message": "Project request deleted successfully."}), 200
+
+    # 3. Fallback check requirements table
+    req = db.execute("SELECT * FROM requirements WHERE id = ? AND student_id = ?", (request_id, user_id)).fetchone()
+    if req:
+        if req["status"].lower() not in ("open", "pending"):
+            return jsonify({"success": False, "message": "Only pending or open requirements can be deleted."}), 400
+        db.execute("DELETE FROM collaboration_requests WHERE requirement_id = ? AND status = 'pending'", (request_id,))
+        db.execute("DELETE FROM requirements WHERE id = ?", (request_id,))
+        db.commit()
+        invalidate_matching_cache()
+        return jsonify({"success": True, "message": "Project requirement deleted successfully."}), 200
+
+    return jsonify({"success": False, "message": "Request not found or unauthorized."}), 404
+
+
 @requests_bp.route("/propose", methods=["POST"])
 def provider_propose_on_requirement():
     """
-    When a provider expresses interest or accepts a student requirement:
-    Sends an offer/proposal to the student.
-    The student sees it and has the option to Give Project to Provider or decline!
+    When a provider accepts or proposes on a student requirement:
+    - Sets project to in_progress (processing)
+    - Updates requirement status to in_progress so it is hidden/disabled for all other providers!
+    - Creates chat conversation and initial greeting message
+    - Notifies student and provider in real time
     """
     user_id = get_auth_user_id()
     if not user_id:
@@ -358,18 +441,22 @@ def provider_propose_on_requirement():
 
     data = request.get_json(silent=True) or {}
     req_id = data.get("requirement_id")
-    message = str(data.get("message") or f"Hi! I am interested in building your project. Let's collaborate!").strip()
+    action = str(data.get("action") or "accept").strip().lower()
+    message = str(data.get("message") or f"Hi! I have reviewed your requirements and accepted the project. Let's collaborate!").strip()
 
     db = get_db()
     req_row = db.execute("SELECT * FROM requirements WHERE id = ?", (req_id,)).fetchone()
     if not req_row:
         return jsonify({"success": False, "message": "Requirement not found."}), 404
 
+    if req_row["status"].lower() not in ("open", "pending"):
+        return jsonify({"success": False, "message": "This project requirement is already accepted or closed."}), 409
+
     student_id = req_row["student_id"]
     budget = req_row["budget"]
     title = req_row["title"]
 
-    # Check if this provider has already proposed on this requirement
+    # Check if this provider has already proposed or taken this requirement
     existing_prop = db.execute(
         "SELECT id FROM collaboration_requests WHERE requirement_id = ? AND provider_id = ?",
         (req_id, user_id)
@@ -377,53 +464,80 @@ def provider_propose_on_requirement():
     if existing_prop:
         return jsonify({
             "success": False,
-            "message": "You have already submitted a proposal for this project requirement."
+            "message": "You have already accepted or submitted a proposal for this project requirement."
         }), 409
 
-    # Create collaboration request with status 'pending' (from provider proposal)
+    status_to_set = "in_progress" if action in ("accept", "in_progress") else "pending"
+
+    # Create collaboration request
     collab_id = create_collaboration_request(
         student_id=student_id,
         provider_id=user_id,
         project_title=title,
-        message=f"[Provider Proposal] {message}",
+        message=f"[Accepted by Provider] {message}" if status_to_set == "in_progress" else f"[Provider Proposal] {message}",
         offered_budget=budget,
         requirement_id=req_id
     )
 
-    # Establish conversation
-    get_or_create_conversation(student_id, user_id)
+    if status_to_set == "in_progress":
+        db.execute("UPDATE collaboration_requests SET status = 'in_progress', updated_at = CURRENT_TIMESTAMP WHERE id = ?", (collab_id,))
+        # Update requirement status to in_progress so it is closed/disabled for all other providers!
+        db.execute("UPDATE requirements SET status = 'in_progress' WHERE id = ?", (req_id,))
+        # Reject other pending proposals for this requirement
+        db.execute(
+            "UPDATE collaboration_requests SET status = 'rejected', updated_at = CURRENT_TIMESTAMP WHERE requirement_id = ? AND id != ? AND status = 'pending'",
+            (req_id, collab_id)
+        )
+        db.commit()
 
-    # Notify student
+    # Establish conversation so student and provider can immediately chat
     try:
+        conv_id = get_or_create_conversation(student_id, user_id)
+        add_message(
+            conversation_id=conv_id,
+            sender_id=user_id,
+            text=f"Hello! I have accepted your project requirement '{title}' (Budget: ₹{budget:,}). Let's discuss the milestones and get started!"
+        )
+    except Exception as e:
+        print(f"[Conversation/Message init note]: {e}")
+
+    invalidate_matching_cache()
+
+    # Notify student and provider
+    try:
+        student = get_user_by_id(student_id)
+        s_name = student["full_name"] if student else "Student"
+
         create_notification(
             user_id=student_id,
-            title="Provider Proposed on Your Project!",
-            message=f"{provider['full_name']} wants to build '{title}'. You can accept and assign the project!",
+            title="Project Accepted & In Progress",
+            message=f"{provider['full_name']} has accepted your requirement '{title}' and started work! You can chat with them now.",
             link="/student/orders.html"
+        )
+        create_notification(
+            user_id=user_id,
+            title="Project Started (In Progress)",
+            message=f"You accepted '{title}' for {s_name}. View details in My Orders.",
+            link="/provider/orders.html"
         )
         sync_collaboration_request_to_supabase(
             req_id=collab_id,
             student_id=student_id,
             provider_id=user_id,
             project_title=title,
-            message=f"[Provider Proposal] {message}",
+            message=message,
             budget=budget,
-            status="pending",
+            status=status_to_set,
             requirement_id=req_id
         )
-        create_supabase_notification(
-            user_id=student_id,
-            title="Provider Proposed on Your Project!",
-            message=f"{provider['full_name']} wants to build '{title}'. You can accept and give the project!",
-            link="/student/orders.html"
-        )
-    except Exception:
-        pass
+    except Exception as notif_err:
+        print(f"[Propose Notif Error]: {notif_err}")
 
     return jsonify({
         "success": True,
-        "message": f"Proposal sent to {req_row['title']} successfully! The student will be notified.",
-        "request_id": collab_id
+        "message": f"Project requirement '{title}' accepted! It is now In Progress in your orders and disabled for other providers.",
+        "request_id": collab_id,
+        "status": status_to_set
     }), 201
 
 
@@ -494,16 +608,28 @@ def change_status(request_id):
 
     # Sync status to Supabase and SQLite notifications
     try:
-        other_user_id = req_row["student_id"] if user_id == req_row["provider_id"] else req_row["provider_id"]
+        prov_user_id = req_row["provider_id"]
+        p_row = db.execute("SELECT user_id FROM provider_profiles WHERE id = ?", (prov_user_id,)).fetchone()
+        if p_row:
+            prov_user_id = p_row["user_id"]
+
+        is_provider_updating = (user_id == prov_user_id or user_id == req_row["provider_id"])
+        other_user_id = req_row["student_id"] if is_provider_updating else prov_user_id
         updater = get_user_by_id(user_id)
         updater_name = updater["full_name"] if updater else "Partner"
-        dest_link = "/student/orders.html" if user_id == req_row["provider_id"] else "/provider/requests.html"
+        dest_link = "/student/orders.html" if other_user_id == req_row["student_id"] else "/provider/requests.html"
+        clean_status = new_status.replace("_", " ").title()
+
         create_notification(
             user_id=other_user_id,
-            title=f"Project Request {new_status.title()}",
-            message=f"{updater_name} updated status of '{req_row['project_title']}' to {new_status}.",
+            title=f"Order Status: {clean_status}",
+            message=f"{updater_name} updated your order '{req_row['project_title']}' to {clean_status}.",
             link=dest_link
         )
+    except Exception as e:
+        print(f"[Status Notification Error]: {e}")
+
+    try:
         update_supabase_request_status(request_id, new_status)
         create_supabase_notification(
             user_id=other_user_id,

@@ -555,12 +555,6 @@
 
         </div>
 
-        <!-- DSA Engine Info Pill -->
-        <div style="display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg, #ede9fe 0%, #f5f3ff 100%); border:1px solid #c4b5fd; padding:7px 16px; border-radius:20px; font-size:12px; font-weight:700; color:#5b21b6; margin-bottom:20px; box-shadow:0 2px 6px rgba(109,40,217,0.08);">
-            <span>⚡</span>
-            <span>DSA Engine Active: Stable MergeSort (O(N log N)) & Max-Heap Priority Scheduling</span>
-        </div>
-
         <!-- Summary Cards -->
         <section class="summary-grid">
 
@@ -943,16 +937,38 @@
 
                 const normStatus = normalizeStatus(request.status);
 
-                // If requirement has no provider yet, offer direct search matching button
-                if (!request.provider_id || request.item_type === "requirement") {
+                // 1. Only show "Find Providers" if request is open/pending and has NO assigned provider
+                if ((normStatus === "pending" || normStatus === "open") && (!request.provider_id || request.item_type === "requirement")) {
                     const findBtn = document.createElement("a");
                     findBtn.className = "primary-btn";
                     findBtn.style.padding = "6px 11px";
                     findBtn.style.fontSize = "11.5px";
                     findBtn.style.textDecoration = "none";
                     findBtn.textContent = "🔍 Find Providers";
-                    findBtn.href = `search.html?query=${encodeURIComponent(request.title || "")}`;
+                    findBtn.href = `search.html?query=${encodeURIComponent(request.title || request.project_name || "")}`;
                     actionCell.appendChild(findBtn);
+                }
+
+                // 2. Option to Delete / Cancel request if status is still pending or open
+                if (normStatus === "pending" || normStatus === "open") {
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.className = "view-btn";
+                    deleteBtn.style.padding = "6px 10px";
+                    deleteBtn.style.fontSize = "12px";
+                    deleteBtn.style.color = "#dc2626";
+                    deleteBtn.style.borderColor = "#fca5a5";
+                    deleteBtn.style.background = "#fff5f5";
+                    deleteBtn.textContent = "🗑️ Delete";
+                    deleteBtn.title = "Delete this pending project request";
+                    deleteBtn.addEventListener("click", async () => {
+                        const pName = request.title || request.project_name || "this project";
+                        if (confirm(`Are you sure you want to delete/cancel the pending request for "${pName}"?`)) {
+                            deleteBtn.disabled = true;
+                            deleteBtn.textContent = "Deleting...";
+                            await deleteProjectRequest(request);
+                        }
+                    });
+                    actionCell.appendChild(deleteBtn);
                 }
 
                 if (normStatus === "accepted" && request.provider_id) {
@@ -984,6 +1000,37 @@
                 }
 
                 if ((normStatus === "in_progress" || normStatus === "accepted") && request.provider_id) {
+                    const chatBtn = document.createElement("a");
+                    chatBtn.className = "outline-btn";
+                    chatBtn.style.padding = "6px 10px";
+                    chatBtn.style.fontSize = "12px";
+                    chatBtn.style.textDecoration = "none";
+                    chatBtn.style.borderRadius = "6px";
+                    chatBtn.style.border = "1px solid #cbd5e1";
+                    chatBtn.textContent = "💬 Chat";
+                    chatBtn.href = `chat.html?provider_id=${request.provider_id}&provider_name=${encodeURIComponent(request.provider_name || 'Provider')}`;
+                    actionCell.appendChild(chatBtn);
+                }
+
+                // If completed and provider uploaded code / deliverables, offer direct download button!
+                if (normStatus === "completed" && request.deliverable_url) {
+                    const delivBtn = document.createElement("a");
+                    delivBtn.className = "primary-btn";
+                    delivBtn.style.padding = "6px 11px";
+                    delivBtn.style.fontSize = "12px";
+                    delivBtn.style.textDecoration = "none";
+                    delivBtn.style.background = "#16a34a";
+                    delivBtn.style.borderColor = "#16a34a";
+                    delivBtn.style.color = "#ffffff";
+                    delivBtn.target = "_blank";
+                    delivBtn.rel = "noopener noreferrer";
+                    delivBtn.href = request.deliverable_url;
+                    delivBtn.textContent = "📁 Download Code ↗";
+                    delivBtn.title = "Access completed deliverables and source code";
+                    actionCell.appendChild(delivBtn);
+                }
+
+                if (normStatus === "completed" && request.provider_id) {
                     const chatBtn = document.createElement("a");
                     chatBtn.className = "outline-btn";
                     chatBtn.style.padding = "6px 10px";
@@ -1043,35 +1090,83 @@
             const modalContent = document.getElementById("modalContent");
             modalContent.replaceChildren();
 
+            const pName = request.title || request.project_name || "Project";
+            const providerInfo = request.provider_name 
+                ? (request.provider_email ? `${request.provider_name} (${request.provider_email})` : request.provider_name)
+                : (request.item_type === "requirement" ? "Open (Seeking live provider)" : "Not assigned");
+
             modalContent.append(
-                addModalRow(
-                    "Project Title",
-                    request.title || request.project_name
-                ),
-                addModalRow(
-                    "Description",
-                    request.description || "No description provided."
-                ),
-                addModalRow(
-                    "Assigned Provider",
-                    request.provider_name || (request.item_type === "requirement" ? "Open (Seeking live provider)" : "Not assigned")
-                ),
-                addModalRow(
-                    "Budget",
-                    formatBudget(request.budget)
-                ),
-                addModalRow(
-                    "Current Status",
-                    readableStatus(request.status)
-                ),
-                addModalRow(
-                    "Submitted Date",
-                    request.created_at || "Recent"
-                )
+                addModalRow("Project Title", pName),
+                addModalRow("Description", request.description || "No description provided."),
+                addModalRow("Category", request.category || "General"),
+                addModalRow("Complexity", request.complexity || "Intermediate"),
+                addModalRow("Deadline", request.deadline || request.delivery_date || "Flexible"),
+                addModalRow("Assigned Provider", providerInfo),
+                addModalRow("Budget", formatBudget(request.budget)),
+                addModalRow("Current Status", readableStatus(request.status)),
+                addModalRow("Submitted Date", request.created_at || "Recent")
             );
+
+            // Display completed deliverables and file links
+            if (request.deliverable_url) {
+                const delivBlock = document.createElement("div");
+                delivBlock.style.background = "#f0fdf4";
+                delivBlock.style.border = "1px solid #86efac";
+                delivBlock.style.borderRadius = "8px";
+                delivBlock.style.padding = "14px";
+                delivBlock.style.marginTop = "12px";
+                delivBlock.innerHTML = `
+                    <div style="font-size:13px; font-weight:800; color:#166534; margin-bottom:6px;">
+                        ✓ Completed Project Code & Deliverable Files:
+                    </div>
+                    <a href="${escapeHTML(request.deliverable_url)}" target="_blank" rel="noopener noreferrer" style="color:#2563eb; font-weight:700; text-decoration:underline; word-break:break-all; font-size:13px; display:inline-block; margin-bottom:6px;">
+                        ${escapeHTML(request.deliverable_url)} ↗
+                    </a>
+                    ${request.deliverable_note ? `<div style="font-size:12px; color:#475569; margin-top:4px;"><strong>Instructions / Notes:</strong> ${escapeHTML(request.deliverable_note)}</div>` : ''}
+                `;
+                modalContent.appendChild(delivBlock);
+            }
 
             document.getElementById("detailsModal")
                 .classList.remove("hidden");
+        }
+
+        async function deleteProjectRequest(request) {
+            const token = localStorage.getItem("edumatch_token");
+            const userRaw = localStorage.getItem("eduMatchUser");
+            const user = userRaw ? JSON.parse(userRaw) : null;
+            const headers = { "Accept": "application/json" };
+            if (token) headers["Authorization"] = token.startsWith("Bearer ") ? token : ("Bearer " + token);
+            if (user && user.id) headers["X-User-Id"] = String(user.id);
+
+            try {
+                const itemType = request.item_type || (String(request.id).startsWith("req_") ? "requirement" : "collaboration_request");
+                const cleanId = String(request.id).replace("req_", "").replace("local_", "");
+
+                if (Number(cleanId)) {
+                    await fetch(`${API_BASE_URL}/api/requests/${cleanId}?item_type=${encodeURIComponent(itemType)}`, {
+                        method: "DELETE",
+                        credentials: "include",
+                        headers: headers
+                    });
+                }
+
+                // Also clean up local storage requirement list
+                try {
+                    const stored = JSON.parse(localStorage.getItem("edumatch_student_requirements") || "[]");
+                    const updated = stored.filter(item => {
+                        const sameId = String(item.id) === String(request.id);
+                        const sameTitle = (item.title || "").toLowerCase().trim() === (request.title || request.project_name || "").toLowerCase().trim();
+                        return !(sameId || sameTitle);
+                    });
+                    localStorage.setItem("edumatch_student_requirements", JSON.stringify(updated));
+                } catch(e) {}
+
+                await loadRequests();
+            } catch (err) {
+                console.error("Delete request error:", err);
+                alert("Could not delete request: " + err.message);
+            }
         }
 
         function closeModal() {

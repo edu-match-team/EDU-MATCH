@@ -93,6 +93,12 @@ def create_app():
         from backend.routes.requests import change_status
         return change_status(req_id)
 
+    @app.route("/api/requests/<int:req_id>", methods=["DELETE"])
+    @app.route("/api/projects/my/<int:req_id>", methods=["DELETE"])
+    def project_request_delete_alias(req_id):
+        from backend.routes.requests import delete_request
+        return delete_request(req_id)
+
     # Route alias for provider orders called by frontend
     @app.route("/api/provider/orders", methods=["GET"])
     def provider_orders_alias():
