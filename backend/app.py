@@ -35,7 +35,7 @@ def create_app():
     )
     app.config.from_object(Config)
 
-    # Allow CORS from local origins and devtunnels
+    # Allow CORS from local origins, LAN devices, and devtunnels
     CORS(
         app,
         resources={
@@ -43,6 +43,10 @@ def create_app():
                 "origins": [
                     r"https?://127\.0\.0\.1(:\d+)?",
                     r"https?://localhost(:\d+)?",
+                    r"https?://0\.0\.0\.0(:\d+)?",
+                    r"https?://10\.\d+\.\d+\.\d+(:\d+)?",
+                    r"https?://192\.168\.\d+\.\d+(:\d+)?",
+                    r"https?://172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+(:\d+)?",
                     r"https?://.*\.devtunnels\.ms(:\d+)?",
                     r"https?://.*\.loca\.lt(:\d+)?",
                     r"https?://.*\.ngrok-free\.app(:\d+)?",
@@ -442,13 +446,14 @@ app = create_app()
 if __name__ == "__main__":
     print("\n" + "=" * 60)
     print("  EduMatch Web Platform is starting on http://127.0.0.1:5000")
+    print("  Local Network:    http://0.0.0.0:5000")
     print("  Explore Portals:")
     print("  - Student Login:  http://127.0.0.1:5000/student/login.html")
     print("  - Provider Login: http://127.0.0.1:5000/provider/login.html")
     print("  - Admin Login:    http://127.0.0.1:5000/admin/login.html")
     print("=" * 60 + "\n")
     app.run(
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=5000,
         debug=True
     )
