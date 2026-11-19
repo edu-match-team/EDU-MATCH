@@ -503,7 +503,9 @@ button:disabled {
 </div>
 
 <script>
-const API = "http://127.0.0.1:5000/api";
+const API = window.location.protocol.startsWith("http")
+    ? (window.location.origin + "/api")
+    : "http://127.0.0.1:5000/api";
 const token = localStorage.getItem("edumatch_token");
 
 const notice = document.getElementById("notice");
